@@ -1,45 +1,50 @@
-// app/guest/menu/page.tsx
 'use client';
 
 import React, { useEffect, useState } from 'react';
 import { useProductStore } from '@/store/useProductStore';
 import { useCartStore } from '@/store/useCartStore';
 import ProductCard from '@/components/guest/ProductCard';
+import CartDrawer from '@/components/guest/CartDrawer'; // Import mới
 import { ShoppingCart, Utensils, Search } from 'lucide-react';
 
 export default function GuestMenuPage() {
   const { products, categories, fetchProducts, isLoading } = useProductStore();
   const { items } = useCartStore();
+  
   const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [isCartOpen, setIsCartOpen] = useState(false); // State mở giỏ hàng
+  
+  // State lưu thông tin bàn (Lấy tạm bàn đầu tiên để demo)
+  const [tableInfo, setTableInfo] = useState<{id: string, name: string} | null>(null);
 
-  // Gọi API lấy menu ngay khi trang vừa mở
   useEffect(() => {
     fetchProducts();
+    
+    // Lấy danh sách bàn để giả lập việc login vào một bàn cụ thể
+    // Thực tế sẽ lấy từ URL ?token=... hoặc LocalStorage
+    fetch('/api/tables')
+      .then(res => res.json())
+      .then(tables => {
+        if (tables.length > 0) {
+          setTableInfo({ id: tables[0].id, name: tables[0].tableNumber });
+        }
+      });
   }, [fetchProducts]);
 
-  // Tự động chọn danh mục đầu tiên
   useEffect(() => {
     if (categories.length > 0 && activeCategory === 'all') {
       setActiveCategory(categories[0].id);
     }
   }, [categories]);
 
-  // Lọc món ăn theo danh mục đang chọn
   const filteredProducts = activeCategory === 'all' 
     ? products 
     : products.filter(p => p.categoryId === activeCategory);
 
-  if (isLoading) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
-      </div>
-    );
-  }
+  if (isLoading) return <div className="h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div></div>;
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
-      {/* Header cố định phía trên */}
       <header className="bg-white shadow-sm sticky top-0 z-20">
         <div className="flex justify-between items-center p-4">
           <div className="flex items-center gap-2">
@@ -48,11 +53,15 @@ export default function GuestMenuPage() {
             </div>
             <div>
               <h1 className="font-bold text-lg text-gray-800 leading-tight">Smart Restaurant</h1>
-              <p className="text-xs text-gray-500">Bàn T-01</p>
+              {/* Hiển thị tên bàn thật */}
+              <p className="text-xs text-gray-500">{tableInfo ? `Bàn ${tableInfo.name}` : 'Đang chọn bàn...'}</p>
             </div>
           </div>
           
-          <div className="relative cursor-pointer hover:opacity-80 transition-opacity">
+          <div 
+            className="relative cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => setIsCartOpen(true)} // Mở giỏ hàng khi click
+          >
             <div className="p-2 bg-orange-50 rounded-full text-orange-600">
               <ShoppingCart size={24} />
               {items.length > 0 && (
@@ -64,7 +73,7 @@ export default function GuestMenuPage() {
           </div>
         </div>
 
-        {/* Thanh danh mục cuộn ngang */}
+        {/* Thanh danh mục (Giữ nguyên) */}
         <div className="px-4 pb-3 overflow-x-auto hide-scrollbar">
           <div className="flex space-x-2">
             {categories.map(cat => (
@@ -84,15 +93,10 @@ export default function GuestMenuPage() {
         </div>
       </header>
 
-      {/* Danh sách món ăn */}
+      {/* Main Content (Giữ nguyên) */}
       <main className="p-4 container mx-auto max-w-5xl">
         {filteredProducts.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="bg-gray-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
-              <Search className="text-gray-400" size={32} />
-            </div>
-            <p className="text-gray-500">Chưa có món ăn nào trong danh mục này</p>
-          </div>
+          <div className="text-center py-20 text-gray-500">Chưa có món ăn nào</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredProducts.map((product) => (
@@ -101,6 +105,13 @@ export default function GuestMenuPage() {
           </div>
         )}
       </main>
+
+      {/* Component Giỏ Hàng */}
+      <CartDrawer 
+        isOpen={isCartOpen} 
+        onClose={() => setIsCartOpen(false)} 
+        tableId={tableInfo?.id || ''} // Truyền Table ID xuống
+      />
     </div>
   );
 }
