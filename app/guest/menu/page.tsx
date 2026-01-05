@@ -6,6 +6,7 @@ import { useCartStore } from '@/store/useCartStore';
 import ProductCard from '@/components/guest/ProductCard';
 import CartDrawer from '@/components/guest/CartDrawer'; // Import mới
 import { ShoppingCart, Utensils, Search } from 'lucide-react';
+import { socket } from '@/lib/socket';
 
 export default function GuestMenuPage() {
   const { products, categories, fetchProducts, isLoading } = useProductStore();
@@ -40,6 +41,29 @@ export default function GuestMenuPage() {
   const filteredProducts = activeCategory === 'all' 
     ? products 
     : products.filter(p => p.categoryId === activeCategory);
+
+  useEffect(() => {
+    // 1. Kết nối socket
+    socket.connect();
+
+    // 2. Khi có thông tin bàn -> Join vào room của bàn đó
+    if (tableInfo) {
+      socket.emit("join-table", tableInfo.id);
+    }
+
+    // 3. Lắng nghe sự kiện: Món ăn thay đổi trạng thái (Bếp làm xong)
+    socket.on("status-changed", (data) => {
+      // Ví dụ: Hiện thông báo Toast (MVP dùng alert cho nhanh)
+      console.log("Cập nhật món:", data);
+      // alert(`Món của bạn đang chuyển sang trạng thái: ${data.status}`);
+    });
+
+    // Cleanup khi thoát trang
+    return () => {
+      socket.off("status-changed");
+      socket.disconnect();
+    };
+  }, [tableInfo]);
 
   if (isLoading) return <div className="h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div></div>;
 

@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import { useCartStore } from '@/store/useCartStore';
 import { X, Trash2, ChevronRight } from 'lucide-react';
-import { useProductStore } from '@/store/useProductStore'; // Để lấy hàm fetch
+import { useProductStore } from '@/store/useProductStore';
+import { socket } from '@/lib/socket';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ export default function CartDrawer({ isOpen, onClose, tableId }: CartDrawerProps
     
     setIsSubmitting(true);
     try {
+      // 1. Gửi API lưu vào Database (Code cũ giữ nguyên)
       const response = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -30,24 +32,27 @@ export default function CartDrawer({ isOpen, onClose, tableId }: CartDrawerProps
           items: items.map(item => ({
             productId: item.productId,
             quantity: item.quantity,
-            modifiers: item.modifiers, // Gửi danh sách modifiers
-            notes: '' // Chưa làm UI nhập note, để trống
+            modifiers: item.modifiers,
+            notes: '' 
           })),
           note: 'Khách tự đặt qua QR'
         })
       });
 
       if (!response.ok) throw new Error('Đặt món thất bại');
+      const newOrder = await response.json(); // Nhận order vừa tạo từ DB
 
-      const data = await response.json();
-      console.log('Order success:', data);
+      // 2. BẮN SOCKET (Code Mới) 🚀
+      // Kết nối nếu chưa
+      if (!socket.connected) socket.connect();
       
-      // Thành công: Xóa giỏ và đóng
-      clearCart();
-      alert('🎉 Đặt món thành công! Vui lòng chờ nhân viên xác nhận.');
-      onClose();
+      // Gửi sự kiện 'new-order' kèm dữ liệu đơn hàng
+      socket.emit("new-order", newOrder);
 
-      // TODO: Bước tiếp theo sẽ bắn Socket ở đây
+      // 3. Dọn dẹp
+      clearCart();
+      alert('🎉 Đặt món thành công! Bếp đã nhận được tin.');
+      onClose();
       
     } catch (error) {
       console.error(error);
