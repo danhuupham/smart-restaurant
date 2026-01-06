@@ -65,7 +65,7 @@ export default function KitchenPage() {
   // Hàm xử lý chuyển trạng thái
   const updateStatus = async (orderId: string, currentStatus: string, tableId: string) => {
     let nextStatus = 'PREPARING';
-    if (currentStatus === 'PENDING') nextStatus = 'PREPARING'; // Nhận đơn -> Nấu
+    if (currentStatus === 'ACCEPTED') nextStatus = 'PREPARING'; // Nhận đơn -> Nấu
     else if (currentStatus === 'PREPARING') nextStatus = 'READY'; // Nấu xong -> Chờ bưng
     else if (currentStatus === 'READY') nextStatus = 'SERVED'; // Đã bưng
     else return;
@@ -102,11 +102,13 @@ export default function KitchenPage() {
             Chưa có đơn hàng nào, hãy nghỉ ngơi! ☕
           </div>
         ) : (
-          orders.map((order) => (
+          orders
+          .filter(o => ['ACCEPTED', 'PREPARING', 'READY'].includes(o.status))
+          .map((order) => (
             <div 
               key={order.id} 
               className={`rounded-xl border-l-4 p-4 shadow-lg flex flex-col h-full transition-all ${
-                order.status === 'PENDING' ? 'bg-gray-800 border-red-500 animate-pulse-slow' :
+                order.status === 'ACCEPTED' ? 'bg-gray-800 border-red-500 animate-pulse-slow' :
                 order.status === 'PREPARING' ? 'bg-gray-800 border-yellow-500' :
                 order.status === 'READY' ? 'bg-gray-800 border-green-500' :
                 'bg-gray-800 border-gray-600 opacity-50'
@@ -121,11 +123,11 @@ export default function KitchenPage() {
                   </span>
                 </div>
                 <span className={`px-2 py-1 rounded text-xs font-bold ${
-                   order.status === 'PENDING' ? 'bg-red-900 text-red-200' :
+                   order.status === 'ACCEPTED' ? 'bg-red-900 text-red-200' :
                    order.status === 'PREPARING' ? 'bg-yellow-900 text-yellow-200' :
                    order.status === 'READY' ? 'bg-green-900 text-green-200' : 'bg-gray-700'
                 }`}>
-                  {order.status === 'PENDING' ? 'CHỜ DUYỆT' :
+                  {order.status === 'ACCEPTED' ? 'CHỜ DUYỆT' :
                    order.status === 'PREPARING' ? 'ĐANG NẤU' :
                    order.status === 'READY' ? 'SẴN SÀNG' : order.status}
                 </span>
@@ -150,7 +152,7 @@ export default function KitchenPage() {
 
               {/* Action Buttons */}
               <div className="mt-auto pt-4 border-t border-gray-700">
-                {order.status === 'PENDING' && (
+                {order.status === 'ACCEPTED' && (
                   <button 
                     onClick={() => updateStatus(order.id, order.status, order.table.id)}
                     className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-bold transition-colors"
