@@ -82,3 +82,53 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Lỗi khi tạo đơn hàng' }, { status: 500 });
   }
 }
+
+// Lấy danh sách đơn hàng (Cho Bếp)
+
+export async function GET() {
+  try {
+    const orders = await prisma.order.findMany({
+      where: {
+        status: {
+          not: 'COMPLETED' // Lấy tất cả đơn chưa hoàn thành
+        }
+      },
+      include: {
+        table: true,
+        items: {
+          include: {
+            product: true,
+            modifiers: {
+              include: { modifierOption: true }
+            }
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'asc' // Đơn cũ xếp trước (FIFO)
+      }
+    });
+
+    return NextResponse.json(orders);
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 });
+  }
+}
+
+// Cập nhật trạng thái đơn (Bếp bấm nút)
+export async function PATCH(request: Request) {
+  try {
+    const body = await request.json();
+    const { orderId, status } = body;
+
+    const updatedOrder = await prisma.order.update({
+      where: { id: orderId },
+      data: { status },
+      include: { table: true } // Lấy thông tin bàn để bắn socket báo cho khách
+    });
+
+    return NextResponse.json(updatedOrder);
+  } catch (error) {
+    return NextResponse.json({ error: 'Update failed' }, { status: 500 });
+  }
+}
