@@ -35,7 +35,41 @@ export default function KitchenPage() {
   useEffect(() => {
     fetchOrders();
     const interval = setInterval(fetchOrders, 5000);
-    return () => clearInterval(interval);
+
+    // Setup socket to receive orders when waiter sends to kitchen
+    let socket: any = null;
+    import('socket.io-client')
+      .then(({ io }) => {
+        socket = io('http://localhost:5000');
+
+        socket.on('connect', () => {
+          console.log('Kitchen socket connected', socket.id);
+          socket.emit('join', 'kitchen');
+        });
+
+        socket.on('order_to_kitchen', (order: Order) => {
+          // new order sent to kitchen
+          setOrders((prev) => [order, ...prev]);
+        });
+
+        socket.on('order_updated', (order: Order) => {
+          setOrders((prev) => {
+            const idx = prev.findIndex((o) => o.id === order.id);
+            if (idx > -1) {
+              const copy = [...prev];
+              copy[idx] = order;
+              return copy;
+            }
+            return [order, ...prev];
+          });
+        });
+      })
+      .catch((err) => console.error('Socket import error', err));
+
+    return () => {
+      clearInterval(interval);
+      if (socket) socket.disconnect();
+    };
   }, []);
 
   // Hàm lọc đơn theo trạng thái
@@ -48,7 +82,7 @@ export default function KitchenPage() {
   const updateStatus = async (orderId: string, newStatus: string) => {
     try {
       // 1. Gọi API
-      await fetch(`http://localhost:4000/orders/${orderId}/status`, {
+      await fetch(`http://localhost:5000/orders/${orderId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
@@ -73,10 +107,10 @@ export default function KitchenPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         
-        {/* CỘT 1: ĐƠN MỚI (PENDING) */}
+        {/* CỘT 1: ĐƠN MỚI (ACCEPTED) - hiển thị sau khi Waiter chấp nhận */}
         <Column 
-          title="🔔 Đơn Mới" 
-          orders={getOrdersByStatus("PENDING")} 
+          title="🔔 Đơn Đã Duyệt" 
+          orders={getOrdersByStatus("ACCEPTED")} 
           color="bg-yellow-100 border-yellow-300"
           icon="🕒"
           onStatusChange={updateStatus}
@@ -125,17 +159,25 @@ function Column({ title, orders, color, icon, onStatusChange }: any) {
             </div>
             
             <ul className="space-y-2 mb-4">
-              {order.items.map((item) => (
-                <li key={item.id} className="text-gray-700 flex justify-between">
-                  <span>{item.product.name}</span>
-                  <span className="font-bold">x{item.quantity}</span>
-                </li>
-              ))}
+              {order.items.map((item) => {
+                const modNames = (item as any).modifiers?.map((m: any) => m.modifierOption?.name ?? m.name).filter(Boolean) ?? [];
+                return (
+                  <li key={item.id} className="text-gray-700">
+                    <div className="flex justify-between">
+                      <span>{item.product?.name ?? 'Unknown item'}</span>
+                      <span className="font-bold">x{item.quantity}</span>
+                    </div>
+                    {modNames.length > 0 && (
+                      <div className="text-xs text-gray-500 ml-1 mt-1">{modNames.join(', ')}</div>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
 
             {/* Nút thao tác nhanh (Mockup) */}
             <div className="flex gap-2">
-              {order.status === 'PENDING' && (
+              {order.status === 'ACCEPTED' && (
                 <button 
                   onClick={() => onStatusChange(order.id, 'PREPARING')}
                   className="w-full py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors shadow-sm"

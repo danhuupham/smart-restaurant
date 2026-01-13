@@ -23,32 +23,69 @@ export default function WaiterPage() {
   // Tải đơn hàng (Chỉ lấy đơn nào có món đã xong hoặc đang ăn)
   const fetchOrders = async () => {
     try {
-      const res = await fetch("http://localhost:4000/orders");
+      const res = await fetch("http://localhost:5000/orders");
       const data = await res.json();
-      // Waiter quan tâm nhất là đơn READY (để bưng) và SERVED (để tính tiền)
-      const waiterOrders = data.filter((o: Order) => 
-        o.status === 'READY' || o.status === 'SERVED'
-      );
-      setOrders(waiterOrders);
+      // Keep all orders; we'll filter into groups in the UI
+      setOrders(data);
     } catch (error) {
       console.error("Lỗi:", error);
     }
   };
 
   useEffect(() => {
-    fetchOrders();
-    const interval = setInterval(fetchOrders, 5000); // Polling 5s
-    return () => clearInterval(interval);
-  }, []);
+      fetchOrders();
+      const interval = setInterval(fetchOrders, 5000); // Polling 5s
+
+      // Setup socket.io client for real-time notifications
+      let socket: any = null;
+      import('socket.io-client').then(({ io }) => {
+        socket = io('http://localhost:5000');
+
+        socket.on('connect', () => {
+          console.log('Waiter socket connected', socket.id);
+          socket.emit('join', 'waiter');
+        });
+
+        socket.on('new_order', (order: Order) => {
+          toast.success('Đơn hàng mới đã đến!');
+          setOrders((prev) => [order, ...prev]);
+        });
+
+        socket.on('order_updated', (order: Order) => {
+          setOrders((prev) => {
+            const idx = prev.findIndex((o) => o.id === order.id);
+            if (idx > -1) {
+              const copy = [...prev];
+              copy[idx] = order;
+              return copy;
+            }
+            return [order, ...prev];
+          });
+        });
+      }).catch(err => console.error('Socket import error', err));
+
+      return () => {
+        clearInterval(interval);
+        if (socket) socket.disconnect();
+      };
+    }, []);
 
   const updateStatus = async (orderId: string, newStatus: string) => {
     try {
-      await fetch(`http://localhost:4000/orders/${orderId}/status`, {
+      await fetch(`http://localhost:5000/orders/${orderId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
-      toast.success(newStatus === 'SERVED' ? "Đã bưng món ra bàn! 🏃" : "Đã thanh toán xong! 💰");
+      const messages: Record<string, string> = {
+        SERVED: "Đã bưng món ra bàn! 🏃",
+        COMPLETED: "Đã thanh toán xong! 💰",
+        ACCEPTED: "Đơn đã được chấp nhận.",
+        REJECTED: "Đơn đã bị từ chối.",
+        PREPARING: "Bếp bắt đầu chuẩn bị.",
+        READY: "Món đã sẵn sàng.",
+      };
+      toast.success(messages[newStatus] ?? "Cập nhật trạng thái");
       fetchOrders();
     } catch (error) {
       toast.error("Lỗi cập nhật");
@@ -56,6 +93,7 @@ export default function WaiterPage() {
   };
 
   // Tách ra 2 nhóm: Cần bưng (Ready) và Đang ăn (Served)
+  const pendingOrders = orders.filter(o => o.status === 'PENDING');
   const readyOrders = orders.filter(o => o.status === 'READY');
   const servedOrders = orders.filter(o => o.status === 'SERVED');
 
@@ -73,9 +111,55 @@ export default function WaiterPage() {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        
-        {/* CỘT 1: MÓN ĐÃ XONG - CẦN BƯNG NGAY */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+        {/* CỘT 1: ĐƠN MỚI - CHỜ PHÊ DUYỆT */}
+        <div className="bg-white p-4 rounded-xl shadow-sm border-t-4 border-yellow-500 min-h-[500px]">
+          <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-yellow-700">
+            🕒 Đơn Mới (Pending)
+          </h2>
+          <div className="space-y-4">
+            {pendingOrders.length === 0 && <p className="text-gray-400 italic text-center">Không có đơn chờ.</p>}
+
+            {pendingOrders.map((order) => (
+              <div key={order.id} className="border border-yellow-200 p-4 rounded-lg shadow-sm">
+                <div className="flex justify-between items-center mb-2">
+                    <span className="text-2xl font-bold text-yellow-800">Bàn {order.table?.tableNumber ?? "?"}</span>
+                    <span className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleTimeString('vi-VN')}</span>
+                </div>
+                <ul className="mb-4 bg-white p-2 rounded border border-yellow-100">
+                    {order.items.map((item) => {
+                      const modNames = (item as any).modifiers?.map((m: any) => m.modifierOption?.name ?? m.name).filter(Boolean) ?? [];
+                      return (
+                        <li key={item.id} className="font-medium text-gray-800">
+                          <div>• {item.quantity} x {item.product?.name ?? 'Unknown item'}</div>
+                          {modNames.length > 0 && (
+                            <div className="text-xs text-gray-500 ml-4 mt-1">{modNames.join(', ')}</div>
+                          )}
+                        </li>
+                      );
+                    })}
+                </ul>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => updateStatus(order.id, 'ACCEPTED')}
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded"
+                  >
+                    ✅ Chấp Nhận
+                  </button>
+                  <button
+                    onClick={() => updateStatus(order.id, 'REJECTED')}
+                    className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded"
+                  >
+                    ❌ Từ Chối
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* CỘT 2: MÓN ĐÃ XONG - CẦN BƯNG NGAY */}
         <div className="bg-white p-4 rounded-xl shadow-sm border-t-4 border-green-500 min-h-[500px]">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-green-700">
             🔔 Món Chờ Bưng (Ready)
@@ -86,17 +170,23 @@ export default function WaiterPage() {
             {readyOrders.map((order) => (
               <div key={order.id} className="border border-green-200 bg-green-50 p-4 rounded-lg shadow-sm animate-pulse">
                 <div className="flex justify-between items-center mb-2">
-                    <span className="text-2xl font-bold text-green-800">Bàn {order.table.tableNumber}</span>
-                    <span className="text-xs text-gray-500">
-                        {new Date(order.createdAt).toLocaleTimeString('vi-VN')}
-                    </span>
+                  <span className="text-2xl font-bold text-green-800">Bàn {order.table?.tableNumber ?? "?"}</span>
+                  <span className="text-xs text-gray-500">
+                    {new Date(order.createdAt).toLocaleTimeString('vi-VN')}
+                  </span>
                 </div>
                 <ul className="mb-4 bg-white p-2 rounded border border-green-100">
-                    {order.items.map(item => (
-                        <li key={item.id} className="font-medium text-gray-800">
-                            • {item.quantity} x {item.product.name}
-                        </li>
-                    ))}
+                  {order.items.map((item) => {
+                    const modNames = (item as any).modifiers?.map((m: any) => m.modifierOption?.name ?? m.name).filter(Boolean) ?? [];
+                    return (
+                      <li key={item.id} className="font-medium text-gray-800">
+                        <div>• {item.quantity} x {item.product?.name ?? 'Unknown item'}</div>
+                        {modNames.length > 0 && (
+                          <div className="text-xs text-gray-500 ml-4 mt-1">{modNames.join(', ')}</div>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
                 <button 
                     onClick={() => updateStatus(order.id, 'SERVED')}
@@ -124,7 +214,10 @@ export default function WaiterPage() {
                     </span>
                 </div>
                 <div className="text-sm text-gray-500 mb-3 line-clamp-1">
-                    {order.items.map(i => i.product.name).join(", ")}
+                  {order.items.map(i => {
+                    const mods = (i as any).modifiers?.map((m: any) => m.modifierOption?.name ?? m.name).filter(Boolean) ?? [];
+                    return mods.length ? `${i.product?.name ?? 'Unknown'} (${mods.join(', ')})` : (i.product?.name ?? 'Unknown');
+                  }).join(", ")}
                 </div>
                 <button 
                     onClick={() => updateStatus(order.id, 'COMPLETED')}

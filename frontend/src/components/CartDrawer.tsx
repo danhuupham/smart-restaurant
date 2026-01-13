@@ -38,7 +38,10 @@ export default function CartDrawer({ isOpen, onClose, tableId }: CartDrawerProps
         tableId: tableId,
         items: items.map(item => ({
           productId: item.productId,
-          quantity: item.quantity
+          quantity: item.quantity,
+          modifiers: (item.modifiers && item.modifiers.length > 0)
+            ? item.modifiers.map(m => ({ modifierOptionId: m.modifierOptionId }))
+            : [],
         }))
       };
 
@@ -96,7 +99,7 @@ export default function CartDrawer({ isOpen, onClose, tableId }: CartDrawerProps
             </div>
           ) : (
             items.map((item, index) => (
-              <div key={index} className="flex gap-4 bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+              <div key={`${item.productId}-${index}`} className="flex gap-4 bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
                 {/* Ảnh nhỏ */}
                 <div className="relative h-20 w-20 shrink-0 rounded-lg overflow-hidden bg-gray-100">
                     <Image 
@@ -118,7 +121,7 @@ export default function CartDrawer({ isOpen, onClose, tableId }: CartDrawerProps
                   
                   {/* Liệt kê modifiers (Topping/Size) */}
                   <div className="text-xs text-gray-500 mt-1 line-clamp-2">
-                    {item.modifiers.map(m => m.name).join(", ")}
+                    {item.modifiers && item.modifiers.length > 0 ? item.modifiers.map(m => m.name).join(", ") : ""}
                   </div>
 
                   <div className="flex justify-between items-end mt-2">
@@ -142,20 +145,24 @@ export default function CartDrawer({ isOpen, onClose, tableId }: CartDrawerProps
         {items.length > 0 && (
             <div className="p-4 border-t bg-white safe-area-pb">
                 <div className="flex justify-between items-center mb-4">
-                    <span className="text-gray-600">Tổng cộng:</span>
-                    <span className="text-2xl font-bold text-blue-600">{formatPrice(totalAmount)}</span>
+                  <span className="text-gray-600">Tổng cộng:</span>
+                  <span className="text-2xl font-bold text-blue-600">{formatPrice(totalAmount)}</span>
                 </div>
-                
+
+                {!tableId && (
+                  <div className="mb-3 text-sm text-red-600">Lưu ý: Chưa tìm thấy mã bàn. Vui lòng quét mã QR bàn trước khi gửi đơn.</div>
+                )}
+
                 <button
-                    onClick={handleCheckout}
-                    disabled={isSubmitting}
-                    className="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 active:scale-95 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                  onClick={handleCheckout}
+                  disabled={isSubmitting || !tableId}
+                  className="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 active:scale-95 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed flex justify-center items-center gap-2"
                 >
-                    {isSubmitting ? (
-                        <>Wait...</>
-                    ) : (
-                        <>🚀 Gửi Đơn Bếp</>
-                    )}
+                  {isSubmitting ? (
+                    <>Wait...</>
+                  ) : (
+                    <>{tableId ? '🚀 Gửi Đơn Bếp' : 'Quét QR để đặt món'}</>
+                  )}
                 </button>
             </div>
         )}
