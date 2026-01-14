@@ -1,6 +1,7 @@
 // prisma/seed.ts
 
 import { PrismaClient, UserRole, TableStatus, ProductStatus } from '@prisma/client'
+import * as bcrypt from 'bcrypt'
 
 const prisma = new PrismaClient()
 
@@ -20,25 +21,28 @@ async function main() {
   await prisma.table.deleteMany()
   await prisma.user.deleteMany()
 
-  // 2. Tạo Users
+  // 2. Tạo Users (Hash password)
   console.log('Creating users...')
+  const saltRounds = 10;
+  const hashedPassword = await bcrypt.hash('123', saltRounds);
+
   await prisma.user.createMany({
     data: [
       {
         email: 'admin@smart.restaurant',
-        password: '123', // Thực tế phải hash
+        password: hashedPassword, 
         name: 'Chủ Quán (Admin)',
         role: UserRole.ADMIN,
       },
       {
         email: 'waiter@smart.restaurant',
-        password: '123',
+        password: hashedPassword,
         name: 'Nguyễn Văn A (Phục vụ)',
         role: UserRole.WAITER,
       },
       {
         email: 'kitchen@smart.restaurant',
-        password: '123',
+        password: hashedPassword,
         name: 'Trần Văn B (Bếp)',
         role: UserRole.KITCHEN,
       },
