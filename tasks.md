@@ -23,10 +23,10 @@ The working order rotates daily following this sequence:
 ## Module 1: Authentication & Authorization
 **Goal:** Secure internal pages (Kitchen, Waiter, Admin).
 
-- [ ] **Task 1.1: Authentication Logic & API**
-  - [ ] Install `jsonwebtoken`, `cookies-next`.
-  - [ ] Create `lib/auth.ts` (JWT sign & verify utilities).
-  - [ ] Implement API `POST /api/auth/login`.
+- [x] **Task 1.1: Authentication Logic & API**
+  - [x] Install `jsonwebtoken`, `cookies-next`.
+  - [x] Create `lib/auth.ts` (JWT sign & verify utilities).
+  - [x] Implement API `POST /api/auth/login`.
   - *Commit:* `feat: implement jwt authentication logic and login API`
 
 - [ ] **Task 1.2: Login UI**
@@ -61,15 +61,15 @@ The working order rotates daily following this sequence:
 **Goal:** Generate QR codes for each table.
 
 - [ ] **Task 3.1: Table Management**
-  - [ ] Create `app/admin/tables/page.tsx`.
-  - [ ] Display table list fetched from the database.
-  - [ ] Implement functionality to add new tables.
+  - [x] Create `app/admin/tables/page.tsx`.
+  - [x] Display table list fetched from the database.
+  - [x] Implement functionality to add new tables.
   - *Commit:* `feat: implement table management interface`
 
 - [ ] **Task 3.2: QR Code Generation**
-  - [ ] Install `qrcode.react`.
-  - [ ] Create modal to display QR code for each table.
-  - [ ] QR URL format:  
+  - [x] Install `qrcode.react`.
+  - [x] Create modal to display QR code for each table.
+  - [x] QR URL format:  
         `http://{LAN_IP}:3000/guest/menu?tableId={id}`
   - *Commit:* `feat: generate QR codes for restaurant tables`
 
