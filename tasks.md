@@ -29,10 +29,10 @@ The working order rotates daily following this sequence:
   - [x] Implement API `POST /api/auth/login`.
   - *Commit:* `feat: implement jwt authentication logic and login API`
 
-- [ ] **Task 1.2: Login UI**
-  - [ ] Create `app/login/page.tsx`.
-  - [ ] Build login form (Email / Password).
-  - [ ] Handle redirect after successful login.
+- [x] **Task 1.2: Login UI**
+  - [x] Create `app/login/page.tsx`.
+  - [x] Build login form (Email / Password).
+  - [x] Handle redirect after successful login.
   - *Commit:* `feat: implement login page UI and authentication flow`
 
 - [ ] **Task 1.3: Route Protection Middleware**
