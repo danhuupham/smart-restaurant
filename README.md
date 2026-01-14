@@ -128,9 +128,15 @@ This guide provides end-to-end testing scenarios to verify the core features of 
     *   **Verify:** The item should no longer be visible on the customer's menu page.
 
 
+---
+
 ### **Scenario 5: Authentication**
+
 - **Strategy:** JWT (JSON Web Tokens)
 - **Flow:** 1. Frontend sends credentials to Next.js API Route.
   2. Next.js calls Backend to validate and get JWT.
-  3. JWT is stored in an HTTP-only cookie for security.
-  4. Middleware protects `/admin`, `/waiter`, and `/kitchen` routes.
+  3. JWT is stored in an HTTP-only cookie (`accessToken`) for security.
+  4. **Middleware** automatically intercepts requests to `/admin`, `/waiter`, and `/kitchen`.
+  5. Unauthenticated users are redirected to `/login`.
+ 
+ ---

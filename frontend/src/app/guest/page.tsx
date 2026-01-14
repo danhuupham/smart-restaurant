@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { Product } from "@/types";
 import ProductModal from "@/components/productModal";
-import CartDrawer from "@/components/CartDrawer";
+import CartDrawer from "@/components/cartDrawer";
 import { useCartStore } from "@/store/useCartStore";
 
 async function getProducts(): Promise<Product[]> {

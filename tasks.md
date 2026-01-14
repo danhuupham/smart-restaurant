@@ -35,9 +35,9 @@ The working order rotates daily following this sequence:
   - [x] Handle redirect after successful login.
   - *Commit:* `feat: implement login page UI and authentication flow`
 
-- [ ] **Task 1.3: Route Protection Middleware**
-  - [ ] Create `middleware.ts`.
-  - [ ] Restrict access to `/admin`, `/kitchen`, `/waiter` when no valid token is found.
+- [x] **Task 1.3: Route Protection Middleware**
+  - [x] Create `middleware.ts`.
+  - [x] Restrict access to `/admin`, `/kitchen`, `/waiter` when no valid token is found.
   - *Commit:* `feat: add middleware to protect private routes`
 
 ---

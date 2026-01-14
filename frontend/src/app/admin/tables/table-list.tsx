@@ -2,7 +2,7 @@
 'use client';
 
 import { Table } from '@/types/table';
-import { Button } from '@/components/ui/button';
+import Button from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { QrCode, Edit, Trash2 } from 'lucide-react';
 import { tablesApi } from '@/lib/api/tables';

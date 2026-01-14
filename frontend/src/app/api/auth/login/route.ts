@@ -25,11 +25,11 @@ export async function POST(request: Request) {
     }
 
     const data = await res.json();
-    const { access_token } = data;
+    const { accessToken } = data;
 
     // Set HTTP-only cookie
     const cookieStore = await cookies();
-    cookieStore.set('accessToken', access_token, {
+    cookieStore.set('accessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       path: '/',
     });
 
-    return NextResponse.json({ success: true, role: data.role || 'user' });
+    return NextResponse.json({ success: true, role: data.user.role || 'user' });
   } catch (error) {
     console.error('Login Route Error:', error);
     return NextResponse.json(

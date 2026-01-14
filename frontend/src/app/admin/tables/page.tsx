@@ -7,7 +7,7 @@ import { Table } from '@/types/table';
 import { useState } from 'react';
 import TableList from './table-list';
 import TableForm from './table-form';
-import { Button } from '@/components/ui/button';
+import Button from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 
 const fetcher = () => tablesApi.getAll();

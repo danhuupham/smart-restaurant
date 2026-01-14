@@ -33,8 +33,9 @@ export default function LoginPage() {
 
       toast.success("Đăng nhập thành công!");
 
+      const role = data.role ? data.role.toUpperCase() : "";
       // Redirect based on role
-      switch (data.role) {
+      switch (role) {
         case "ADMIN":
           router.push("/admin/tables"); // Redirect to tables management for now
           break;
@@ -173,10 +174,10 @@ export default function LoginPage() {
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-3 text-xs text-gray-500 text-center">
-               <div>admin@example.com</div>
-               <div>waiter@example.com</div>
-               <div>kitchen@example.com</div>
-               <div className="col-span-2">(Mật khẩu mặc định trong seed)</div>
+               <div>admin@smart.restaurant</div>
+               <div>waiter@smart.restaurant</div>
+               <div>kitchen@smart.restaurant</div>
+               <div className="col-span-2">(Mật khẩu mặc định: password@123)</div>
             </div>
           </div>
         </div>
