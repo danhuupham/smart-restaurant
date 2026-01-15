@@ -6,11 +6,11 @@ import { OrdersGateway } from 'src/events/orders.gateway';
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService, private ordersGateway: OrdersGateway) {} 
+  constructor(private prisma: PrismaService, private ordersGateway: OrdersGateway) { }
 
   async create(createOrderDto: CreateOrderDto) {
     const { tableId, items } = createOrderDto;
-    
+
     if (!items?.length) {
       throw new BadRequestException("The order must have at least one item.");
     }
@@ -21,7 +21,7 @@ export class OrdersService {
 
       for (const item of items) {
         const product = await tx.product.findUnique({
-          where: {id: item.productId},
+          where: { id: item.productId },
         });
 
         if (!product) {
@@ -106,6 +106,12 @@ export class OrdersService {
         include: { items: { include: { product: true, modifiers: { include: { modifierOption: true } } } }, table: true },
       });
 
+      // Set table status to OCCUPIED
+      await tx.table.update({
+        where: { id: tableId },
+        data: { status: 'OCCUPIED' },
+      });
+
       // Emit websocket event for waiter clients only
       try { this.ordersGateway.emitNewOrderToWaiters(newOrder); } catch (e) { /* ignore */ }
 
@@ -114,12 +120,12 @@ export class OrdersService {
   }
 
   findAll() {
-    return this.prisma.order.findMany({ 
-      include: { 
-          items: { include: { product: true, modifiers: { include: { modifierOption: true } } } },
-          table: true
+    return this.prisma.order.findMany({
+      include: {
+        items: { include: { product: true, modifiers: { include: { modifierOption: true } } } },
+        table: true
       },
-      orderBy: {createdAt: 'desc'}
+      orderBy: { createdAt: 'desc' }
     });
   }
 
@@ -141,6 +147,14 @@ export class OrdersService {
       data: { status },
       include: { items: { include: { product: true, modifiers: { include: { modifierOption: true } } } }, table: true },
     });
+
+    // If order is completed, set table back to AVAILABLE
+    if (status === 'COMPLETED') {
+      await this.prisma.table.update({
+        where: { id: updated.tableId },
+        data: { status: 'AVAILABLE' },
+      });
+    }
 
     try {
       // Notify waiters about status change

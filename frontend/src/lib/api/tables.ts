@@ -35,8 +35,9 @@ export const tablesApi = {
     return response.data;
   },
 
-  delete: async (id: string): Promise<void> => {
-    await api.delete(`/tables/${id}`);
+  delete: async (id: string): Promise<Table> => {
+    const response = await api.delete(`/tables/${id}`);
+    return response.data;
   },
 
   generateQrCode: async (id: string): Promise<{ qrCodeDataUrl: string }> => {

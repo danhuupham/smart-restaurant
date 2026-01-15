@@ -32,17 +32,20 @@ export class TablesService {
   }
 
   async remove(id: string) {
-    // Check if table has any orders
+    // Check if table has any orders (including completed ones)
     const ordersCount = await this.prisma.order.count({
       where: { tableId: id },
     });
 
     if (ordersCount > 0) {
-      throw new BadRequestException(
-        `Cannot delete table. It has ${ordersCount} order(s) associated with it. Please delete or reassign the orders first.`
-      );
+      // Instead of deleting, set table to INACTIVE to preserve order history
+      return this.prisma.table.update({
+        where: { id },
+        data: { status: 'INACTIVE' },
+      });
     }
 
+    // No orders - safe to delete
     return this.prisma.table.delete({ where: { id } });
   }
 

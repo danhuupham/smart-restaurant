@@ -22,8 +22,13 @@ export default function TableList({ tables, onEdit, onUpdate }: TableListProps) 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this table?')) {
       try {
-        await tablesApi.delete(id);
-        toast.success('Table deleted successfully');
+        const result = await tablesApi.delete(id);
+        // If table has order history, backend sets it to INACTIVE instead of deleting
+        if (result && result.status === 'INACTIVE') {
+          toast.success('Table set to INACTIVE (has order history)');
+        } else {
+          toast.success('Table deleted successfully');
+        }
         onUpdate();
       } catch (error: any) {
         console.error('Delete table error:', error);
