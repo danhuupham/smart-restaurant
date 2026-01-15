@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { usersApi } from "@/lib/api/users";
-import { Dialog } from "@/components/ui/Dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import toast from "react-hot-toast";
@@ -39,8 +39,10 @@ export default function StaffForm({ onClose }: StaffFormProps) {
 
     return (
         <Dialog open={true} onOpenChange={onClose}>
-            <div className="bg-white p-6 rounded-lg w-full max-w-md">
-                <h2 className="text-xl font-bold mb-4">Add New Staff</h2>
+            <DialogContent className="max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Add New Staff</DialogTitle>
+                </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
 
@@ -100,7 +102,7 @@ export default function StaffForm({ onClose }: StaffFormProps) {
                             </button>
                         </div>
                         <div className="mt-2 text-xs text-gray-500">
-                            Also available: <span className="underline cursor-pointer" onClick={() => setFormData({ ...formData, role: 'Admin' })}>Admin</span> (careful!)
+                            Also available: <span className="underline cursor-pointer" onClick={() => setFormData({ ...formData, role: 'ADMIN' })}>Admin</span> (careful!)
                             {formData.role === 'ADMIN' && <span className="text-red-500 font-bold ml-2">⚠️ Admin selected</span>}
                         </div>
                     </div>
@@ -125,7 +127,7 @@ export default function StaffForm({ onClose }: StaffFormProps) {
                     </div>
 
                 </form>
-            </div>
+            </DialogContent>
         </Dialog>
     );
 }
