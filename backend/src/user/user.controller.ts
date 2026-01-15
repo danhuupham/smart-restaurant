@@ -33,4 +33,11 @@ export class UserController {
         });
         return result;
     }
+
+    @Delete(':id')
+    @Roles(UserRole.ADMIN)
+    async delete(@Param('id') id: string) {
+        const { password, ...result } = await this.userService.deleteUser(id);
+        return result;
+    }
 }
