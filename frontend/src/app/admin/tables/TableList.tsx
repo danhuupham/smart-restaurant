@@ -25,8 +25,10 @@ export default function TableList({ tables, onEdit, onUpdate }: TableListProps) 
         await tablesApi.delete(id);
         toast.success('Table deleted successfully');
         onUpdate();
-      } catch (error) {
-        toast.error('Failed to delete table');
+      } catch (error: any) {
+        console.error('Delete table error:', error);
+        const errorMessage = error.response?.data?.message || error.message || 'Failed to delete table';
+        toast.error(`Error: ${errorMessage}`);
       }
     }
   };
@@ -35,8 +37,10 @@ export default function TableList({ tables, onEdit, onUpdate }: TableListProps) 
     try {
       const { qrCodeDataUrl } = await tablesApi.generateQrCode(table.id);
       setQrCodeData({ url: qrCodeDataUrl, tableName: table.tableNumber });
-    } catch (error) {
-      toast.error('Failed to generate QR code');
+    } catch (error: any) {
+      console.error('Generate QR error:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to generate QR code';
+      toast.error(`Error: ${errorMessage}`);
     }
   };
 

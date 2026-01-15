@@ -87,13 +87,17 @@ export default function ProductFormModal({
       imageUrl: values.imageUrl || null,
     };
 
-    if (product) {
-      await productsApi.update(product.id, payload);
-    } else {
-      await productsApi.create(payload);
+    try {
+      if (product) {
+        await productsApi.update(product.id, payload);
+      } else {
+        await productsApi.create(payload);
+      }
+      onClose(true);
+    } catch (error: any) {
+      console.error('Product form error:', error);
+      alert(`Error: ${error.response?.data?.message || error.message || 'Failed to save product'}`);
     }
-
-    onClose(true);
   };
 
   return (

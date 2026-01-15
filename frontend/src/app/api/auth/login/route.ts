@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     // Call NestJS Backend
     // Assuming Backend is running on port 5000 locally
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-    
+
     const res = await fetch(`${backendUrl}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -37,7 +37,11 @@ export async function POST(request: Request) {
       path: '/',
     });
 
-    return NextResponse.json({ success: true, role: data.user.role || 'user' });
+    return NextResponse.json({
+      success: true,
+      role: data.user.role || 'user',
+      accessToken
+    });
   } catch (error) {
     console.error('Login Route Error:', error);
     return NextResponse.json(

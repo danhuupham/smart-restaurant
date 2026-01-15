@@ -33,6 +33,10 @@ export default function LoginPage() {
 
       toast.success("Đăng nhập thành công!");
 
+      if (data.accessToken) {
+        localStorage.setItem("accessToken", data.accessToken);
+      }
+
       const role = data.role ? data.role.toUpperCase() : "";
       // Redirect based on role
       switch (role) {

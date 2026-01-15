@@ -1,6 +1,12 @@
 
 import { api } from '@/lib/api/api';
-import { Table } from '@/types/table'; // I'll need to create this type
+import { Table } from '@/types/table';
+
+export type CreateTablePayload = {
+  tableNumber: string;
+  capacity: number;
+  location?: string;
+};
 
 export const tablesApi = {
   getAll: async (): Promise<Table[]> => {
@@ -13,8 +19,14 @@ export const tablesApi = {
     return response.data;
   },
 
-  create: async (data: Omit<Table, 'id'>): Promise<Table> => {
-    const response = await api.post('/tables', data);
+  create: async (data: CreateTablePayload): Promise<Table> => {
+    // Only send fields that backend accepts
+    const payload: CreateTablePayload = {
+      tableNumber: data.tableNumber,
+      capacity: data.capacity,
+      location: data.location,
+    };
+    const response = await api.post('/tables', payload);
     return response.data;
   },
 

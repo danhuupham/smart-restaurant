@@ -3,7 +3,7 @@
 
 import { Table } from '@/types/table';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { tablesApi } from '@/lib/api/tables';
+import { tablesApi, CreateTablePayload } from '@/lib/api/tables';
 import toast from 'react-hot-toast';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -44,12 +44,14 @@ export default function TableForm({ table, onClose }: TableFormProps) {
         await tablesApi.update(table.id, data);
         toast.success('Table updated successfully');
       } else {
-        await tablesApi.create(data as Omit<Table, 'id'>);
+        await tablesApi.create(data as CreateTablePayload);
         toast.success('Table created successfully');
       }
       onClose();
-    } catch (error) {
-      toast.error('An error occurred');
+    } catch (error: any) {
+      console.error('Table form error:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'An error occurred';
+      toast.error(`Error: ${errorMessage}`);
     }
   };
 

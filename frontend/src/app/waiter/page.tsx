@@ -113,6 +113,7 @@ export default function WaiterPage() {
           <button
             onClick={async () => {
               await fetch('/api/auth/logout', { method: 'POST' });
+              localStorage.removeItem('accessToken');
               window.location.href = '/login';
             }}
             className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded text-sm transition-colors"

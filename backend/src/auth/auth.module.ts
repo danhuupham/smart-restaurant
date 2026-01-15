@@ -12,7 +12,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     PassportModule,
     JwtModule.register({
       // IMPORTANT: Move this secret to an environment variable in a real application
-      secret: 'SMART_RESTAURANT_BY_GROUP_DAN_HIEP_VU_SECRET_WITH_HIGH_SECURITY', 
+      secret: process.env.JWT_SECRET || 'your-super-secret-jwt-key',
       signOptions: { expiresIn: '60m' },
     }),
   ],
@@ -20,4 +20,4 @@ import { JwtStrategy } from './strategies/jwt.strategy';
   controllers: [AuthController],
   exports: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule { }
