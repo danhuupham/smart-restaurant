@@ -43,6 +43,18 @@ export default function AdminLayout({
             );
           })}
         </nav>
+
+        <div className="p-4 border-t border-gray-800">
+          <button
+            onClick={async () => {
+              await fetch('/api/auth/logout', { method: 'POST' });
+              window.location.href = '/login';
+            }}
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-colors flex items-center justify-center gap-2"
+          >
+            Log Out
+          </button>
+        </div>
       </aside>
 
       {/* Main content */}

@@ -89,7 +89,7 @@ export default function KitchenPage() {
       });
 
       // 2. Refresh lại danh sách ngay lập tức để thấy sự thay đổi
-      fetchOrders(); 
+      fetchOrders();
     } catch (error) {
       console.error("Lỗi cập nhật:", error);
       alert("Có lỗi xảy ra!");
@@ -102,33 +102,44 @@ export default function KitchenPage() {
     <main className="min-h-screen bg-gray-100 p-6">
       <header className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-800">👨‍🍳 Màn hình Bếp</h1>
-        <div className="text-sm text-gray-500">Tự động cập nhật mỗi 5s</div>
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-gray-500">Tự động cập nhật mỗi 5s</div>
+          <button
+            onClick={async () => {
+              await fetch('/api/auth/logout', { method: 'POST' });
+              window.location.href = '/login';
+            }}
+            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded text-sm transition-colors"
+          >
+            Đăng xuất
+          </button>
+        </div>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
+
         {/* CỘT 1: ĐƠN MỚI (ACCEPTED) - hiển thị sau khi Waiter chấp nhận */}
-        <Column 
-          title="🔔 Đơn Đã Duyệt" 
-          orders={getOrdersByStatus("ACCEPTED")} 
+        <Column
+          title="🔔 Đơn Đã Duyệt"
+          orders={getOrdersByStatus("ACCEPTED")}
           color="bg-yellow-100 border-yellow-300"
           icon="🕒"
           onStatusChange={updateStatus}
         />
 
         {/* CỘT 2: ĐANG NẤU (PREPARING) */}
-        <Column 
-          title="🔥 Đang Nấu" 
-          orders={getOrdersByStatus("PREPARING")} 
+        <Column
+          title="🔥 Đang Nấu"
+          orders={getOrdersByStatus("PREPARING")}
           color="bg-blue-100 border-blue-300"
           icon="🍳"
           onStatusChange={updateStatus}
         />
 
         {/* CỘT 3: ĐÃ XONG (READY) */}
-        <Column 
-          title="✅ Trả Món" 
-          orders={getOrdersByStatus("READY")} 
+        <Column
+          title="✅ Trả Món"
+          orders={getOrdersByStatus("READY")}
           color="bg-green-100 border-green-300"
           icon="🛎️"
           onStatusChange={updateStatus}
@@ -144,20 +155,20 @@ function Column({ title, orders, color, icon, onStatusChange }: any) {
   return (
     <div className={`p-4 rounded-xl border-t-4 shadow-sm min-h-[500px] bg-white ${color}`}>
       <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-        <span>{icon}</span> {title} 
+        <span>{icon}</span> {title}
         <span className="ml-auto bg-white px-2 py-1 rounded text-sm shadow-sm">{orders.length}</span>
       </h2>
-      
+
       <div className="space-y-4">
         {orders.map((order: Order) => (
           <div key={order.id} className="bg-white p-4 rounded-lg shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
             <div className="flex justify-between items-start mb-2 pb-2 border-b border-dashed">
               <span className="font-bold text-lg text-blue-600">Bàn {order.table?.tableNumber || "?"}</span>
               <span className="text-xs text-gray-400">
-                {new Date(order.createdAt).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})}
+                {new Date(order.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
               </span>
             </div>
-            
+
             <ul className="space-y-2 mb-4">
               {order.items.map((item) => {
                 const modNames = (item as any).modifiers?.map((m: any) => m.modifierOption?.name ?? m.name).filter(Boolean) ?? [];
@@ -178,7 +189,7 @@ function Column({ title, orders, color, icon, onStatusChange }: any) {
             {/* Nút thao tác nhanh (Mockup) */}
             <div className="flex gap-2">
               {order.status === 'ACCEPTED' && (
-                <button 
+                <button
                   onClick={() => onStatusChange(order.id, 'PREPARING')}
                   className="w-full py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors shadow-sm"
                 >
@@ -187,7 +198,7 @@ function Column({ title, orders, color, icon, onStatusChange }: any) {
               )}
 
               {order.status === 'PREPARING' && (
-                <button 
+                <button
                   onClick={() => onStatusChange(order.id, 'READY')}
                   className="w-full py-2 rounded bg-green-600 hover:bg-green-700 text-white font-bold transition-colors shadow-sm"
                 >

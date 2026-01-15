@@ -33,42 +33,42 @@ export default function WaiterPage() {
   };
 
   useEffect(() => {
-      fetchOrders();
-      const interval = setInterval(fetchOrders, 5000); // Polling 5s
+    fetchOrders();
+    const interval = setInterval(fetchOrders, 5000); // Polling 5s
 
-      // Setup socket.io client for real-time notifications
-      let socket: any = null;
-      import('socket.io-client').then(({ io }) => {
-        socket = io('http://localhost:5000');
+    // Setup socket.io client for real-time notifications
+    let socket: any = null;
+    import('socket.io-client').then(({ io }) => {
+      socket = io('http://localhost:5000');
 
-        socket.on('connect', () => {
-          console.log('Waiter socket connected', socket.id);
-          socket.emit('join', 'waiter');
+      socket.on('connect', () => {
+        console.log('Waiter socket connected', socket.id);
+        socket.emit('join', 'waiter');
+      });
+
+      socket.on('new_order', (order: Order) => {
+        toast.success('Đơn hàng mới đã đến!');
+        setOrders((prev) => [order, ...prev]);
+      });
+
+      socket.on('order_updated', (order: Order) => {
+        setOrders((prev) => {
+          const idx = prev.findIndex((o) => o.id === order.id);
+          if (idx > -1) {
+            const copy = [...prev];
+            copy[idx] = order;
+            return copy;
+          }
+          return [order, ...prev];
         });
+      });
+    }).catch(err => console.error('Socket import error', err));
 
-        socket.on('new_order', (order: Order) => {
-          toast.success('Đơn hàng mới đã đến!');
-          setOrders((prev) => [order, ...prev]);
-        });
-
-        socket.on('order_updated', (order: Order) => {
-          setOrders((prev) => {
-            const idx = prev.findIndex((o) => o.id === order.id);
-            if (idx > -1) {
-              const copy = [...prev];
-              copy[idx] = order;
-              return copy;
-            }
-            return [order, ...prev];
-          });
-        });
-      }).catch(err => console.error('Socket import error', err));
-
-      return () => {
-        clearInterval(interval);
-        if (socket) socket.disconnect();
-      };
-    }, []);
+    return () => {
+      clearInterval(interval);
+      if (socket) socket.disconnect();
+    };
+  }, []);
 
   const updateStatus = async (orderId: string, newStatus: string) => {
     try {
@@ -101,13 +101,24 @@ export default function WaiterPage() {
     <main className="min-h-screen bg-gray-50 p-6">
       <header className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-800">🤵 Màn hình Phục Vụ</h1>
-        <div className="flex gap-2 text-sm font-bold">
-           <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full">
-             Cần bưng: {readyOrders.length}
-           </span>
-           <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
-             Đang ăn: {servedOrders.length}
-           </span>
+        <div className="flex items-center gap-4">
+          <div className="flex gap-2 text-sm font-bold">
+            <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full">
+              Cần bưng: {readyOrders.length}
+            </span>
+            <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+              Đang ăn: {servedOrders.length}
+            </span>
+          </div>
+          <button
+            onClick={async () => {
+              await fetch('/api/auth/logout', { method: 'POST' });
+              window.location.href = '/login';
+            }}
+            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded text-sm transition-colors"
+          >
+            Đăng xuất
+          </button>
         </div>
       </header>
 
@@ -124,21 +135,21 @@ export default function WaiterPage() {
             {pendingOrders.map((order) => (
               <div key={order.id} className="border border-yellow-200 p-4 rounded-lg shadow-sm">
                 <div className="flex justify-between items-center mb-2">
-                    <span className="text-2xl font-bold text-yellow-800">Bàn {order.table?.tableNumber ?? "?"}</span>
-                    <span className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleTimeString('vi-VN')}</span>
+                  <span className="text-2xl font-bold text-yellow-800">Bàn {order.table?.tableNumber ?? "?"}</span>
+                  <span className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleTimeString('vi-VN')}</span>
                 </div>
                 <ul className="mb-4 bg-white p-2 rounded border border-yellow-100">
-                    {order.items.map((item) => {
-                      const modNames = (item as any).modifiers?.map((m: any) => m.modifierOption?.name ?? m.name).filter(Boolean) ?? [];
-                      return (
-                        <li key={item.id} className="font-medium text-gray-800">
-                          <div>• {item.quantity} x {item.product?.name ?? 'Unknown item'}</div>
-                          {modNames.length > 0 && (
-                            <div className="text-xs text-gray-500 ml-4 mt-1">{modNames.join(', ')}</div>
-                          )}
-                        </li>
-                      );
-                    })}
+                  {order.items.map((item) => {
+                    const modNames = (item as any).modifiers?.map((m: any) => m.modifierOption?.name ?? m.name).filter(Boolean) ?? [];
+                    return (
+                      <li key={item.id} className="font-medium text-gray-800">
+                        <div>• {item.quantity} x {item.product?.name ?? 'Unknown item'}</div>
+                        {modNames.length > 0 && (
+                          <div className="text-xs text-gray-500 ml-4 mt-1">{modNames.join(', ')}</div>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
                 <div className="flex gap-2">
                   <button
@@ -166,7 +177,7 @@ export default function WaiterPage() {
           </h2>
           <div className="space-y-4">
             {readyOrders.length === 0 && <p className="text-gray-400 italic text-center">Không có món nào chờ.</p>}
-            
+
             {readyOrders.map((order) => (
               <div key={order.id} className="border border-green-200 bg-green-50 p-4 rounded-lg shadow-sm animate-pulse">
                 <div className="flex justify-between items-center mb-2">
@@ -188,11 +199,11 @@ export default function WaiterPage() {
                     );
                   })}
                 </ul>
-                <button 
-                    onClick={() => updateStatus(order.id, 'SERVED')}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow-md transition-all active:scale-95 flex justify-center items-center gap-2"
+                <button
+                  onClick={() => updateStatus(order.id, 'SERVED')}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow-md transition-all active:scale-95 flex justify-center items-center gap-2"
                 >
-                    🏃 Bưng Ra Bàn Ngay
+                  🏃 Bưng Ra Bàn Ngay
                 </button>
               </div>
             ))}
@@ -206,12 +217,12 @@ export default function WaiterPage() {
           </h2>
           <div className="space-y-4">
             {servedOrders.map((order) => (
-               <div key={order.id} className="border border-gray-200 p-4 rounded-lg hover:shadow-md transition-shadow">
-                 <div className="flex justify-between items-center mb-2">
-                    <span className="text-xl font-bold text-gray-700">Bàn {order.table.tableNumber}</span>
-                    <span className="text-blue-600 font-bold">
-                        {new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'}).format(Number(order.totalAmount))}
-                    </span>
+              <div key={order.id} className="border border-gray-200 p-4 rounded-lg hover:shadow-md transition-shadow">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xl font-bold text-gray-700">Bàn {order.table.tableNumber}</span>
+                  <span className="text-blue-600 font-bold">
+                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(order.totalAmount))}
+                  </span>
                 </div>
                 <div className="text-sm text-gray-500 mb-3 line-clamp-1">
                   {order.items.map(i => {
@@ -219,13 +230,13 @@ export default function WaiterPage() {
                     return mods.length ? `${i.product?.name ?? 'Unknown'} (${mods.join(', ')})` : (i.product?.name ?? 'Unknown');
                   }).join(", ")}
                 </div>
-                <button 
-                    onClick={() => updateStatus(order.id, 'COMPLETED')}
-                    className="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 rounded text-sm"
+                <button
+                  onClick={() => updateStatus(order.id, 'COMPLETED')}
+                  className="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 rounded text-sm"
                 >
-                    💰 Thanh Toán & Dọn Bàn
+                  💰 Thanh Toán & Dọn Bàn
                 </button>
-               </div>
+              </div>
             ))}
           </div>
         </div>
