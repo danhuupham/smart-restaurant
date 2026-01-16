@@ -40,14 +40,31 @@ function GuestMenuContent() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const data = await getProducts();
+        // Use search API if there's a query, otherwise get all products
+        const endpoint = searchQuery.trim()
+          ? `/products/search?q=${encodeURIComponent(searchQuery)}`
+          : '/products';
+
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000'}${endpoint}`, {
+          cache: "no-store",
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch products");
+
+        const data = await res.json();
         setProducts(data);
       } catch (error) {
         console.error("Error loaded menu:", error);
       }
     };
-    fetchProducts();
-  }, []);
+
+    // Debounce search requests
+    const timeoutId = setTimeout(() => {
+      fetchProducts();
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
 
   // Extract unique categories
   const categories = useMemo(() => {
@@ -55,18 +72,15 @@ function GuestMenuContent() {
     return ["All", ...Array.from(cats)].sort();
   }, [products]);
 
-  // Filter products
+  // Filter products by category only (search is handled by backend)
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const matchesCategory =
         activeCategory === "All" ||
         (product.category?.name || "Other") === activeCategory;
-      const matchesSearch = product.name
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-      return matchesCategory && matchesSearch;
+      return matchesCategory;
     });
-  }, [products, activeCategory, searchQuery]);
+  }, [products, activeCategory]);
 
   const handleProductClick = (product: Product) => {
     setSelectedProduct(product);

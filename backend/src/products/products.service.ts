@@ -63,6 +63,45 @@ export class ProductsService {
     });
   }
 
+  async search(query: string) {
+    if (!query || query.trim().length === 0) {
+      // If no query, return all products
+      return this.findAll();
+    }
+
+    // Use case-insensitive search with partial matching
+    return this.prisma.product.findMany({
+      where: {
+        OR: [
+          {
+            name: {
+              contains: query,
+              mode: 'insensitive',
+            },
+          },
+          {
+            description: {
+              contains: query,
+              mode: 'insensitive',
+            },
+          },
+        ],
+      },
+      include: {
+        category: true,
+        images: true,
+        modifierGroups: {
+          orderBy: { displayOrder: 'asc' },
+          include: {
+            modifierGroup: {
+              include: { options: true },
+            },
+          },
+        },
+      },
+    });
+  }
+
   async findOne(id: string) {
     const product = await this.prisma.product.findUnique({
       where: { id },

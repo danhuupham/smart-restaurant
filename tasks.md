@@ -161,8 +161,10 @@ The working order rotates daily following this sequence:
   - [x] Added Review Modal to Guest Order History.
   - _Commit:_ `feat: enable customer item reviews`
 
-- [ ] **Task 6.4: Fuzzy Search for Products**
-  - [ ] Implement a more robust search algorithm for finding products.
+- [x] **Task 6.4: Fuzzy Search for Products**
+  - [x] Implemented backend search API with case-insensitive partial matching
+  - [x] Updated frontend to use backend search with debouncing
+  - [x] Search works across product name and description
   - _Commit:_ `feat: implement fuzzy search for products`
 
 - [ ] **Task 6.5: Multi-language Support (EN/VI)**
