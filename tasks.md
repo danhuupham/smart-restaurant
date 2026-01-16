@@ -155,8 +155,10 @@ The working order rotates daily following this sequence:
   - [ ] Create a Super Admin role with permissions to create/manage Admin accounts.
   - _Commit:_ `feat: implement super admin role for multi-restaurant management`
 
-- [ ] **Task 6.3: Customer Item Reviews**
-  - [ ] Allow registered customers to rate and review products they have ordered.
+- [x] **Task 6.3: Customer Item Reviews**
+  - [x] Allow registered customers to rate and review products they have ordered.
+  - [x] Implemented `Review` model and backend API.
+  - [x] Added Review Modal to Guest Order History.
   - _Commit:_ `feat: enable customer item reviews`
 
 - [ ] **Task 6.4: Fuzzy Search for Products**

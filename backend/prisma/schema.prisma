@@ -67,6 +67,7 @@ model User {
   
   // Relations
   orders    Order[] 
+  reviews   Review[]
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -133,6 +134,7 @@ model Product {
   images         ProductImage[]
   modifierGroups ProductModifierGroup[]
   orderItems     OrderItem[]
+  reviews        Review[]
 
   createdAt      DateTime      @default(now()) @map("created_at")
   updatedAt      DateTime      @updatedAt @map("updated_at")
@@ -259,4 +261,25 @@ model OrderItemModifier {
   modifierOption   ModifierOption @relation(fields: [modifierOptionId], references: [id])
 
   @@map("order_item_modifiers")
+}
+
+// =========================================================
+// 7. REVIEWS (Added via Task 6.3)
+// =========================================================
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int      @default(5) // 1-5
+  comment   String?
+  
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  productId String   @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("reviews")
 }

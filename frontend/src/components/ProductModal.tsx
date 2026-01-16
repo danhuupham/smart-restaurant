@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Product, ModifierOption, ProductModifierGroup } from "@/types"
+import { Product, ModifierOption, ProductModifierGroup, Review } from "@/types"
 import { useCartStore } from "@/store/useCartStore";
 import toast from "react-hot-toast";
 
@@ -15,12 +15,22 @@ interface ProductModalProps {
 export default function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
     const [quantity, setQuantity] = useState(1);
     const [selectedModifiers, setSelelctedModifiers] = useState<Record<string, ModifierOption[]>>({});
+    const [reviews, setReviews] = useState<Review[]>([]);
     const addToCart = useCartStore((state) => state.addToCart);
 
     useEffect(() => {
-        if (isOpen) {
+        if (isOpen && product) {
             setQuantity(1);
             setSelelctedModifiers({});
+
+            // Fetch reviews
+            fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000'}/reviews/product/${product.id}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (Array.isArray(data)) setReviews(data);
+                    else setReviews([]);
+                })
+                .catch(err => console.error("Failed to fetch reviews", err));
         }
     }, [isOpen, product]);
 
@@ -153,6 +163,53 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
                             )
                         })}
                     </div>
+
+                    {/* Reviews Section */}
+                    <div className="mt-8 border-t pt-6 mb-4">
+                        <div className="flex items-center gap-2 mb-4">
+                            <h3 className="font-bold text-lg text-gray-800">Reviews</h3>
+                            <span className="text-sm text-gray-500">({reviews.length})</span>
+                            {reviews.length > 0 && (
+                                <div className="flex items-center text-yellow-500 text-sm font-bold bg-yellow-50 px-2 py-0.5 rounded ml-auto">
+                                    <span className="mr-1">★</span>
+                                    {(reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)}
+                                </div>
+                            )}
+                        </div>
+
+                        {reviews.length === 0 ? (
+                            <p className="text-gray-500 italic text-sm text-center py-4 bg-gray-50 rounded-lg">Chưa có đánh giá nào.</p>
+                        ) : (
+                            <div className="space-y-4">
+                                {reviews.map(review => (
+                                    <div key={review.id} className="bg-gray-50 p-3 rounded-lg">
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xs">
+                                                    {review.user.name.charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <div className="font-bold text-sm text-gray-800">{review.user.name}</div>
+                                                    <div className="text-[10px] text-gray-500">
+                                                        {new Date(review.createdAt).toLocaleDateString()}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex text-yellow-500 text-xs">
+                                                {Array.from({ length: 5 }).map((_, i) => (
+                                                    <span key={i} className={i < review.rating ? "opacity-100" : "opacity-30"}>★</span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        {review.comment && (
+                                            <p className="mt-2 text-sm text-gray-600 leading-relaxed">{review.comment}</p>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
                 </div>
 
                 {/* Footer: Nút bấm */}

@@ -6,7 +6,7 @@ import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createProductDto: CreateProductDto) {
     const { name, description, price, status, categoryName, imageUrl } =
@@ -27,8 +27,8 @@ export class ProductsService {
         categoryId: category.id,
         images: imageUrl
           ? {
-              create: [{ url: imageUrl, isPrimary: true }],
-            }
+            create: [{ url: imageUrl, isPrimary: true }],
+          }
           : undefined,
       },
       include: {
@@ -120,11 +120,11 @@ export class ProductsService {
         categoryId: categoryId ?? undefined,
         images: shouldReplaceImage
           ? {
-              deleteMany: currentPrimary
-                ? { id: currentPrimary.id }
-                : undefined,
-              create: [{ url: imageUrl!, isPrimary: true }],
-            }
+            deleteMany: currentPrimary
+              ? { id: currentPrimary.id }
+              : undefined,
+            create: [{ url: imageUrl!, isPrimary: true }],
+          }
           : shouldClearImage && currentPrimary
             ? { deleteMany: { id: currentPrimary.id } }
             : undefined,

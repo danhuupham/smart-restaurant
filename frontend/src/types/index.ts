@@ -91,3 +91,14 @@ export interface Order {
   items: OrderItem[];
   createdAt: string;
 }
+
+export interface Review {
+  id: string;
+  rating: number;
+  comment: string;
+  user: {
+    name: string;
+    avatar: string | null;
+  };
+  createdAt: string;
+}
