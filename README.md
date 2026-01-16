@@ -49,6 +49,8 @@ A comprehensive full-stack restaurant management system with real-time order tra
 - **Cart Management**: Add items with modifiers (toppings, sizes)
 - **Order Placement**: Submit orders directly from table
 - **Order History**: View current and past orders
+- **Online Payment**: Pay via Stripe (Credit Card) directly from the app
+- **Call Waiter**: Request assistance or cash payment with one tap
 
 ---
 
@@ -145,7 +147,11 @@ MAIL_PASS="your-app-password"
 # Google Auth
 GOOGLE_CLIENT_ID="your-google-client-id"
 GOOGLE_CLIENT_SECRET="your-google-client-secret"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
 GOOGLE_CALLBACK_URL="http://localhost:5000/auth/google/callback"
+
+# Stripe (Backend)
+STRIPE_SECRET_KEY="sk_test_..."
 
 
 # Start database
@@ -178,6 +184,7 @@ cp .env.example .env
 NEXT_PUBLIC_API_BASE_URL=http://localhost:5000
 NEXT_PUBLIC_SOCKET_URL=http://localhost:5000
 JWT_SECRET=your-super-secret-jwt-key  # Must match backend JWT_SECRET
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_... # Stripe Frontend Key
 NODE_ENV=development
 
 # Start development server
@@ -320,6 +327,10 @@ After seeding, use these accounts (Password: `password@123`):
 - ✅ Updated customer product modal to display modifier options (single/multiple choice) and dynamically update prices.
 - ✅ Ensured selected modifiers and their price adjustments are correctly reflected in the shopping cart and order creation.
 - ✅ Fixed a bug preventing the deletion of modifier options.
+- ✅ **Bill Modal**: Waiter can view bill summary and QR code for any table.
+- ✅ **Stripe Integration**: Guests can pay online via Credit Card (Test Mode).
+- ✅ **Call Assistance**: Guests can ring a bell to notify waiters (Cash/Assistance).
+- ✅ **Real-time Notifications**: Waiters receive instant alerts for payment requests.
 
 ---
 
