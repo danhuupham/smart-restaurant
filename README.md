@@ -139,12 +139,12 @@ JWT_SECRET="your-super-secret-jwt-key"
 FRONTEND_URL="http://localhost:3000"
 
 # Email Configuration (Gmail)
-MAIL_USER="dandandongthap@gmail.com"
-MAIL_PASS="your-app-password-here"
+MAIL_USER="your-email@gmail.com"
+MAIL_PASS="your-app-password"
 
 # Google Auth
-GOOGLE_CLIENT_ID="874019925686-3h4e9nljbdvqmf6dcs7borem5olchlv3.apps.googleusercontent.com"
-GOOGLE_CLIENT_SECRET="your-google-client-secret-here"
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
 GOOGLE_CALLBACK_URL="http://localhost:5000/auth/google/callback"
 
 
