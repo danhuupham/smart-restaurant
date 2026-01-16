@@ -3,11 +3,17 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCartStore } from "@/store/useCartStore";
+import { useTableStore } from "@/store/useTableStore";
 
 export default function BottomNav() {
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    const tableId = searchParams.get("tableId");
+    const tableIdFromUrl = searchParams.get("tableId");
+    const { tableId: tableIdFromStore } = useTableStore();
+
+    // Prioritize URL param, fallback to store
+    const tableId = tableIdFromUrl || tableIdFromStore;
+
     const cartItemCount = useCartStore((state) => state.items.length); // or total quantity
 
     // Helper to determine active state

@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { ordersApi } from "@/lib/api/orders";
 import Header from "@/components/mobile/Header";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useTableStore } from "@/store/useTableStore";
 import Link from "next/link";
 
 export default function CartPage() {
@@ -15,7 +16,10 @@ export default function CartPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const searchParams = useSearchParams();
     const router = useRouter();
-    const tableId = searchParams.get("tableId");
+
+    const tableIdFromUrl = searchParams.get("tableId");
+    const { tableId: tableIdFromStore } = useTableStore();
+    const tableId = tableIdFromUrl || tableIdFromStore;
 
     const formatPrice = (price: number) =>
         new Intl.NumberFormat("vi-VN", {

@@ -186,7 +186,7 @@ export default function OrdersPage() {
                 {/* Browse Menu Button */}
                 <div className="text-center pt-4">
                     <Link href={`/guest?tableId=${tableId || ""}`}>
-                        <button className="bg-[#e74c3c] bg-opacity-10 text-[#e74c3c] font-bold py-3 px-8 rounded-full hover:bg-opacity-20 transition-colors">
+                        <button className="bg-[#e74c3c]/10 text-[#e74c3c] font-bold py-3 px-8 rounded-full hover:bg-opacity-20 transition-colors">
                             🍽️ Browse Menu
                         </button>
                     </Link>

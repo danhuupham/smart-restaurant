@@ -138,7 +138,7 @@ export default function GuestMenuPage() {
                 <span className="font-bold text-lg text-gray-900">
                   {formatPrice(product.price)}
                 </span>
-                <button className="bg-[#e74c3c] bg-opacity-10 text-[#e74c3c] px-3 py-1 rounded-lg text-sm font-bold">
+                <button className="bg-[#e74c3c]/10 text-[#e74c3c] px-3 py-1 rounded-lg text-sm font-bold">
                   + Add
                 </button>
               </div>
