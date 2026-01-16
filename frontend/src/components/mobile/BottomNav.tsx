@@ -32,15 +32,17 @@ export default function BottomNav() {
                 </Link>
                 <Link
                     href={`/guest/cart?tableId=${tableId || ""}`}
-                    className={`flex flex-col items-center justify-center w-full h-full relative ${isActive("/guest/cart") ? "text-[#e74c3c]" : "text-gray-400"
+                    className={`flex flex-col items-center justify-center w-full h-full ${isActive("/guest/cart") ? "text-[#e74c3c]" : "text-gray-400"
                         }`}
                 >
-                    <span className="text-2xl mb-1">🛒</span>
-                    {cartItemCount > 0 && (
-                        <span className="absolute top-2 right-6 bg-[#e74c3c] text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
-                            {cartItemCount}
-                        </span>
-                    )}
+                    <div className="relative">
+                        <span className="text-2xl mb-1">🛒</span>
+                        {cartItemCount > 0 && (
+                            <span className="absolute -top-1 -right-2 bg-[#e74c3c] text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full border border-white">
+                                {cartItemCount}
+                            </span>
+                        )}
+                    </div>
                     <span className="text-xs font-medium">Cart</span>
                 </Link>
                 <Link
