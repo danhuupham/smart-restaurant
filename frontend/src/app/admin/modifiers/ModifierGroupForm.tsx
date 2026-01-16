@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -33,6 +33,8 @@ interface Props {
 
 export default function ModifierGroupForm({ group, onClose }: Props) {
   const [isLoading, setIsLoading] = useState(false);
+  const [initialOptionIds, setInitialOptionIds] = useState<string[]>([]);
+
   const {
     register,
     control,
@@ -47,6 +49,12 @@ export default function ModifierGroupForm({ group, onClose }: Props) {
     },
   });
 
+  useEffect(() => {
+    if (group) {
+      setInitialOptionIds(group.options.map(opt => opt.id).filter((id): id is string => !!id));
+    }
+  }, [group]);
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: "options",
@@ -55,28 +63,41 @@ export default function ModifierGroupForm({ group, onClose }: Props) {
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     try {
+      let savedGroup = group;
       if (group) {
         // Update
         await modifiersApi.updateGroup(group.id, {
           name: data.name,
           selectionType: data.selectionType,
         });
-        // Update options
+
+        const updatedOptionIds = new Set<string>();
+
+        // Update or create options
         for (const option of data.options) {
           if (option.id) {
             await modifiersApi.updateOption(option.id, option);
+            updatedOptionIds.add(option.id);
           } else {
-            await modifiersApi.createOption({ ...option, groupId: group.id });
+            const newOption = await modifiersApi.createOption({ ...option, groupId: group.id });
+            updatedOptionIds.add(newOption.id);
           }
         }
+        
+        // Delete removed options
+        const optionsToDelete = initialOptionIds.filter(id => !updatedOptionIds.has(id));
+        if (optionsToDelete.length > 0) {
+          await Promise.all(optionsToDelete.map(id => modifiersApi.deleteOption(id)));
+        }
+
       } else {
         // Create
-        const newGroup = await modifiersApi.createGroup({
+        savedGroup = await modifiersApi.createGroup({
           name: data.name,
           selectionType: data.selectionType,
         });
         for (const option of data.options) {
-          await modifiersApi.createOption({ ...option, groupId: newGroup.id });
+          await modifiersApi.createOption({ ...option, groupId: savedGroup.id });
         }
       }
       toast.success(
@@ -135,6 +156,7 @@ export default function ModifierGroupForm({ group, onClose }: Props) {
             <div className="space-y-1">
               <Input
                 type="number"
+                step="any"
                 placeholder="Price adjustment"
                 {...register(`options.${index}.priceAdjustment`)}
                 className={
