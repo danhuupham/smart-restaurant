@@ -118,10 +118,10 @@ The working order rotates daily following this sequence:
   - [x] Ensure the table status is updated to `AVAILABLE`.
   - _Commit:_ `feat: implement pay at counter checkout logic`
 
-- [ ] **Task 4.4: Payment Gateway Integration (Stripe)**
-  - [ ] Integrate Stripe SDK for processing online payments.
-  - [ ] Create backend APIs to handle payment intents.
-  - [ ] Update frontend UI to include a "Pay with Card" option.
+- [x] **Task 4.4: Payment Gateway Integration (Stripe)**
+  - [x] Integrate Stripe SDK for processing online payments.
+  - [x] Create backend APIs to handle payment intents.
+  - [x] Update frontend UI to include a "Pay with Card" option.
   - _Commit:_ `feat: integrate stripe for online payments`
 
 ---

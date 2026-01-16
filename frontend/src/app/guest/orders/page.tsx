@@ -6,6 +6,8 @@ import { Order, OrderStatus } from "@/types";
 import { ordersApi } from "@/lib/api/orders";
 import Header from "@/components/mobile/Header";
 import Link from "next/link";
+import PaymentModal from "@/components/guest/PaymentModal";
+import toast from "react-hot-toast";
 
 const getStatusColor = (status: OrderStatus) => {
     switch (status) {
@@ -38,25 +40,25 @@ const formatPrice = (price: number) =>
 function OrdersContent() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+
     const searchParams = useSearchParams();
     const tableId = searchParams.get("tableId");
 
-    useEffect(() => {
+    const fetchOrders = async () => {
         if (!tableId) return;
+        try {
+            const data = await ordersApi.getByTable(tableId);
+            setOrders(data);
+        } catch (error) {
+            console.error("Failed to fetch orders", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        const fetchOrders = async () => {
-            try {
-                const data = await ordersApi.getByTable(tableId);
-                setOrders(data);
-            } catch (error) {
-                console.error("Failed to fetch orders", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
+    useEffect(() => {
         fetchOrders();
-
         // Poll every 10 seconds
         const interval = setInterval(fetchOrders, 10000);
         return () => clearInterval(interval);
@@ -65,6 +67,29 @@ function OrdersContent() {
     const sessionTotal = Array.isArray(orders)
         ? orders.reduce((sum, order) => sum + Number(order.totalAmount), 0)
         : 0;
+
+    // Filter unpaid orders (not COMPLETED or CANCELLED)
+    const unpaidOrders = orders.filter(o => o.status !== 'COMPLETED' && o.status !== 'CANCELLED' && o.status !== 'REJECTED');
+    const unpaidTotal = unpaidOrders.reduce((sum, order) => sum + Number(order.totalAmount), 0);
+    const canPay = unpaidTotal > 0;
+
+    const handlePaymentSuccess = async () => {
+        // Mark all unpaid orders as COMPLETED
+        try {
+            await Promise.all(unpaidOrders.map(order =>
+                fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/orders/${order.id}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'COMPLETED' })
+                })
+            ));
+            toast.success("Đã thanh toán tất cả đơn hàng!");
+            fetchOrders();
+        } catch (error) {
+            console.error("Payment update failed", error);
+            toast.error("Thanh toán thành công nhưng lỗi cập nhật trạng thái.");
+        }
+    };
 
     return (
         <div className="p-4 safe-area-pb space-y-6">
@@ -85,9 +110,16 @@ function OrdersContent() {
                                 {formatPrice(sessionTotal)}
                             </div>
                         </div>
-                        <button className="bg-white text-[#e74c3c] px-4 py-2 rounded-full font-bold shadow-sm active:scale-95 transition-transform">
-                            Request Bill
-                        </button>
+                        {canPay ? (
+                            <button
+                                onClick={() => setIsPaymentModalOpen(true)}
+                                className="bg-white text-[#e74c3c] px-4 py-2 rounded-full font-bold shadow-sm active:scale-95 transition-transform flex items-center gap-2"
+                            >
+                                💳 Pay All
+                            </button>
+                        ) : (
+                            <span className="bg-white/20 px-3 py-1 rounded text-sm">Paid ✅</span>
+                        )}
                     </div>
                     <div className="flex gap-4 border-t border-white/30 pt-3 text-sm font-medium">
                         <span>📦 {orders.length} Orders</span>
@@ -190,6 +222,13 @@ function OrdersContent() {
                     </button>
                 </Link>
             </div>
+
+            <PaymentModal
+                isOpen={isPaymentModalOpen}
+                onClose={() => setIsPaymentModalOpen(false)}
+                amount={unpaidTotal}
+                onSuccess={handlePaymentSuccess}
+            />
         </div>
     );
 }

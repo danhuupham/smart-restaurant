@@ -10,6 +10,7 @@ import { UserModule } from './user/user.module';
 import { TablesModule } from './tables/tables.module';
 import { ModifiersModule } from './modifiers/modifiers.module';
 import { ReportsModule } from './reports/reports.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ReportsModule } from './reports/reports.module';
     UserModule,
     ModifiersModule,
     ReportsModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
