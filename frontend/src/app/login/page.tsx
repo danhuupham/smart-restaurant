@@ -6,8 +6,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import toast from "react-hot-toast";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useI18n } from "@/contexts/I18nContext";
 
 function LoginForm() {
+  const { t } = useI18n();
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -80,7 +82,7 @@ function LoginForm() {
             htmlFor="email"
             className="block text-sm font-medium text-gray-700"
           >
-            Email
+            {t('auth.email')}
           </label>
           <div className="mt-1">
             <input
@@ -105,7 +107,7 @@ function LoginForm() {
             htmlFor="password"
             className="block text-sm font-medium text-gray-700"
           >
-            Mật khẩu
+            {t('auth.password')}
           </label>
           <div className="mt-1">
             <input
@@ -153,10 +155,10 @@ function LoginForm() {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-                Đang xử lý...
+                {t('common.loading')}
               </>
             ) : (
-              "Đăng nhập"
+              t('auth.login')
             )}
           </button>
 
@@ -166,7 +168,7 @@ function LoginForm() {
             className="w-full mt-3 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="h-5 w-5 mr-2" alt="Google" />
-            Continue with Google
+            {t('auth.continueWithGoogle')}
           </button>
         </div>
       </form>
@@ -219,7 +221,9 @@ function LoginForm() {
   );
 }
 
-export default function LoginPage() {
+function LoginPageContent() {
+  const { t } = useI18n();
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="absolute top-4 right-4">
@@ -230,18 +234,22 @@ export default function LoginPage() {
           <span className="text-4xl">🍽️</span>
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Smart Restaurant
+          {t('common.appName')}
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Đăng nhập hệ thống quản lý
+          {t('auth.login')}
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div>{t('common.loading')}</div>}>
           <LoginForm />
         </Suspense>
       </div>
     </div>
   );
+}
+
+export default function LoginPage() {
+  return <LoginPageContent />;
 }
