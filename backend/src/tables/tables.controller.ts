@@ -55,4 +55,12 @@ export class TablesController {
       throw error;
     }
   }
+
+  @Post(':id/request-assistance')
+  requestAssistance(
+    @Param('id') id: string,
+    @Body('type') type: 'PAYMENT_CASH' | 'PAYMENT_QR' | 'ASSISTANCE'
+  ) {
+    return this.tablesService.requestAssistance(id, type);
+  }
 }

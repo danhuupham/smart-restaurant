@@ -38,4 +38,8 @@ export class OrdersGateway implements OnModuleInit {
   emitOrderUpdatedToKitchen(order: any) {
     this.server.to('kitchen').emit('order_updated', order);
   }
+
+  emitTableNotification(payload: any) {
+    this.server.to('waiter').emit('table_notification', payload);
+  }
 }

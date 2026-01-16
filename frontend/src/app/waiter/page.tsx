@@ -66,8 +66,25 @@ export default function WaiterPage() {
             copy[idx] = order;
             return copy;
           }
-          // Optionally handle adding if not found, but typically updates are for existing
-          return prev; // Or [order, ...prev] if you want to add updates that weren't there
+          return prev;
+        });
+      });
+
+      socket.on('table_notification', (data: any) => {
+        const msg = data.type === 'PAYMENT_CASH' ? 'gọi thanh toán tiền mặt!'
+          : data.type === 'PAYMENT_QR' ? 'gọi thanh toán QR!'
+            : 'cần hỗ trợ!';
+        toast(`🔔 Bàn ${data.tableName} ${msg}`, {
+          duration: 10000,
+          position: 'top-center',
+          style: {
+            background: '#e74c3c',
+            color: '#fff',
+            padding: '16px',
+            borderRadius: '8px',
+            fontSize: '1.2rem',
+          },
+          icon: '🏃',
         });
       });
     }).catch(err => console.error('Socket import error', err));

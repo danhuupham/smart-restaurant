@@ -91,6 +91,19 @@ function OrdersContent() {
         }
     };
 
+    const handleCallWaiter = async (type: 'PAYMENT_CASH' | 'ASSISTANCE') => {
+        try {
+            await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/tables/${tableId}/request-assistance`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type })
+            });
+            toast.success("Đã gọi nhân viên! Vui lòng đợi trong giây lát.");
+        } catch (e) {
+            toast.error("Lỗi khi gọi nhân viên.");
+        }
+    };
+
     return (
         <div className="p-4 safe-area-pb space-y-6">
             <Header
@@ -110,16 +123,26 @@ function OrdersContent() {
                                 {formatPrice(sessionTotal)}
                             </div>
                         </div>
-                        {canPay ? (
+
+                        <div className="flex gap-2">
                             <button
-                                onClick={() => setIsPaymentModalOpen(true)}
-                                className="bg-white text-[#e74c3c] px-4 py-2 rounded-full font-bold shadow-sm active:scale-95 transition-transform flex items-center gap-2"
+                                onClick={() => handleCallWaiter('PAYMENT_CASH')}
+                                className="bg-white/20 text-white px-3 py-2 rounded-full font-bold shadow-sm active:scale-95 transition-transform flex items-center gap-1 backdrop-blur-sm hover:bg-white/30"
+                                title="Gọi tính tiền tại bàn"
                             >
-                                💳 Pay All
+                                🔔
                             </button>
-                        ) : (
-                            <span className="bg-white/20 px-3 py-1 rounded text-sm">Paid ✅</span>
-                        )}
+                            {canPay ? (
+                                <button
+                                    onClick={() => setIsPaymentModalOpen(true)}
+                                    className="bg-white text-[#e74c3c] px-4 py-2 rounded-full font-bold shadow-sm active:scale-95 transition-transform flex items-center gap-2"
+                                >
+                                    💳 Pay
+                                </button>
+                            ) : (
+                                <span className="bg-white/20 px-3 py-1 rounded text-sm flex items-center">Paid ✅</span>
+                            )}
+                        </div>
                     </div>
                     <div className="flex gap-4 border-t border-white/30 pt-3 text-sm font-medium">
                         <span>📦 {orders.length} Orders</span>

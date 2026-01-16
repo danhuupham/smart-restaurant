@@ -6,9 +6,11 @@ import { UpdateTableDto } from './dto/update-table.dto';
 import * as qrcode from 'qrcode';
 import { randomBytes } from 'crypto';
 
+import { OrdersGateway } from 'src/events/orders.gateway';
+
 @Injectable()
 export class TablesService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService, private ordersGateway: OrdersGateway) { }
 
   create(createTableDto: CreateTableDto) {
     return this.prisma.table.create({
@@ -72,5 +74,20 @@ export class TablesService {
     const frontendUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/table/${qrToken}`;
 
     return qrcode.toDataURL(frontendUrl);
+  }
+
+  async requestAssistance(id: string, type: 'PAYMENT_CASH' | 'PAYMENT_QR' | 'ASSISTANCE') {
+    const table = await this.prisma.table.findUnique({ where: { id } });
+    if (!table) throw new NotFoundException('Table not found');
+
+    const payload = {
+      tableId: table.id,
+      tableName: table.tableNumber,
+      type,
+      timestamp: new Date(),
+    };
+
+    this.ordersGateway.emitTableNotification(payload);
+    return { success: true };
   }
 }
