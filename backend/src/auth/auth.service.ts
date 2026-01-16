@@ -1,17 +1,31 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { User, UserRole } from '@prisma/client';
+import * as nodemailer from 'nodemailer';
+import { v4 as uuidv4 } from 'uuid';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
+  private transporter: nodemailer.Transporter;
+
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
-  ) { }
+    private prisma: PrismaService,
+  ) {
+    this.transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.MAIL_USER, // e.g., 'your-email@gmail.com'
+        pass: process.env.MAIL_PASS, // App Password
+      },
+    });
+  }
 
   async register(registerDto: RegisterDto) {
     const { email, password, name, phone, role } = registerDto;
@@ -22,6 +36,7 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationToken = uuidv4();
 
     const user = await this.userService.createUser({
       email,
@@ -29,7 +44,13 @@ export class AuthService {
       name,
       phone,
       role: UserRole.CUSTOMER,
+      // @ts-ignore - Prisma types might not update immediately in IDE
+      verificationToken,
+      isEmailVerified: false,
     });
+
+    // Send verification email
+    await this.sendVerificationEmail(user.email, verificationToken);
 
     // Exclude password from the returned user object
     const { password: _, ...result } = user;
@@ -51,6 +72,11 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    // Optional: Check if email is verified
+    if (!user.isEmailVerified) {
+      throw new UnauthorizedException('Please verify your email first');
+    }
+
     const payload = { sub: user.id, email: user.email, role: user.role };
 
     return {
@@ -60,7 +86,49 @@ export class AuthService {
         email: user.email,
         name: user.name,
         role: user.role,
+        isEmailVerified: user.isEmailVerified,
       }
     };
+  }
+
+  async verifyEmail(token: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { verificationToken: token }
+    });
+
+    if (!user) {
+      throw new BadRequestException('Invalid verification token');
+    }
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        isEmailVerified: true,
+        verificationToken: null, // Clear token
+      }
+    });
+
+    return { message: 'Email verified successfully' };
+  }
+
+  private async sendVerificationEmail(email: string, token: string) {
+    const url = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${token}`;
+
+    try {
+      await this.transporter.sendMail({
+        from: '"Smart Restaurant" <no-reply@smartrestaurant.com>',
+        to: email,
+        subject: 'Verify your email',
+        html: `
+                <h1>Welcome to Smart Restaurant!</h1>
+                <p>Please click the link below to verify your email address:</p>
+                <a href="${url}">${url}</a>
+            `,
+      });
+      console.log(`Verification email sent to ${email}`);
+    } catch (error) {
+      console.error('Error sending email:', error);
+      // Do not block registration if email fails (for now), just log it
+    }
   }
 }
