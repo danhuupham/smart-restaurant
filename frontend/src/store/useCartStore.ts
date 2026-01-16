@@ -8,6 +8,7 @@ interface CartState {
 
   addToCart: (product: Product, quantity: number, modifiers: any[]) => void;
   removeFromCart: (index: number) => void;
+  updateQuantity: (index: number, quantity: number) => void;
   clearCart: () => void;
 }
 
@@ -16,18 +17,18 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items: [],
       totalAmount: 0,
-      
+
       addToCart: (product, quantity, modifiers) => {
         const currentItems = get().items;
-        
+
         const modifierTotal = modifiers.reduce((sum, mod) => sum + Number(mod.price), 0);
         const unitPrice = Number(product.price) + modifierTotal;
         const finalPrice = unitPrice * quantity;
-        
+
         const existingItemIndex = currentItems.findIndex(item => {
-            const itemModsString = JSON.stringify(item.modifiers.map(m => m.modifierOptionId).sort());
-            const newItemModsString = JSON.stringify(modifiers.map(m => m.modifierOptionId).sort());
-            return item.productId === product.id && newItemModsString === itemModsString;
+          const itemModsString = JSON.stringify(item.modifiers.map(m => m.modifierOptionId).sort());
+          const newItemModsString = JSON.stringify(modifiers.map(m => m.modifierOptionId).sort());
+          return item.productId === product.id && newItemModsString === itemModsString;
         });
 
         let newItems = [...currentItems];
@@ -36,7 +37,7 @@ export const useCartStore = create<CartState>()(
           newItems[existingItemIndex].quantity += quantity;
           newItems[existingItemIndex].totalPrice += finalPrice;
         } else {
-            const newItem: CartItem = {
+          const newItem: CartItem = {
             productId: product.id,
             name: product.name,
             price: Number(product.price),
@@ -56,7 +57,31 @@ export const useCartStore = create<CartState>()(
         const currentItems = get().items;
         const newItems = currentItems.filter((_, i) => i != index);
         const newTotalAmount = newItems.reduce((sum, item) => sum + item.totalPrice, 0);
-        set({ items: newItems, totalAmount: newTotalAmount});
+        set({ items: newItems, totalAmount: newTotalAmount });
+      },
+
+      updateQuantity: (index, quantity) => {
+        const currentItems = get().items;
+        if (index < 0 || index >= currentItems.length) return;
+
+        const item = currentItems[index];
+        if (quantity <= 0) {
+          get().removeFromCart(index);
+          return;
+        }
+
+        const modifierTotal = item.modifiers.reduce((sum, mod) => sum + Number(mod.price), 0);
+        const unitPrice = Number(item.price) + modifierTotal;
+
+        const newItems = [...currentItems];
+        newItems[index] = {
+          ...item,
+          quantity: quantity,
+          totalPrice: unitPrice * quantity
+        };
+
+        const newTotalAmount = newItems.reduce((sum, item) => sum + item.totalPrice, 0);
+        set({ items: newItems, totalAmount: newTotalAmount });
       },
 
       clearCart: () => set({ items: [], totalAmount: 0 }),

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Query } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -30,7 +30,7 @@ export class OrdersController {
   }
 
   @Get()
-  findAll(@Req() req) {
+  findAll(@Req() req, @Query('tableId') tableId: string) {
     const authHeader = req.headers.authorization;
     if (authHeader) {
       try {
@@ -43,6 +43,11 @@ export class OrdersController {
         // Ignore
       }
     }
+
+    if (tableId) {
+      return this.ordersService.findAll({ tableId });
+    }
+
     return this.ordersService.findAll();
   }
 

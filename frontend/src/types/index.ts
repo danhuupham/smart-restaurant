@@ -66,3 +66,28 @@ export interface CartItem {
   }[];
   totalPrice: number;
 }
+
+export interface OrderModifier {
+  id: string;
+  modifierOption: ModifierOption;
+  priceAtOrder: number;
+}
+
+export interface OrderItem {
+  id: string;
+  productId: string;
+  product: Product;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  modifiers: OrderModifier[];
+}
+
+export interface Order {
+  id: string;
+  tableId: string;
+  totalAmount: number;
+  status: OrderStatus;
+  items: OrderItem[];
+  createdAt: string;
+}

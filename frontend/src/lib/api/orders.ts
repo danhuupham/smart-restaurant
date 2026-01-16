@@ -11,5 +11,6 @@ export interface CreateOrderPayload {
 }
 
 export const ordersApi = {
-  create: (payload: CreateOrderPayload): Promise<Order> => api.post('/orders', payload),
+  create: (payload: CreateOrderPayload): Promise<Order> => api.post('/orders', payload).then(res => res.data),
+  getByTable: (tableId: string): Promise<Order[]> => api.get(`/orders?tableId=${tableId}`).then(res => res.data),
 };

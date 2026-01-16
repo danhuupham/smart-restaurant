@@ -1,0 +1,59 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useCartStore } from "@/store/useCartStore";
+
+export default function BottomNav() {
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+    const tableId = searchParams.get("tableId");
+    const cartItemCount = useCartStore((state) => state.items.length); // or total quantity
+
+    // Helper to determine active state
+    const isActive = (path: string) => pathname === path;
+
+    return (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 pb-safe">
+            <div className="flex justify-around items-center h-16">
+                <Link
+                    href={`/guest?tableId=${tableId || ""}`}
+                    className={`flex flex-col items-center justify-center w-full h-full ${isActive("/guest") ? "text-[#e74c3c]" : "text-gray-400"
+                        }`}
+                >
+                    <span className="text-2xl mb-1">🏠</span>
+                    <span className="text-xs font-medium">Menu</span>
+                </Link>
+                <Link
+                    href={`/guest/cart?tableId=${tableId || ""}`}
+                    className={`flex flex-col items-center justify-center w-full h-full relative ${isActive("/guest/cart") ? "text-[#e74c3c]" : "text-gray-400"
+                        }`}
+                >
+                    <span className="text-2xl mb-1">🛒</span>
+                    {cartItemCount > 0 && (
+                        <span className="absolute top-2 right-6 bg-[#e74c3c] text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
+                            {cartItemCount}
+                        </span>
+                    )}
+                    <span className="text-xs font-medium">Cart</span>
+                </Link>
+                <Link
+                    href={`/guest/orders?tableId=${tableId || ""}`}
+                    className={`flex flex-col items-center justify-center w-full h-full ${isActive("/guest/orders") ? "text-[#e74c3c]" : "text-gray-400"
+                        }`}
+                >
+                    <span className="text-2xl mb-1">📋</span>
+                    <span className="text-xs font-medium">Orders</span>
+                </Link>
+                <Link
+                    href="/login"
+                    className={`flex flex-col items-center justify-center w-full h-full ${"text-gray-400"
+                        }`}
+                >
+                    <span className="text-2xl mb-1">👤</span>
+                    <span className="text-xs font-medium">Profile</span>
+                </Link>
+            </div>
+        </div>
+    );
+}
