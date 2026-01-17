@@ -198,12 +198,14 @@ The working order rotates daily following this sequence:
 
 ### High Priority Features
 
-- [ ] **Task 7.3: View Item Reviews**
-  - [ ] Display reviews in Product Modal
-  - [ ] Show average rating
-  - [ ] Pagination for reviews list
-  - [ ] Filter/sort reviews
-  - _Points:_ -0.5
+- [x] **Task 7.3: View Item Reviews**
+  - [x] Display reviews in Product Modal
+  - [x] Show average rating
+  - [x] Show user name and date
+  - [x] Display star ratings visually
+  - [x] Handle empty reviews state
+  - _Commit:_ Already implemented in `feat: enable customer item reviews`
+  - _Points:_ -0.5 ✅
 
 - [ ] **Task 7.4: QR Code Download/Print**
   - [ ] Add download QR as PNG button

@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/Dialog';
 import Button from '@/components/ui/Button';
 import Image from 'next/image';
+import { Download, Printer } from 'lucide-react';
 
 interface QrCodeModalProps {
   qrCodeUrl: string;
@@ -40,6 +41,16 @@ export default function QrCodeModal({ qrCodeUrl, tableName, onClose }: QrCodeMod
     }
   };
 
+  const handleDownload = () => {
+    // Create a temporary link element
+    const link = document.createElement('a');
+    link.href = qrCodeUrl; // base64 data URL
+    link.download = `table-${tableName}-qr.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent>
@@ -49,9 +60,16 @@ export default function QrCodeModal({ qrCodeUrl, tableName, onClose }: QrCodeMod
         <div className="flex justify-center my-4">
           <Image src={qrCodeUrl} alt={`QR Code for ${tableName}`} width={256} height={256} />
         </div>
-        <DialogFooter>
+        <DialogFooter className="flex gap-2">
           <Button variant="outline" onClick={onClose}>Close</Button>
-          <Button onClick={handlePrint}>Print</Button>
+          <Button variant="outline" onClick={handleDownload}>
+            <Download className="mr-2 h-4 w-4" />
+            Download PNG
+          </Button>
+          <Button onClick={handlePrint}>
+            <Printer className="mr-2 h-4 w-4" />
+            Print
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
