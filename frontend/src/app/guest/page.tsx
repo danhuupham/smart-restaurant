@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, Suspense } from "react";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Product } from "@/types";
 import ProductModal from "@/components/ProductModal";
 import Header from "@/components/mobile/Header";
@@ -35,9 +35,21 @@ function GuestMenuContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const router = useRouter();
 
   const searchParams = useSearchParams();
   const tableId = searchParams.get("tableId");
+  const ITEMS_PER_PAGE = 12;
+
+  // Initialize page from URL on mount
+  useEffect(() => {
+    const pageParam = searchParams.get("page");
+    if (pageParam) {
+      const page = parseInt(pageParam, 10);
+      if (page > 0) setCurrentPage(page);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -55,6 +67,8 @@ function GuestMenuContent() {
 
         const data = await res.json();
         setProducts(data);
+        // Reset to page 1 when search changes
+        setCurrentPage(1);
       } catch (error) {
         console.error("Error loaded menu:", error);
       }
@@ -68,6 +82,15 @@ function GuestMenuContent() {
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
 
+  // Update URL when page changes
+  useEffect(() => {
+    if (currentPage > 1 && tableId) {
+      router.replace(`/guest?tableId=${tableId}&page=${currentPage}`, { scroll: false });
+    } else if (tableId) {
+      router.replace(`/guest?tableId=${tableId}`, { scroll: false });
+    }
+  }, [currentPage, tableId, router]);
+
   // Extract unique categories
   const categories = useMemo(() => {
     const cats = new Set(products.map((p) => p.category?.name || "Other"));
@@ -76,13 +99,26 @@ function GuestMenuContent() {
 
   // Filter products by category only (search is handled by backend)
   const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
+    const filtered = products.filter((product) => {
       const matchesCategory =
         activeCategory === t('menu.allCategories') ||
         (product.category?.name || "Other") === activeCategory;
       return matchesCategory;
     });
+
+    return filtered;
   }, [products, activeCategory, t]);
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+
+  // Reset to page 1 when category changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeCategory]);
 
   const handleProductClick = (product: Product) => {
     setSelectedProduct(product);
@@ -118,7 +154,7 @@ function GuestMenuContent() {
 
       {/* Menu List */}
       <div className="px-4 space-y-4">
-        {filteredProducts.map((product) => (
+        {paginatedProducts.map((product) => (
           <div
             key={product.id}
             onClick={() => handleProductClick(product)}
@@ -167,6 +203,63 @@ function GuestMenuContent() {
             No items found
           </div>
         )}
+      </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="px-4 py-6 flex justify-center items-center gap-2">
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 rounded-lg bg-white text-gray-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors shadow-sm"
+          >
+            ← Prev
+          </button>
+
+          <div className="flex gap-2">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+              // Show first page, last page, current page, and pages around current
+              const shouldShow =
+                page === 1 ||
+                page === totalPages ||
+                (page >= currentPage - 1 && page <= currentPage + 1);
+
+              if (!shouldShow) {
+                // Show ellipsis
+                if (page === currentPage - 2 || page === currentPage + 2) {
+                  return <span key={page} className="px-2 py-2 text-gray-400">...</span>;
+                }
+                return null;
+              }
+
+              return (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors shadow-sm ${currentPage === page
+                      ? 'bg-[#e74c3c] text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                    }`}
+                >
+                  {page}
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 rounded-lg bg-white text-gray-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors shadow-sm"
+          >
+            Next →
+          </button>
+        </div>
+      )}
+
+      {/* Items info */}
+      <div className="px-4 pb-4 text-center text-sm text-gray-500">
+        Showing {startIndex + 1}-{Math.min(endIndex, filteredProducts.length)} of {filteredProducts.length} items
       </div>
 
       <ProductModal
