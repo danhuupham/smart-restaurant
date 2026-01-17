@@ -49,11 +49,15 @@ A comprehensive full-stack restaurant management system with real-time order tra
 
 #### 🍴 Customer Experience
 - **Digital Menu**: Browse products by category with images
+- **Smart Search**: Fuzzy search for menu items with typo tolerance (e.g., "spageti" → "Spaghetti")
 - **Cart Management**: Add items with modifiers (toppings, sizes)
 - **Order Placement**: Submit orders directly from table
 - **Order History**: View current and past orders
 - **Online Payment**: Pay via Stripe (Credit Card) or simulate payment in Mock Mode
-- **Call Waiter**: Request assistance or cash payment with one tap ("zRing Bell")
+- **Call Waiter**: Request assistance or cash payment with one tap ("Bell Ring")
+- **Customer Registration**: Create personal accounts to save order history
+- **Item Reviews**: Rate and review products after ordering (1-5 stars + comments)
+- **Multi-language Support**: Switch between English and Vietnamese (EN/VI)
 
 ---
 
@@ -68,6 +72,7 @@ A comprehensive full-stack restaurant management system with real-time order tra
 - **Real-time**: Socket.IO Client
 - **UI Components**: Custom components with Lucide icons
 - **Notifications**: React Hot Toast
+- **Internationalization**: Custom i18n context (EN/VI support)
 
 ### Backend
 - **Framework**: NestJS
@@ -239,6 +244,32 @@ After seeding, use these accounts (Password: `password@123`):
 3. **Guest (Stripe)**: Enter card details (or use Mock Button) -> Success.
 4. **Verify**: Order marked COMPLETED, Table becomes AVAILABLE.
 
+### Scenario 4: Customer Registration & Reviews
+1. Navigate to `http://localhost:3000/register`
+2. Fill in name, email, password, phone number
+3. Click "Đăng Ký" (Register)
+4. Login with the new account
+5. Place an order and view it in "Your Orders"
+6. Click the **⭐** button next to any ordered item
+7. Select star rating (1-5) and add optional comment
+8. Submit review
+9. **Verify**: Success toast appears
+
+### Scenario 5: Fuzzy Search
+1. Go to Guest Menu: `http://localhost:3000/guest?tableId=1`
+2. Type in search bar (e.g., "pho", "pizza", "com")
+3. **Verify**: Results appear in real-time with partial matches
+4. Search works case-insensitively and across product names
+
+### Scenario 6: Multi-language Support
+1. Visit any page (Login, Guest Menu, Waiter, Kitchen, Admin)
+2. Click **EN** button in top-right corner
+3. **Verify**: Text changes to English
+4. Click **VI** button
+5. **Verify**: Text changes back to Vietnamese
+6. Navigate to other pages
+7. **Verify**: Language preference persists
+
 ---
 
 ## 🆕 Recent Updates (Changelog)
@@ -259,6 +290,14 @@ After seeding, use these accounts (Password: `password@123`):
 ### Module 5: Deployment
 - ✅ **Dockerfiles**: Production-ready Dockerfiles for Frontend and Backend.
 - ✅ **Docker Compose**: Full stack orchestration (`docker-compose.prod.yml`).
+
+### Module 6: Advanced Customer Features
+- ✅ **Customer Registration**: Self-service account creation for customers (Task 6.1)
+- ✅ **Item Reviews**: Rating system (1-5 stars) with comments for products (Task 6.3)
+- ✅ **Fuzzy Search**: Smart product search with typo tolerance and partial matching (Task 6.4)
+- ✅ **Multi-language Support**: English/Vietnamese language switcher on all pages (Task 6.5)
+- ✅ **Review Modal**: Interactive UI for submitting ratings with authentication check
+- ✅ **I18n Context**: Custom internationalization system with localStorage persistence
 
 ---
 
