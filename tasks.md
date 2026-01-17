@@ -222,11 +222,14 @@ The working order rotates daily following this sequence:
   - _Commit:_ `feat: add print bill functionality with react-to-print`
   - _Points:_ -0.25 ✅
 
-- [ ] **Task 7.6: Menu Item Pagination**
-  - [ ] Implement pagination in guest menu (12 items/page)
-  - [ ] Add page navigation controls
-  - [ ] Update URL with page parameter
-  - _Points:_ -0.75
+- [x] **Task 7.6: Menu Item Pagination**
+  - [x] Implement pagination in guest menu (12 items/page)
+  - [x] Add page navigation controls with ellipsis
+  - [x] Update URL with page parameter
+  - [x] Show items count info
+  - [x] Reset to page 1 on category/search change
+  - _Commit:_ `feat: add pagination to guest menu (12 items per page)`
+  - _Points:_ -0.75 ✅
 
 - [ ] **Task 7.7: Email Verification**
   - [ ] Setup email service (NodeMailer/SendGrid)
