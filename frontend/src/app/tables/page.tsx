@@ -1,7 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
+import { useI18n } from "@/contexts/I18nContext";
+import { Users, ArrowLeft, QrCode } from "lucide-react";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 interface TableItem {
   id: string;
@@ -11,9 +14,9 @@ interface TableItem {
   status?: string;
 }
 
-export default function TablesPage() {
+function TablesContent() {
+  const { t } = useI18n();
   const [tables, setTables] = useState<TableItem[]>([]);
-  const [qrMap, setQrMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,23 +28,6 @@ export default function TablesPage() {
         if (!res.ok) throw new Error("Failed to fetch tables");
         const data = await res.json();
         setTables(data || []);
-
-        // Generate QR codes for each table (backend returns dataURL)
-        const map: Record<string, string> = {};
-        await Promise.all(
-          (data || []).map(async (t: any) => {
-            try {
-              const r = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000'}/tables/${t.id}/generate-qr`, { method: "POST" });
-              if (!r.ok) return;
-              const json = await r.json();
-              map[t.id] = json.qrCodeDataUrl;
-            } catch (e) {
-              // ignore per-item errors
-            }
-          })
-        );
-
-        setQrMap(map);
       } catch (err: any) {
         setError(err.message || "Error");
       } finally {
@@ -52,73 +38,94 @@ export default function TablesPage() {
     fetchTables();
   }, []);
 
-  if (loading) return <div className="p-6">Loading...</div>;
-  if (error) return <div className="p-6 text-red-600">{error}</div>;
-
-  return (
-    <main className="min-h-screen p-6 bg-slate-50">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Sơ đồ bàn & QR Code</h1>
-            <p className="text-slate-500 mt-2">Chọn một bàn để bắt đầu gọi món (Mô phỏng quét mã QR)</p>
-          </div>
-          <Link href="/" className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-            ← Quay lại Trang chủ
-          </Link>
-        </div>
-
-        {loading && <div className="text-center py-12">Đang tải dữ liệu bàn...</div>}
-        {error && <div className="text-center py-12 text-red-600">{error}</div>}
-
-        {!loading && !error && tables.length === 0 && (
-          <div className="text-center py-12 text-slate-500">Chưa có bàn nào được tạo. Vui lòng tạo bàn trong trang Admin.</div>
-        )}
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {tables.map((t) => (
-            <div key={t.id} className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition-shadow">
-              <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                <span className="font-bold text-lg text-slate-800">Bàn {t.tableNumber}</span>
-                <span className={`px-2 py-1 rounded text-xs font-semibold ${t.status === 'AVAILABLE' ? 'bg-green-100 text-green-700' :
-                    t.status === 'OCCUPIED' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'
-                  }`}>
-                  {t.status === 'AVAILABLE' ? 'Trống' : t.status === 'OCCUPIED' ? 'Có khách' : t.status}
-                </span>
-              </div>
-
-              <div className="p-6 flex flex-col items-center">
-                <div className="relative group cursor-pointer w-48 h-48">
-                  {qrMap[t.id] ? (
-                    <Link href={`/guest?tableId=${t.id}`}>
-                      <img
-                        src={qrMap[t.id]}
-                        alt={`QR ${t.tableNumber}`}
-                        className="w-full h-full object-contain group-hover:scale-105 transition-transform"
-                      />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors rounded-lg" />
-                    </Link>
-                  ) : (
-                    <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400 rounded-lg">
-                      Processing...
-                    </div>
-                  )}
-                </div>
-                <div className="mt-4 text-sm text-slate-500">Sức chứa: {t.capacity} người</div>
-              </div>
-
-              <div className="p-4 bg-slate-50/50 border-t border-slate-100">
-                <Link
-                  href={`/guest?tableId=${t.id}`}
-                  className="block w-full text-center bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 rounded-lg transition-colors"
-                >
-                  Chọn Bàn Này
-                </Link>
-              </div>
-            </div>
-          ))}
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f5f6fa]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
+          <p className="text-gray-500">{t('tables.loading')}</p>
         </div>
       </div>
-    </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f5f6fa] p-6">
+        <div className="text-center">
+          <p className="text-red-500 mb-4">{t('tables.error')}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-orange-600 text-white rounded-lg"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#f5f6fa] pb-safe">
+      {/* Mobile Header */}
+      <div className="bg-white px-4 py-3 sticky top-0 z-50 flex items-center justify-between shadow-sm border-b border-gray-100">
+        <Link href="/" className="p-2 -ml-2 rounded-full hover:bg-gray-100 text-gray-600">
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
+        <h1 className="font-bold text-lg text-gray-800">{t('tables.title')}</h1>
+        <LanguageSwitcher />
+      </div>
+
+      <div className="p-4">
+        <div className="bg-blue-50 p-4 rounded-xl flex items-start gap-3 border border-blue-100 mb-6">
+          <QrCode className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+          <p className="text-sm text-blue-700">
+            {t('tables.subtitle')}
+          </p>
+        </div>
+
+        {tables.length === 0 ? (
+          <div className="text-center py-12 text-slate-500">{t('tables.empty')}</div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4">
+            {tables.map((table) => (
+              <Link
+                key={table.id}
+                href={`/guest?tableId=${table.id}`}
+                className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 active:scale-[0.98] transition-all hover:shadow-md flex flex-col items-center text-center group relative overflow-hidden"
+              >
+                <div className={`absolute top-0 right-0 px-3 py-1 rounded-bl-xl text-xs font-bold ${table.status === 'AVAILABLE' ? 'bg-green-100 text-green-700' :
+                  table.status === 'OCCUPIED' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'
+                  }`}>
+                  {table.status === 'AVAILABLE' ? t('tables.available') : table.status === 'OCCUPIED' ? t('tables.occupied') : table.status}
+                </div>
+
+                <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center text-orange-600 mb-3 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                  <span className="text-2xl font-bold">{table.tableNumber}</span>
+                </div>
+
+                <div className="text-gray-400 text-xs flex items-center gap-1 mb-3">
+                  <Users className="w-3 h-3" />
+                  <span>{t('tables.capacity', { capacity: table.capacity })}</span>
+                </div>
+
+                <button className="w-full py-2 px-3 bg-gray-50 text-gray-600 rounded-lg text-sm font-bold group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                  {t('tables.selectTable')}
+                </button>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
+}
+export default function TablesPage() {
+  return (
+    <main>
+      <Suspense fallback={<div>Loading...</div>}>
+        <TablesContent />
+      </Suspense>
+    </main>
+  )
 }

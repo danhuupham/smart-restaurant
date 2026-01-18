@@ -3,20 +3,25 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, UtensilsCrossed, QrCode, LogIn } from "lucide-react";
+import { useI18n } from "@/contexts/I18nContext";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function LandingPage() {
+  const { t } = useI18n();
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
       {/* Navigation */}
       <header className="px-4 lg:px-6 h-16 flex items-center bg-white shadow-sm sticky top-0 z-50">
         <div className="flex items-center gap-2 font-bold text-xl text-orange-600">
           <UtensilsCrossed className="h-6 w-6" />
-          <span>Smart Restaurant</span>
+          <span>{t('common.appName')}</span>
         </div>
-        <nav className="ml-auto flex gap-4 sm:gap-6">
-          <Link href="/login" className="text-sm font-medium hover:text-orange-600 transition-colors flex items-center gap-1">
+        <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
+          <LanguageSwitcher />
+          <Link href="/login" className="text-sm font-bold text-slate-700 hover:text-orange-600 transition-colors flex items-center gap-1">
             <LogIn className="w-4 h-4" />
-            Đăng nhập
+            {t('auth.login')}
           </Link>
         </nav>
       </header>
@@ -32,10 +37,10 @@ export default function LandingPage() {
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
                   <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none text-slate-900">
-                    Trải nghiệm ẩm thực <span className="text-orange-600">thông minh</span>
+                    {t('home.experienceSmart')} <span className="text-orange-600">{t('home.smart')}</span>
                   </h1>
                   <p className="max-w-[600px] text-slate-500 md:text-xl dark:text-slate-400">
-                    Đặt món nhanh chóng, thanh toán tiện lợi và tận hưởng dịch vụ đẳng cấp ngay tại bàn của bạn.
+                    {t('home.experienceDesc')}
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
@@ -44,13 +49,13 @@ export default function LandingPage() {
                     className="inline-flex h-12 items-center justify-center rounded-md bg-orange-600 px-8 text-sm font-medium text-white shadow transition-colors hover:bg-orange-700 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-700"
                   >
                     <QrCode className="mr-2 h-4 w-4" />
-                    Quét QR / Chọn Bàn
+                    {t('home.scanQr')}
                   </Link>
                   <Link
                     href="/menu"
                     className="inline-flex h-12 items-center justify-center rounded-md border border-slate-200 bg-white px-8 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-950"
                   >
-                    Xem Thực Đơn
+                    {t('home.viewMenu')}
                   </Link>
                 </div>
               </div>
@@ -73,13 +78,13 @@ export default function LandingPage() {
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <div className="inline-block rounded-lg bg-orange-100 px-3 py-1 text-sm text-orange-600">
-                  Tính năng nổi bật
+                  {t('home.featuresTitle')}
                 </div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-slate-900">
-                  Phục vụ mọi nhu cầu của bạn
+                  {t('home.featuresSubtitle')}
                 </h2>
                 <p className="max-w-[900px] text-slate-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Hệ thống quản lý nhà hàng toàn diện từ đặt món, quản lý bếp đến thanh toán.
+                  {t('home.featuresDesc')}
                 </p>
               </div>
             </div>
@@ -89,8 +94,8 @@ export default function LandingPage() {
                 <div className="p-4 bg-white rounded-full shadow-lg text-orange-600">
                   <QrCode className="h-8 w-8" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900">Đặt món qua QR</h3>
-                <p className="text-slate-600">Khách hàng tự quét mã QR tại bàn để xem menu và gọi món không cần chờ đợi.</p>
+                <h3 className="text-xl font-bold text-slate-900">{t('home.qrFeatureTitle')}</h3>
+                <p className="text-slate-600">{t('home.qrFeatureDesc')}</p>
               </div>
 
               {/* Feature 2 */}
@@ -98,8 +103,8 @@ export default function LandingPage() {
                 <div className="p-4 bg-white rounded-full shadow-lg text-orange-600">
                   <UtensilsCrossed className="h-8 w-8" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900">Quản lý Bếp & Bar</h3>
-                <p className="text-slate-600">Đơn hàng được chuyển tức thời xuống bếp, giảm thiểu sai sót và tăng tốc độ phục vụ.</p>
+                <h3 className="text-xl font-bold text-slate-900">{t('home.kitchenFeatureTitle')}</h3>
+                <p className="text-slate-600">{t('home.kitchenFeatureDesc')}</p>
               </div>
 
               {/* Feature 3 */}
@@ -107,8 +112,8 @@ export default function LandingPage() {
                 <div className="p-4 bg-white rounded-full shadow-lg text-orange-600">
                   <LogIn className="h-8 w-8" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900">Quản lý Bàn</h3>
-                <p className="text-slate-600">Theo dõi trạng thái bàn thời gian thực, tối ưu hóa quy trình sắp xếp chỗ ngồi.</p>
+                <h3 className="text-xl font-bold text-slate-900">{t('home.tableFeatureTitle')}</h3>
+                <p className="text-slate-600">{t('home.tableFeatureDesc')}</p>
               </div>
             </div>
           </div>
@@ -117,14 +122,14 @@ export default function LandingPage() {
 
       <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t bg-white">
         <p className="text-xs text-slate-500">
-          © 2024 Smart Restaurant. All rights reserved.
+          {t('home.footerRights')}
         </p>
         <nav className="sm:ml-auto flex gap-4 sm:gap-6">
           <Link className="text-xs hover:underline underline-offset-4 text-slate-500" href="#">
-            Terms of Service
+            {t('home.terms')}
           </Link>
           <Link className="text-xs hover:underline underline-offset-4 text-slate-500" href="#">
-            Privacy
+            {t('home.privacy')}
           </Link>
         </nav>
       </footer>

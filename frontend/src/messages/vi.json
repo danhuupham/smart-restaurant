@@ -127,6 +127,37 @@
         "orders": "Đơn Hàng",
         "profile": "Tài Khoản"
     },
+    "tables": {
+        "title": "Chọn Bàn",
+        "subtitle": "Chọn một bàn để bắt đầu gọi món (Mô phỏng quét mã QR)",
+        "backToHome": "Về Trang Chủ",
+        "available": "Trống",
+        "occupied": "Có khách",
+        "capacity": "Sức chứa: {capacity} người",
+        "selectTable": "Chọn Bàn Này",
+        "loading": "Đang tải dữ liệu bàn...",
+        "error": "Lỗi tải dữ liệu bàn",
+        "empty": "Chưa có bàn nào được tạo"
+    },
+    "home": {
+        "experienceSmart": "Trải nghiệm ẩm thực",
+        "smart": "thông minh",
+        "experienceDesc": "Đặt món nhanh chóng, thanh toán tiện lợi và tận hưởng dịch vụ đẳng cấp ngay tại bàn của bạn.",
+        "scanQr": "Quét QR / Chọn Bàn",
+        "viewMenu": "Xem Thực Đơn",
+        "featuresTitle": "Tính năng nổi bật",
+        "featuresSubtitle": "Phục vụ mọi nhu cầu của bạn",
+        "featuresDesc": "Hệ thống quản lý nhà hàng toàn diện từ đặt món, quản lý bếp đến thanh toán.",
+        "qrFeatureTitle": "Đặt món qua QR",
+        "qrFeatureDesc": "Khách hàng tự quét mã QR tại bàn để xem menu và gọi món không cần chờ đợi.",
+        "kitchenFeatureTitle": "Quản lý Bếp & Bar",
+        "kitchenFeatureDesc": "Đơn hàng được chuyển tức thời xuống bếp, giảm thiểu sai sót và tăng tốc độ phục vụ.",
+        "tableFeatureTitle": "Quản lý Bàn",
+        "tableFeatureDesc": "Theo dõi trạng thái bàn thời gian thực, tối ưu hóa quy trình sắp xếp chỗ ngồi.",
+        "footerRights": "© 2024 Smart Restaurant. All rights reserved.",
+        "terms": "Điều khoản dịch vụ",
+        "privacy": "Chính sách bảo mật"
+    },
     "profile": {
         "title": "Hồ Sơ Của Tôi",
         "notLoggedIn": "Chưa Đăng Nhập",

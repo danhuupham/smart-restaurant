@@ -7,6 +7,7 @@ import { Product } from "@/types";
 import { useI18n } from "@/contexts/I18nContext";
 import { ArrowLeft, Search, UtensilsCrossed } from "lucide-react";
 import CategoryTabs from "@/components/mobile/CategoryTabs";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 const formatPrice = (price: number | string) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -18,7 +19,7 @@ const formatPrice = (price: number | string) => {
 function MenuContent() {
     const { t } = useI18n();
     const [products, setProducts] = useState<Product[]>([]);
-    const [activeCategory, setActiveCategory] = useState("All");
+    const [activeCategory, setActiveCategory] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
     const [loading, setLoading] = useState(true);
 
@@ -62,10 +63,10 @@ function MenuContent() {
     // Filter products
     const filteredProducts = useMemo(() => {
         return products.filter((product) => {
-            return activeCategory === t('menu.allCategories') ||
+            return activeCategory === "" ||
                 (product.category?.name || "Other") === activeCategory;
         });
-    }, [products, activeCategory, t]);
+    }, [products, activeCategory]);
 
     return (
         <div className="min-h-screen bg-slate-50">
@@ -78,15 +79,19 @@ function MenuContent() {
                         </Link>
                         <div className="font-bold text-lg flex items-center gap-2 text-orange-600">
                             <UtensilsCrossed className="w-5 h-5" />
-                            <span>Thực Đơn</span>
+                            <span>{t('menu.title')}</span>
                         </div>
                     </div>
-                    <Link
-                        href="/tables"
-                        className="text-sm font-medium bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors"
-                    >
-                        Đặt Món
-                    </Link>
+
+                    <div className="flex items-center gap-2">
+                        <LanguageSwitcher />
+                        <Link
+                            href="/tables"
+                            className="text-sm font-medium bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors"
+                        >
+                            {t('cart.startOrdering') || "Đặt Món"}
+                        </Link>
+                    </div>
                 </div>
             </header>
 
@@ -95,7 +100,7 @@ function MenuContent() {
                 <div className="mb-6 relative">
                     <input
                         type="text"
-                        placeholder="Tìm món ăn..."
+                        placeholder={t('menu.searchPlaceholder')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full pl-10 pr-4 py-3 rounded-xl border-none shadow-sm bg-white focus:ring-2 focus:ring-orange-500 outline-none text-slate-800 placeholder:text-slate-500"
@@ -107,16 +112,16 @@ function MenuContent() {
                 <div className="mb-8">
                     <CategoryTabs
                         categories={categories}
-                        activeCategory={activeCategory}
-                        onSelect={setActiveCategory}
+                        activeCategory={activeCategory === "" ? t('menu.allCategories') : activeCategory}
+                        onSelect={(cat) => setActiveCategory(cat === t('menu.allCategories') ? "" : cat)}
                     />
                 </div>
 
                 {/* Product Grid */}
                 {loading ? (
-                    <div className="text-center py-12 text-gray-500">Đang tải thực đơn...</div>
+                    <div className="text-center py-12 text-gray-500">{t('common.loading')}</div>
                 ) : filteredProducts.length === 0 ? (
-                    <div className="text-center py-12 text-gray-500">Không tìm thấy món ăn nào.</div>
+                    <div className="text-center py-12 text-gray-500">{t('menu.noItems')}</div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
                         {filteredProducts.map((product) => (
@@ -132,7 +137,7 @@ function MenuContent() {
                                 <div className="flex-1 flex flex-col">
                                     <div className="flex-1">
                                         <h3 className="font-bold text-gray-900 mb-1 line-clamp-2">{product.name}</h3>
-                                        <p className="text-xs text-gray-500 line-clamp-2">{product.description || "Món ăn ngon tuyệt vời từ nhà hàng của chúng tôi."}</p>
+                                        <p className="text-xs text-gray-500 line-clamp-2">{product.description || t('menu.noDescription') || "..."}</p>
                                     </div>
                                     <div className="mt-2 flex items-center justify-between">
                                         <span className="font-bold text-orange-600 text-lg">

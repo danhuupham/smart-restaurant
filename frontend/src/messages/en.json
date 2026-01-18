@@ -127,6 +127,37 @@
         "orders": "Orders",
         "profile": "Profile"
     },
+    "tables": {
+        "title": "Select Table",
+        "subtitle": "Choose a table to start ordering (QR Code Simulation)",
+        "backToHome": "Back to Home",
+        "available": "Available",
+        "occupied": "Occupied",
+        "capacity": "Capacity: {capacity} people",
+        "selectTable": "Select This Table",
+        "loading": "Loading tables...",
+        "error": "Error loading tables",
+        "empty": "No tables found"
+    },
+    "home": {
+        "experienceSmart": "Experience Dining",
+        "smart": "Smart",
+        "experienceDesc": "Order quickly, pay conveniently, and enjoy premium service right at your table.",
+        "scanQr": "Scan QR / Select Table",
+        "viewMenu": "View Menu",
+        "featuresTitle": "Key Features",
+        "featuresSubtitle": "Serving All Your Needs",
+        "featuresDesc": "Comprehensive restaurant management system from ordering, kitchen management to payment.",
+        "qrFeatureTitle": "Order via QR",
+        "qrFeatureDesc": "Customers scan QR codes at the table to view menu and order without waiting.",
+        "kitchenFeatureTitle": "Kitchen & Bar Management",
+        "kitchenFeatureDesc": "Orders are instantly sent to the kitchen, minimizing errors and speeding up service.",
+        "tableFeatureTitle": "Table Management",
+        "tableFeatureDesc": "Track table status in real-time, optimizing seating arrangements.",
+        "footerRights": "© 2024 Smart Restaurant. All rights reserved.",
+        "terms": "Terms of Service",
+        "privacy": "Privacy"
+    },
     "profile": {
         "title": "My Profile",
         "notLoggedIn": "Not Logged In",
