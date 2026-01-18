@@ -71,7 +71,7 @@ export class TablesService {
     }
 
     // Use configurable frontend URL
-    const frontendUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/table/${qrToken}`;
+    const frontendUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/guest?tableId=${id}`;
 
     return qrcode.toDataURL(frontendUrl);
   }
