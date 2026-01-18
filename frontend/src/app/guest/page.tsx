@@ -44,14 +44,22 @@ function GuestMenuContent() {
 
   // Initialize page from URL on mount
   useEffect(() => {
+    // If no tableId, redirect to table selection
+    if (!tableId) {
+      router.replace('/tables');
+      return;
+    }
+
     const pageParam = searchParams.get("page");
     if (pageParam) {
       const page = parseInt(pageParam, 10);
       if (page > 0) setCurrentPage(page);
     }
-  }, []);
+  }, [tableId, router, searchParams]); // Added dependencies
 
   useEffect(() => {
+    if (!tableId) return; // Skip fetch if redirecting
+
     const fetchProducts = async () => {
       try {
         // Use search API if there's a query, otherwise get all products
@@ -137,9 +145,9 @@ function GuestMenuContent() {
             placeholder={t('menu.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#f5f6fa] border-none rounded-xl py-3 pl-10 pr-4 text-gray-700 focus:ring-2 focus:ring-[#e74c3c] outline-none"
+            className="w-full bg-[#f5f6fa] border-none rounded-xl py-3 pl-10 pr-4 text-slate-800 placeholder:text-slate-500 focus:ring-2 focus:ring-[#e74c3c] outline-none"
           />
-          <span className="absolute left-3 top-3 text-gray-400">🔍</span>
+          <span className="absolute left-3 top-3 text-slate-500">🔍</span>
         </div>
       </div>
 
@@ -237,8 +245,8 @@ function GuestMenuContent() {
                   key={page}
                   onClick={() => setCurrentPage(page)}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors shadow-sm ${currentPage === page
-                      ? 'bg-[#e74c3c] text-white'
-                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                    ? 'bg-[#e74c3c] text-white'
+                    : 'bg-white text-gray-700 hover:bg-gray-100'
                     }`}
                 >
                   {page}

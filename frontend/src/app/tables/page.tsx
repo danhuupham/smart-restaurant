@@ -56,42 +56,68 @@ export default function TablesPage() {
   if (error) return <div className="p-6 text-red-600">{error}</div>;
 
   return (
-    <main className="min-h-screen p-6 bg-gray-50">
+    <main className="min-h-screen p-6 bg-slate-50">
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-2xl font-bold mb-4 text-gray-800">QR Codes for Tables</h1>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Sơ đồ bàn & QR Code</h1>
+            <p className="text-slate-500 mt-2">Chọn một bàn để bắt đầu gọi món (Mô phỏng quét mã QR)</p>
+          </div>
+          <Link href="/" className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+            ← Quay lại Trang chủ
+          </Link>
+        </div>
 
-        {tables.length === 0 ? (
-          <div>No tables found.</div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {tables.map((t) => (
-              <div key={t.id} className="bg-white p-4 rounded-lg shadow">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <div className="text-lg font-bold text-gray-900">Bàn {t.tableNumber}</div>
-                    <div className="text-sm text-gray-600">Sức chứa: {t.capacity}</div>
-                  </div>
-                  <div className="text-sm text-gray-600">{t.status}</div>
-                </div>
+        {loading && <div className="text-center py-12">Đang tải dữ liệu bàn...</div>}
+        {error && <div className="text-center py-12 text-red-600">{error}</div>}
 
-                <div className="mb-4 flex items-center justify-center">
+        {!loading && !error && tables.length === 0 && (
+          <div className="text-center py-12 text-slate-500">Chưa có bàn nào được tạo. Vui lòng tạo bàn trong trang Admin.</div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {tables.map((t) => (
+            <div key={t.id} className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition-shadow">
+              <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                <span className="font-bold text-lg text-slate-800">Bàn {t.tableNumber}</span>
+                <span className={`px-2 py-1 rounded text-xs font-semibold ${t.status === 'AVAILABLE' ? 'bg-green-100 text-green-700' :
+                    t.status === 'OCCUPIED' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'
+                  }`}>
+                  {t.status === 'AVAILABLE' ? 'Trống' : t.status === 'OCCUPIED' ? 'Có khách' : t.status}
+                </span>
+              </div>
+
+              <div className="p-6 flex flex-col items-center">
+                <div className="relative group cursor-pointer w-48 h-48">
                   {qrMap[t.id] ? (
-                    // Clicking the image navigates to the guest menu with tableId
                     <Link href={`/guest?tableId=${t.id}`}>
-                      <img src={qrMap[t.id]} alt={`QR ${t.tableNumber}`} className="w-40 h-40 object-contain" />
+                      <img
+                        src={qrMap[t.id]}
+                        alt={`QR ${t.tableNumber}`}
+                        className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors rounded-lg" />
                     </Link>
                   ) : (
-                    <div className="w-40 h-40 bg-gray-100 flex items-center justify-center text-sm text-gray-600">No QR</div>
+                    <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400 rounded-lg">
+                      Processing...
+                    </div>
                   )}
                 </div>
-
-                <div className="flex gap-2">
-                  <Link href={`/guest?tableId=${t.id}`} className="flex-1 text-center bg-blue-600 text-white py-2 rounded">Open Menu</Link>
-                </div>
+                <div className="mt-4 text-sm text-slate-500">Sức chứa: {t.capacity} người</div>
               </div>
-            ))}
-          </div>
-        )}
+
+              <div className="p-4 bg-slate-50/50 border-t border-slate-100">
+                <Link
+                  href={`/guest?tableId=${t.id}`}
+                  className="block w-full text-center bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 rounded-lg transition-colors"
+                >
+                  Chọn Bàn Này
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </main>
   );

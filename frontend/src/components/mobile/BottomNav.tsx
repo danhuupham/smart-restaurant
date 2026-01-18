@@ -4,8 +4,11 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCartStore } from "@/store/useCartStore";
 import { useTableStore } from "@/store/useTableStore";
+import { Home, ShoppingCart, ClipboardList, User } from "lucide-react";
+import { useI18n } from "@/contexts/I18nContext";
 
 export default function BottomNav() {
+    const { t } = useI18n();
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const tableIdFromUrl = searchParams.get("tableId");
@@ -20,46 +23,46 @@ export default function BottomNav() {
     const isActive = (path: string) => pathname === path;
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 pb-safe">
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
             <div className="flex justify-around items-center h-16">
                 <Link
                     href={`/guest?tableId=${tableId || ""}`}
-                    className={`flex flex-col items-center justify-center w-full h-full ${isActive("/guest") ? "text-[#e74c3c]" : "text-gray-400"
+                    className={`flex flex-col items-center justify-center w-full h-full transition-colors ${isActive("/guest") ? "text-orange-600" : "text-gray-400 hover:text-gray-600"
                         }`}
                 >
-                    <span className="text-2xl mb-1">🏠</span>
-                    <span className="text-xs font-medium">Menu</span>
+                    <Home className="w-6 h-6 mb-1" strokeWidth={isActive("/guest") ? 2.5 : 2} />
+                    <span className="text-[10px] font-medium">{t('nav.home') || 'Trang chủ'}</span>
                 </Link>
                 <Link
                     href={`/guest/cart?tableId=${tableId || ""}`}
-                    className={`flex flex-col items-center justify-center w-full h-full ${isActive("/guest/cart") ? "text-[#e74c3c]" : "text-gray-400"
+                    className={`flex flex-col items-center justify-center w-full h-full transition-colors ${isActive("/guest/cart") ? "text-orange-600" : "text-gray-400 hover:text-gray-600"
                         }`}
                 >
                     <div className="relative">
-                        <span className="text-2xl mb-1">🛒</span>
+                        <ShoppingCart className="w-6 h-6 mb-1" strokeWidth={isActive("/guest/cart") ? 2.5 : 2} />
                         {cartItemCount > 0 && (
-                            <span className="absolute -top-1 -right-2 bg-[#e74c3c] text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full border border-white">
+                            <span className="absolute -top-1 -right-2 bg-orange-600 text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full border border-white">
                                 {cartItemCount}
                             </span>
                         )}
                     </div>
-                    <span className="text-xs font-medium">Cart</span>
+                    <span className="text-[10px] font-medium">{t('nav.cart') || 'Giỏ hàng'}</span>
                 </Link>
                 <Link
                     href={`/guest/orders?tableId=${tableId || ""}`}
-                    className={`flex flex-col items-center justify-center w-full h-full ${isActive("/guest/orders") ? "text-[#e74c3c]" : "text-gray-400"
+                    className={`flex flex-col items-center justify-center w-full h-full transition-colors ${isActive("/guest/orders") ? "text-orange-600" : "text-gray-400 hover:text-gray-600"
                         }`}
                 >
-                    <span className="text-2xl mb-1">📋</span>
-                    <span className="text-xs font-medium">Orders</span>
+                    <ClipboardList className="w-6 h-6 mb-1" strokeWidth={isActive("/guest/orders") ? 2.5 : 2} />
+                    <span className="text-[10px] font-medium">{t('nav.orders') || 'Đơn hàng'}</span>
                 </Link>
                 <Link
                     href={`/guest/profile?tableId=${tableId || ""}`}
-                    className={`flex flex-col items-center justify-center w-full h-full ${isActive("/guest/profile") ? "text-[#e74c3c]" : "text-gray-400"
+                    className={`flex flex-col items-center justify-center w-full h-full transition-colors ${isActive("/guest/profile") ? "text-orange-600" : "text-gray-400 hover:text-gray-600"
                         }`}
                 >
-                    <span className="text-2xl mb-1">👤</span>
-                    <span className="text-xs font-medium">Profile</span>
+                    <User className="w-6 h-6 mb-1" strokeWidth={isActive("/guest/profile") ? 2.5 : 2} />
+                    <span className="text-[10px] font-medium">{t('nav.profile') || 'Tài khoản'}</span>
                 </Link>
             </div>
         </div>

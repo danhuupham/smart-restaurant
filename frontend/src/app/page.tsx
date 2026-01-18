@@ -1,6 +1,133 @@
-import { redirect } from "next/navigation";
+"use client";
 
-export default function Page({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
-  // Preserve any query params (e.g. ?tableId=...) when redirecting to /guest
-  redirect(`/tables`);
+import Link from "next/link";
+import Image from "next/image";
+import { ArrowRight, UtensilsCrossed, QrCode, LogIn } from "lucide-react";
+
+export default function LandingPage() {
+  return (
+    <div className="flex flex-col min-h-screen bg-slate-50">
+      {/* Navigation */}
+      <header className="px-4 lg:px-6 h-16 flex items-center bg-white shadow-sm sticky top-0 z-50">
+        <div className="flex items-center gap-2 font-bold text-xl text-orange-600">
+          <UtensilsCrossed className="h-6 w-6" />
+          <span>Smart Restaurant</span>
+        </div>
+        <nav className="ml-auto flex gap-4 sm:gap-6">
+          <Link href="/login" className="text-sm font-medium hover:text-orange-600 transition-colors flex items-center gap-1">
+            <LogIn className="w-4 h-4" />
+            Đăng nhập
+          </Link>
+        </nav>
+      </header>
+
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-white relative overflow-hidden">
+          {/* Background Decoration */}
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-orange-50 to-slate-100 -z-10"></div>
+
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="grid gap-6 lg:grid-cols-2 items-center">
+              <div className="flex flex-col justify-center space-y-4">
+                <div className="space-y-2">
+                  <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none text-slate-900">
+                    Trải nghiệm ẩm thực <span className="text-orange-600">thông minh</span>
+                  </h1>
+                  <p className="max-w-[600px] text-slate-500 md:text-xl dark:text-slate-400">
+                    Đặt món nhanh chóng, thanh toán tiện lợi và tận hưởng dịch vụ đẳng cấp ngay tại bàn của bạn.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2 min-[400px]:flex-row">
+                  <Link
+                    href="/tables"
+                    className="inline-flex h-12 items-center justify-center rounded-md bg-orange-600 px-8 text-sm font-medium text-white shadow transition-colors hover:bg-orange-700 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-700"
+                  >
+                    <QrCode className="mr-2 h-4 w-4" />
+                    Quét QR / Chọn Bàn
+                  </Link>
+                  <Link
+                    href="/menu"
+                    className="inline-flex h-12 items-center justify-center rounded-md border border-slate-200 bg-white px-8 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-950"
+                  >
+                    Xem Thực Đơn
+                  </Link>
+                </div>
+              </div>
+
+              {/* Image Placeholder - In a real app, use the generated image here */}
+              <div className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last shadow-2xl">
+                <img
+                  src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop"
+                  alt="Restaurant Hero"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section className="w-full py-12 md:py-24 lg:py-32 bg-slate-50">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+              <div className="space-y-2">
+                <div className="inline-block rounded-lg bg-orange-100 px-3 py-1 text-sm text-orange-600">
+                  Tính năng nổi bật
+                </div>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-slate-900">
+                  Phục vụ mọi nhu cầu của bạn
+                </h2>
+                <p className="max-w-[900px] text-slate-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                  Hệ thống quản lý nhà hàng toàn diện từ đặt món, quản lý bếp đến thanh toán.
+                </p>
+              </div>
+            </div>
+            <div className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-3 lg:gap-12">
+              {/* Feature 1 */}
+              <div className="flex flex-col items-center space-y-4 text-center">
+                <div className="p-4 bg-white rounded-full shadow-lg text-orange-600">
+                  <QrCode className="h-8 w-8" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900">Đặt món qua QR</h3>
+                <p className="text-slate-600">Khách hàng tự quét mã QR tại bàn để xem menu và gọi món không cần chờ đợi.</p>
+              </div>
+
+              {/* Feature 2 */}
+              <div className="flex flex-col items-center space-y-4 text-center">
+                <div className="p-4 bg-white rounded-full shadow-lg text-orange-600">
+                  <UtensilsCrossed className="h-8 w-8" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900">Quản lý Bếp & Bar</h3>
+                <p className="text-slate-600">Đơn hàng được chuyển tức thời xuống bếp, giảm thiểu sai sót và tăng tốc độ phục vụ.</p>
+              </div>
+
+              {/* Feature 3 */}
+              <div className="flex flex-col items-center space-y-4 text-center">
+                <div className="p-4 bg-white rounded-full shadow-lg text-orange-600">
+                  <LogIn className="h-8 w-8" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900">Quản lý Bàn</h3>
+                <p className="text-slate-600">Theo dõi trạng thái bàn thời gian thực, tối ưu hóa quy trình sắp xếp chỗ ngồi.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t bg-white">
+        <p className="text-xs text-slate-500">
+          © 2024 Smart Restaurant. All rights reserved.
+        </p>
+        <nav className="sm:ml-auto flex gap-4 sm:gap-6">
+          <Link className="text-xs hover:underline underline-offset-4 text-slate-500" href="#">
+            Terms of Service
+          </Link>
+          <Link className="text-xs hover:underline underline-offset-4 text-slate-500" href="#">
+            Privacy
+          </Link>
+        </nav>
+      </footer>
+    </div>
+  );
 }
