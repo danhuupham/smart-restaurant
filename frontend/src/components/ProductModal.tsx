@@ -102,11 +102,11 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl w-full max-w-lg max-h-[80vh] overflow-hidden flex flex-col shadow-2xl">
 
                 {/* Header: Ảnh món */}
-                <div className="relative h-48 w-full shrink-0">
+                <div className="relative h-64 w-full shrink-0">
                     <Image
                         src={product.images.find((img) => img.isPrimary)?.url || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c"}
                         alt={product.name}
@@ -115,44 +115,57 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
                     />
                     <button
                         onClick={onClose}
-                        className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full hover:bg-black/70"
+                        className="absolute top-4 right-4 bg-white/90 text-gray-800 p-2 rounded-full shadow-lg hover:bg-white transition-all"
                     >
                         ✕
                     </button>
                 </div>
 
                 {/* Body: Cuộn được */}
-                <div className="p-6 overflow-y-auto flex-1">
-                    <h2 className="text-2xl font-bold text-gray-800">{product.name}</h2>
-                    <p className="text-gray-600 mt-1">{product.description}</p>
+                <div className="p-6 overflow-y-auto flex-1 bg-white">
+                    <h2 className="text-2xl font-bold text-gray-900">{product.name}</h2>
+                    <p className="text-gray-500 mt-2 text-sm leading-relaxed">{product.description}</p>
 
                     {/* Loop qua các nhóm Modifier (Size, Topping...) */}
-                    <div className="mt-6 space-y-6">
+                    <div className="mt-8 space-y-8">
                         {product.modifierGroups.sort((a, b) => a.displayOrder - b.displayOrder).map((groupWrapper) => {
                             const group = groupWrapper.modifierGroup;
                             return (
                                 <div key={group.id}>
-                                    <div className="flex justify-between items-center mb-3">
-                                        <h3 className="font-bold text-gray-700">
-                                            {group.name} {group.isRequired && <span className="text-red-500 text-sm">(Bắt buộc)</span>}
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h3 className="font-bold text-lg text-gray-800">
+                                            {group.name}
+                                            {group.isRequired && <span className="ml-2 text-red-500 text-xs font-normal bg-red-50 px-2 py-0.5 rounded-full">Bắt buộc</span>}
                                         </h3>
-                                        <span className="text-xs text-gray-600">
+                                        <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">
                                             {group.selectionType === 'SINGLE' ? 'Chọn 1' : `Tối đa ${group.maxSelections}`}
                                         </span>
                                     </div>
 
-                                    <div className="space-y-2">
+                                    <div className="space-y-3">
                                         {group.options.map((option) => {
                                             const isSelected = selectedModifiers[group.id]?.some(sel => sel.id === option.id);
                                             return (
                                                 <div
                                                     key={option.id}
-                                                    className={`flex justify-between items-center p-3 rounded-lg border cursor-pointer transition-all ${isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'
+                                                    className={`flex justify-between items-center p-4 rounded-xl border-2 cursor-pointer transition-all ${isSelected
+                                                        ? 'border-orange-500 bg-orange-50 shadow-sm'
+                                                        : 'border-gray-100 hover:border-gray-200 hover:bg-gray-50'
                                                         }`}
                                                     onClick={() => handleModifierToggle(group, option)}
                                                 >
-                                                    <span className="text-gray-700">{option.name}</span>
-                                                    <span className="text-sm font-medium text-gray-700">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected
+                                                            ? 'border-orange-500 accent-orange-500'
+                                                            : 'border-gray-300'
+                                                            }`}>
+                                                            {isSelected && <div className="w-2.5 h-2.5 bg-orange-500 rounded-full" />}
+                                                        </div>
+                                                        <span className={`font-medium ${isSelected ? 'text-gray-900' : 'text-gray-600'}`}>
+                                                            {option.name}
+                                                        </span>
+                                                    </div>
+                                                    <span className="text-sm font-medium text-gray-900">
                                                         {Number(option.priceAdjustment) > 0 ? `+${formatPrice(Number(option.priceAdjustment))}` : ''}
                                                     </span>
                                                 </div>
@@ -165,44 +178,40 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
                     </div>
 
                     {/* Reviews Section */}
-                    <div className="mt-8 border-t pt-6 mb-4">
-                        <div className="flex items-center gap-2 mb-4">
-                            <h3 className="font-bold text-lg text-gray-800">Reviews</h3>
-                            <span className="text-sm text-gray-500">({reviews.length})</span>
-                            {reviews.length > 0 && (
-                                <div className="flex items-center text-yellow-500 text-sm font-bold bg-yellow-50 px-2 py-0.5 rounded ml-auto">
-                                    <span className="mr-1">★</span>
-                                    {(reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)}
-                                </div>
-                            )}
+                    <div className="mt-10 border-t border-dashed pt-8 mb-4">
+                        <div className="flex items-center gap-2 mb-6">
+                            <h3 className="font-bold text-lg text-gray-800">Đánh giá từ khách hàng</h3>
+                            <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">{reviews.length}</span>
                         </div>
 
                         {reviews.length === 0 ? (
-                            <p className="text-gray-500 italic text-sm text-center py-4 bg-gray-50 rounded-lg">Chưa có đánh giá nào.</p>
+                            <div className="text-center py-8 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                                <p className="text-gray-400">Chưa có đánh giá nào cho món này</p>
+                            </div>
                         ) : (
                             <div className="space-y-4">
                                 {reviews.map(review => (
-                                    <div key={review.id} className="bg-gray-50 p-3 rounded-lg">
-                                        <div className="flex justify-between items-start">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xs">
+                                    <div key={review.id} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-bold text-sm">
                                                     {review.user.name.charAt(0)}
                                                 </div>
                                                 <div>
-                                                    <div className="font-bold text-sm text-gray-800">{review.user.name}</div>
-                                                    <div className="text-[10px] text-gray-500">
+                                                    <div className="font-bold text-sm text-gray-900">{review.user.name}</div>
+                                                    <div className="text-xs text-gray-400">
                                                         {new Date(review.createdAt).toLocaleDateString()}
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="flex text-yellow-500 text-xs">
+                                            <div className="flex text-yellow-400 text-xs">
                                                 {Array.from({ length: 5 }).map((_, i) => (
-                                                    <span key={i} className={i < review.rating ? "opacity-100" : "opacity-30"}>★</span>
+                                                    <span key={i} className={i < review.rating ? "opacity-100" : "opacity-20"}>★</span>
                                                 ))}
                                             </div>
                                         </div>
                                         {review.comment && (
-                                            <p className="mt-2 text-sm text-gray-600 leading-relaxed">{review.comment}</p>
+                                            <p className="text-sm text-gray-600 pl-11">{review.comment}</p>
                                         )}
                                     </div>
                                 ))}
@@ -213,29 +222,31 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
                 </div>
 
                 {/* Footer: Nút bấm */}
-                <div className="p-4 border-t bg-white shrink-0">
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center border border-gray-400 rounded-lg">
+                <div className="p-4 border-t bg-white shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center bg-gray-100 rounded-xl h-12 p-1 shrink-0">
                             <button
-                                className="px-4 py-2 hover:bg-gray-100 font-bold text-gray-900"
+                                className="w-10 h-full flex items-center justify-center hover:bg-white rounded-lg transition-all text-gray-600 font-bold text-lg disabled:opacity-50"
                                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                            >-</button>
-                            <span className="px-4 font-bold text-gray-900">{quantity}</span>
+                                disabled={quantity <= 1}
+                            >−</button>
+                            <span className="w-10 text-center font-bold text-gray-900">{quantity}</span>
                             <button
-                                className="px-4 py-2 hover:bg-gray-100 font-bold text-gray-900"
+                                className="w-10 h-full flex items-center justify-center hover:bg-white rounded-lg transition-all text-gray-600 font-bold text-lg"
                                 onClick={() => setQuantity(quantity + 1)}
                             >+</button>
                         </div>
-                        <div className="text-xl font-bold text-blue-600">
-                            {formatPrice(calculateTotal())}
-                        </div>
+
+                        <button
+                            onClick={handleAddToCart}
+                            className="flex-1 bg-orange-600 text-white h-12 rounded-xl hover:bg-orange-700 active:scale-95 transition-all shadow-lg shadow-orange-200 flex items-center justify-between px-6"
+                        >
+                            <span className="font-bold">Thêm vào đơn</span>
+                            <span className="font-medium bg-orange-700/50 px-2 py-0.5 rounded text-sm">
+                                {formatPrice(calculateTotal())}
+                            </span>
+                        </button>
                     </div>
-                    <button
-                        onClick={handleAddToCart}
-                        className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 active:scale-95 transition-transform"
-                    >
-                        Thêm vào giỏ hàng
-                    </button>
                 </div>
 
             </div>

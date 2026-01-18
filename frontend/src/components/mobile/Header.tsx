@@ -33,7 +33,7 @@ export default function Header({ title, showBack, backUrl, tableId }: HeaderProp
     }, [tableId]);
 
     return (
-        <div className="sticky top-0 bg-white z-40 px-4 py-3 shadow-sm flex items-center justify-between">
+        <div className="bg-white px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
                 {showBack && (
                     <Link href={backUrl || "/guest"} className="text-slate-600 hover:text-slate-900 transition-colors">

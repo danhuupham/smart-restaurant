@@ -19,7 +19,10 @@
         "allCategories": "Tất cả",
         "noItems": "Không tìm thấy món nào",
         "addToCart": "Thêm vào giỏ",
-        "showingItems": "Hiển thị {start}-{end} trên {total} món"
+        "showingItems": "Hiển thị {start}-{end} trên {total} món",
+        "add": "Thêm",
+        "prev": "Trước",
+        "next": "Sau"
     },
     "cart": {
         "title": "Giỏ Hàng",

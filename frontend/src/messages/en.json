@@ -19,7 +19,10 @@
         "allCategories": "All",
         "noItems": "No items found",
         "addToCart": "Add to Cart",
-        "showingItems": "Showing {start}-{end} of {total} items"
+        "showingItems": "Showing {start}-{end} of {total} items",
+        "add": "Add",
+        "prev": "Prev",
+        "next": "Next"
     },
     "cart": {
         "title": "Your Cart",

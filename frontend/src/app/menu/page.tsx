@@ -57,7 +57,7 @@ function MenuContent() {
     // Extract categories
     const categories = useMemo(() => {
         const cats = new Set(products.map((p) => p.category?.name || "Other"));
-        return [t('menu.allCategories'), ...Array.from(cats)].sort();
+        return [t('menu.allCategories'), ...Array.from(cats).sort()];
     }, [products, t]);
 
     // Filter products
@@ -103,9 +103,9 @@ function MenuContent() {
                         placeholder={t('menu.searchPlaceholder')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border-none shadow-sm bg-white focus:ring-2 focus:ring-orange-500 outline-none text-slate-800 placeholder:text-slate-500"
+                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 shadow-sm bg-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none text-slate-800 placeholder:text-slate-500 transition-colors"
                     />
-                    <Search className="absolute left-3 top-3.5 text-slate-500 w-5 h-5" />
+                    <Search className="absolute left-3 top-3.5 text-slate-400 w-5 h-5" />
                 </div>
 
                 {/* Categories */}
