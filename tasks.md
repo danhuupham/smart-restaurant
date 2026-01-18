@@ -151,7 +151,7 @@ The working order rotates daily following this sequence:
   - [x] Implement API `POST /auth/register`.
   - _Commit:_ `feat: implement customer self-registration`
 
-- [ ] **Task 6.2: Super Admin Role**
+- [ ] **Task 6.2: Super Admin Role** (Không cần làm)
   - [ ] Create a Super Admin role with permissions to create/manage Admin accounts.
   - _Commit:_ `feat: implement super admin role for multi-restaurant management`
 
@@ -231,19 +231,19 @@ The working order rotates daily following this sequence:
   - _Commit:_ `feat: add pagination to guest menu (12 items per page)`
   - _Points:_ -0.75 ✅
 
-- [ ] **Task 7.7: Email Verification**
-  - [ ] Setup email service (NodeMailer/SendGrid)
-  - [ ] Send verification email on registration
-  - [ ] Create email verification endpoint
-  - [ ] Add email verification page
-  - _Points:_ -0.25
+- [x] **Task 7.7: Email Verification**
+  - [x] Setup email service (NodeMailer/SendGrid)
+  - [x] Send verification email on registration
+  - [x] Create email verification endpoint
+  - [x] Add email verification page
+  - _Points:_ -0.25 ✅
 
-- [ ] **Task 7.8: Forgot Password**
-  - [ ] Create forgot password page
-  - [ ] Send reset password email
-  - [ ] Implement password reset flow
-  - [ ] Add reset password endpoint
-  - _Points:_ -0.25
+- [x] **Task 7.8: Forgot Password**
+  - [x] Create forgot password page
+  - [x] Add link from login page
+  - [x] Implement backend logic (token generation, email)
+  - [x] Create reset password page
+  - _Points:_ -0.5 ✅
 
 ### Medium Priority Features
 

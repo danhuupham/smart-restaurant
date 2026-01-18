@@ -27,6 +27,68 @@ export class AuthService {
     });
   }
 
+  async forgotPassword(email: string) {
+    console.log(`[ForgotPassword] Request for email: ${email}`);
+    const user = await this.userService.findOne({ email });
+    if (!user) {
+      console.log(`[ForgotPassword] User not found for email: ${email}`);
+      // Don't reveal if user exists
+      return { message: 'If your email is registered, you will receive a password reset link.' };
+    }
+    console.log(`[ForgotPassword] User found: ${user.id}`);
+
+    const resetToken = uuidv4();
+    const resetExpires = new Date(Date.now() + 3600000); // 1 hour from now
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        // @ts-ignore
+        resetPasswordToken: resetToken,
+        // @ts-ignore
+        resetPasswordExpires: resetExpires,
+      },
+    });
+    console.log(`[ForgotPassword] Token generated and saved`);
+
+    await this.sendResetPasswordEmail(user.email, resetToken);
+
+    return { message: 'If your email is registered, you will receive a password reset link.' };
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        // @ts-ignore
+        resetPasswordToken: token,
+        // @ts-ignore
+        resetPasswordExpires: {
+          gt: new Date(),
+        },
+      },
+    });
+
+    if (!user) {
+      throw new BadRequestException('Invalid or expired password reset token');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        // @ts-ignore
+        resetPasswordToken: null,
+        // @ts-ignore
+        resetPasswordExpires: null,
+      },
+    });
+
+    return { message: 'Password has been reset successfully' };
+  }
+
+
   async register(registerDto: RegisterDto) {
     const { email, password, name, phone, role } = registerDto;
 
@@ -184,4 +246,33 @@ export class AuthService {
       // Do not block registration if email fails (for now), just log it
     }
   }
+
+  private async sendResetPasswordEmail(email: string, token: string) {
+    const url = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
+    console.log(`[SendResetEmail] Preparing email to: ${email}`);
+    console.log(`[SendResetEmail] URL: ${url}`);
+    // Check transporter credentials specifically
+    if (!process.env.MAIL_USER || !process.env.MAIL_PASS) {
+      console.error('[SendResetEmail] MAIL_USER or MAIL_PASS not set in env');
+    }
+
+    try {
+      await this.transporter.sendMail({
+        from: '"Smart Restaurant" <no-reply@smartrestaurant.com>',
+        to: email,
+        subject: 'Reset your password',
+        html: `
+                <h1>Reset Password Request</h1>
+                <p>You requested to reset your password. Click the link below to verify:</p>
+                <a href="${url}">Reset Password</a>
+                <p>If you did not request this, please ignore this email.</p>
+                <p>This link will expire in 1 hour.</p>
+            `,
+      });
+      console.log(`[SendResetEmail] Reset password email sent to ${email}`);
+    } catch (error) {
+      console.error('[SendResetEmail] Error sending reset email:', error);
+    }
+  }
+
 }

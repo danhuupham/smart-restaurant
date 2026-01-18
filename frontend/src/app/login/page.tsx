@@ -103,12 +103,20 @@ function LoginForm() {
 
         {/* Password Field */}
         <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700"
-          >
-            {t('auth.password')}
-          </label>
+          <div className="flex items-center justify-between">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
+              {t('auth.password')}
+            </label>
+            <div className="text-sm">
+              <a href="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
+                {t('auth.forgotPassword') || 'Quên mật khẩu?'}
+              </a>
+            </div>
+          </div>
+
           <div className="mt-1">
             <input
               id="password"
@@ -124,10 +132,10 @@ function LoginForm() {
               placeholder="••••••••"
             />
           </div>
-        </div>
+        </div >
 
         {/* Submit Button */}
-        <div>
+        < div >
           <button
             type="submit"
             disabled={loading}
@@ -170,11 +178,11 @@ function LoginForm() {
             <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="h-5 w-5 mr-2" alt="Google" />
             {t('auth.continueWithGoogle')}
           </button>
-        </div>
-      </form>
+        </div >
+      </form >
 
       {/* Footer / Hint */}
-      <div className="mt-6">
+      < div className="mt-6" >
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-300" />
@@ -216,8 +224,8 @@ function LoginForm() {
           </div>
         </div>
 
-      </div>
-    </div>
+      </div >
+    </div >
   );
 }
 
