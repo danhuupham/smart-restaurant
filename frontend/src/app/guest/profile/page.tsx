@@ -8,6 +8,7 @@ import Header from "@/components/mobile/Header";
 import { api } from "@/lib/api/api";
 import { useTableStore } from "@/store/useTableStore";
 import { useSearchParams } from "next/navigation";
+import { User, History, Heart, Settings, HelpCircle, LogOut } from "lucide-react";
 
 interface CustomerProfile {
     id: string;
@@ -19,15 +20,16 @@ interface CustomerProfile {
     role: string;
 }
 
-function MenuItem({ icon, label, href }: { icon: string, label: string, href: string }) {
+function MenuItem({ icon, label, href }: { icon: React.ReactNode, label: string, href: string }) {
     return (
         <Link href={href} className="flex items-center gap-4 p-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 active:bg-gray-100 transition-colors">
-            <span className="text-xl">{icon}</span>
+            <span className="text-slate-500">{icon}</span>
             <span className="font-medium text-gray-700 flex-1">{label}</span>
             <span className="text-gray-400">›</span>
         </Link>
     )
 }
+
 
 function ProfileContent() {
     const [profile, setProfile] = useState<CustomerProfile | null>(null);
@@ -47,9 +49,6 @@ function ProfileContent() {
                 if (error.response?.status !== 401) {
                     console.error("Failed to load profile", error);
                 }
-                // 401 just means not logged in, which is handled by !profile check below
-                // Redirect if not logged in
-                // router.push("/login");
             } finally {
                 setLoading(false);
             }
@@ -60,20 +59,12 @@ function ProfileContent() {
 
     const handleLogout = async () => {
         try {
-            // 1. Call server-side logout to clear cookies
             await fetch('/api/auth/logout', { method: 'POST' });
         } catch (err) {
             console.error("Logout failed", err);
         }
-
-        // 2. Remove token
         localStorage.removeItem("accessToken");
-
-        // 3. Clear state immediately to update UI
         setProfile(null);
-
-        // 4. Clean redirect (using replace to avoid history stack issues)
-        // Using window.location.href ensures a full page reload, clearing any in-memory api state
         window.location.href = `/guest?tableId=${tableId || ""}`;
     };
 
@@ -90,12 +81,14 @@ function ProfileContent() {
             <>
                 <Header title="Profile" showBack backUrl={`/guest?tableId=${tableId || ""}`} tableId={tableId} />
                 <div className="p-6 flex flex-col items-center justify-center min-h-[60vh] text-center space-y-4">
-                    <div className="text-6xl mb-2">👤</div>
+                    <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 mb-2">
+                        <User className="w-12 h-12" />
+                    </div>
                     <h2 className="text-xl font-bold text-gray-800">Not Logged In</h2>
                     <p className="text-gray-500">Log in to view your profile and order history.</p>
                     <Link
                         href="/login"
-                        className="w-full max-w-xs bg-[#e74c3c] text-white font-bold py-3 rounded-xl shadow-lg shadow-red-200"
+                        className="w-full max-w-xs bg-orange-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-orange-200 hover:bg-orange-700 transition-colors"
                     >
                         Log In / Register
                     </Link>
@@ -112,13 +105,11 @@ function ProfileContent() {
                 {/* Profile Card */}
                 <div className="bg-white p-6 rounded-2xl shadow-sm flex flex-col items-center">
                     <div className="relative w-24 h-24 mb-4">
-                        <div className="w-full h-full rounded-full overflow-hidden bg-gray-100 border-4 border-white shadow">
+                        <div className="w-full h-full rounded-full overflow-hidden bg-gray-100 border-4 border-white shadow flex items-center justify-center">
                             {profile.avatar ? (
                                 <Image src={profile.avatar} alt={profile.name || 'User'} fill className="object-cover" />
                             ) : (
-                                <div className="w-full h-full flex items-center justify-center text-4xl bg-gray-200">
-                                    {(profile.name || 'U').charAt(0).toUpperCase()}
-                                </div>
+                                <span className="text-4xl font-bold text-gray-400">{(profile.name || 'U').charAt(0).toUpperCase()}</span>
                             )}
                         </div>
                         {profile.isEmailVerified && (
@@ -147,17 +138,18 @@ function ProfileContent() {
 
                 {/* Menu Options */}
                 <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                    <MenuItem icon="📋" label="Order History" href="#" />
-                    <MenuItem icon="❤️" label="Favorite Items" href="#" />
-                    <MenuItem icon="⚙️" label="Account Settings" href="#" />
-                    <MenuItem icon="❓" label="Help & Support" href="#" />
+                    <MenuItem icon={<History className="w-5 h-5" />} label="Order History" href="#" />
+                    <MenuItem icon={<Heart className="w-5 h-5" />} label="Favorite Items" href="#" />
+                    <MenuItem icon={<Settings className="w-5 h-5" />} label="Account Settings" href="#" />
+                    <MenuItem icon={<HelpCircle className="w-5 h-5" />} label="Help & Support" href="#" />
                 </div>
 
                 {/* Logout Button */}
                 <button
                     onClick={handleLogout}
-                    className="w-full bg-white text-red-500 font-bold py-4 rounded-2xl shadow-sm hover:bg-gray-50 transition-colors"
+                    className="w-full bg-white text-red-500 font-bold py-4 rounded-2xl shadow-sm hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
                 >
+                    <LogOut className="w-5 h-5" />
                     Log Out
                 </button>
 

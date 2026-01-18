@@ -10,6 +10,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useTableStore } from "@/store/useTableStore";
 import Link from "next/link";
 
+import { ShoppingCart, Trash2, Info } from "lucide-react";
+
 function CartContent() {
     const { items, totalAmount, removeFromCart, updateQuantity, clearCart } =
         useCartStore();
@@ -72,16 +74,16 @@ function CartContent() {
             <div className="p-4 safe-area-pb space-y-4">
                 {/* Cart Items */}
                 {items.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center p-10 text-gray-400">
-                        <span className="text-6xl mb-4">🛒</span>
+                    <div className="flex flex-col items-center justify-center p-10 text-slate-400">
+                        <ShoppingCart className="w-16 h-16 mb-4 stroke-1" />
                         <p>Your cart is empty.</p>
-                        <Link href={`/guest?tableId=${tableId || ""}`} className="mt-4 text-[#e74c3c] font-bold">Start Ordering</Link>
+                        <Link href={`/guest?tableId=${tableId || ""}`} className="mt-4 text-orange-600 font-bold hover:underline">Start Ordering</Link>
                     </div>
                 ) : (
                     items.map((item, index) => (
                         <div
                             key={`${item.productId}-${index}`}
-                            className="bg-white p-4 rounded-xl shadow-sm flex gap-4"
+                            className="bg-white p-4 rounded-xl shadow-sm flex gap-4 border border-slate-100"
                         >
                             <div className="relative w-20 h-20 shrink-0 rounded-lg overflow-hidden bg-gray-100">
                                 <Image
@@ -128,9 +130,9 @@ function CartContent() {
                                     </div>
                                     <button
                                         onClick={() => removeFromCart(index)}
-                                        className="text-gray-400 p-2"
+                                        className="text-red-500 p-2 hover:bg-red-50 rounded-full transition-colors"
                                     >
-                                        🗑️
+                                        <Trash2 className="w-5 h-5" />
                                     </button>
                                 </div>
                             </div>
@@ -140,12 +142,12 @@ function CartContent() {
 
                 {/* Instructions */}
                 {items.length > 0 && (
-                    <div className="bg-white p-4 rounded-xl shadow-sm">
+                    <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
                         <h4 className="font-bold text-gray-800 mb-2">
                             Special Instructions
                         </h4>
                         <textarea
-                            className="w-full bg-gray-50 rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#e74c3c]"
+                            className="w-full bg-slate-50 rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#e74c3c] text-slate-800 placeholder:text-slate-500 border border-slate-200"
                             placeholder="Any special requests? (e.g. no onions)"
                             rows={2}
                         />
@@ -154,14 +156,14 @@ function CartContent() {
 
                 {/* Summary */}
                 {items.length > 0 && (
-                    <div className="bg-white p-4 rounded-xl shadow-sm space-y-2">
+                    <div className="bg-white p-4 rounded-xl shadow-sm space-y-2 border border-slate-100">
                         <h4 className="font-bold text-gray-800 mb-2">Order Summary</h4>
                         <div className="flex justify-between text-gray-600">
                             <span>Subtotal</span>
                             <span>{formatPrice(totalAmount)}</span>
                         </div>
                         {/* Tax logic can be added here if needed */}
-                        <div className="flex justify-between font-bold text-lg text-gray-900 pt-2 border-t">
+                        <div className="flex justify-between font-bold text-lg text-gray-900 pt-2 border-t border-slate-100">
                             <span>Total</span>
                             <span className="text-[#e74c3c]">{formatPrice(totalAmount)}</span>
                         </div>
@@ -170,8 +172,8 @@ function CartContent() {
 
                 {/* Info Note */}
                 {items.length > 0 && (
-                    <div className="bg-blue-50 p-4 rounded-xl flex items-start gap-3">
-                        <span className="text-blue-500 text-xl">ℹ️</span>
+                    <div className="bg-blue-50 p-4 rounded-xl flex items-start gap-3 border border-blue-100">
+                        <Info className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
                         <div className="text-sm text-blue-700">
                             <strong>Pay After Your Meal</strong><br />
                             You can place multiple orders. Payment will be processed when you request the bill.

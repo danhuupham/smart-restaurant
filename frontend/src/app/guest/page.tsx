@@ -8,6 +8,7 @@ import ProductModal from "@/components/ProductModal";
 import Header from "@/components/mobile/Header";
 import CategoryTabs from "@/components/mobile/CategoryTabs";
 import { useI18n } from "@/contexts/I18nContext";
+import { Search } from "lucide-react";
 
 async function getProducts(): Promise<Product[]> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000'}/products`, {
@@ -33,7 +34,7 @@ function GuestMenuContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [activeCategory, setActiveCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const router = useRouter();
@@ -102,20 +103,21 @@ function GuestMenuContent() {
   // Extract unique categories
   const categories = useMemo(() => {
     const cats = new Set(products.map((p) => p.category?.name || "Other"));
-    return [t('menu.allCategories'), ...Array.from(cats)].sort();
+    // Ensure "All" label is always first
+    return [t('menu.allCategories'), ...Array.from(cats).sort()];
   }, [products, t]);
 
   // Filter products by category only (search is handled by backend)
   const filteredProducts = useMemo(() => {
     const filtered = products.filter((product) => {
       const matchesCategory =
-        activeCategory === t('menu.allCategories') ||
+        activeCategory === "" ||
         (product.category?.name || "Other") === activeCategory;
       return matchesCategory;
     });
 
     return filtered;
-  }, [products, activeCategory, t]);
+  }, [products, activeCategory]);
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
@@ -138,7 +140,7 @@ function GuestMenuContent() {
       <Header title={t('common.appName')} tableId={tableId} />
 
       {/* Search Bar */}
-      <div className="bg-white px-4 pb-3">
+      <div className="bg-white px-4 pb-3 sticky top-[57px] z-30 pt-2 shadow-sm">
         <div className="relative">
           <input
             type="text"
@@ -147,7 +149,7 @@ function GuestMenuContent() {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-[#f5f6fa] border-none rounded-xl py-3 pl-10 pr-4 text-slate-800 placeholder:text-slate-500 focus:ring-2 focus:ring-[#e74c3c] outline-none"
           />
-          <span className="absolute left-3 top-3 text-slate-500">🔍</span>
+          <Search className="absolute left-3 top-3 text-slate-500 w-5 h-5" />
         </div>
       </div>
 
@@ -155,8 +157,8 @@ function GuestMenuContent() {
       <div className="bg-white pb-2 shadow-sm mb-4">
         <CategoryTabs
           categories={categories}
-          activeCategory={activeCategory}
-          onSelect={setActiveCategory}
+          activeCategory={activeCategory === "" ? t('menu.allCategories') : activeCategory}
+          onSelect={(cat) => setActiveCategory(cat === t('menu.allCategories') ? "" : cat)}
         />
       </div>
 

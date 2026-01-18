@@ -12,6 +12,8 @@ interface HeaderProps {
     tableId?: string | null;
 }
 
+import { ArrowLeft } from "lucide-react";
+
 export default function Header({ title, showBack, backUrl, tableId }: HeaderProps) {
     const [tableNumber, setTableNumber] = useState<string | null>(null);
 
@@ -34,8 +36,8 @@ export default function Header({ title, showBack, backUrl, tableId }: HeaderProp
         <div className="sticky top-0 bg-white z-40 px-4 py-3 shadow-sm flex items-center justify-between">
             <div className="flex items-center gap-3">
                 {showBack && (
-                    <Link href={backUrl || "/guest"} className="text-2xl text-gray-600">
-                        ←
+                    <Link href={backUrl || "/guest"} className="text-slate-600 hover:text-slate-900 transition-colors">
+                        <ArrowLeft className="w-6 h-6" />
                     </Link>
                 )}
                 <span className="text-lg font-bold text-gray-800">{title}</span>

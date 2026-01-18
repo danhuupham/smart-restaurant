@@ -9,18 +9,20 @@ import Link from "next/link";
 import PaymentModal from "@/components/guest/PaymentModal";
 import ReviewModal from "@/components/guest/ReviewModal";
 import toast from "react-hot-toast";
+import { Bell, CreditCard, Check, ClipboardList, Star, Clock } from "lucide-react";
+import { useI18n } from "@/contexts/I18nContext";
 
 const getStatusColor = (status: OrderStatus) => {
     switch (status) {
-        case "PENDING": return "text-yellow-600 bg-yellow-100";
-        case "ACCEPTED": return "text-blue-600 bg-blue-100";
-        case "PREPARING": return "text-orange-600 bg-orange-100";
-        case "READY": return "text-green-600 bg-green-100";
-        case "SERVED": return "text-purple-600 bg-purple-100";
-        case "COMPLETED": return "text-gray-600 bg-gray-100";
+        case "PENDING": return "text-yellow-700 bg-yellow-100 border-yellow-200";
+        case "ACCEPTED": return "text-blue-700 bg-blue-100 border-blue-200";
+        case "PREPARING": return "text-orange-700 bg-orange-100 border-orange-200";
+        case "READY": return "text-green-700 bg-green-100 border-green-200";
+        case "SERVED": return "text-purple-700 bg-purple-100 border-purple-200";
+        case "COMPLETED": return "text-slate-600 bg-slate-100 border-slate-200";
         case "REJECTED":
-        case "CANCELLED": return "text-red-600 bg-red-100";
-        default: return "text-gray-600 bg-gray-100";
+        case "CANCELLED": return "text-red-700 bg-red-100 border-red-200";
+        default: return "text-slate-600 bg-slate-100 border-slate-200";
     }
 };
 
@@ -31,6 +33,7 @@ const formatPrice = (price: number) =>
     }).format(price);
 
 function OrdersContent() {
+    const { t } = useI18n();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -101,110 +104,120 @@ function OrdersContent() {
     };
 
     return (
-        <div className="p-4 safe-area-pb space-y-6">
+        <div className="safe-area-pb space-y-6">
             <Header
-                title="Your Orders"
+                title={t('nav.orders') || "Đơn hàng của bạn"}
                 showBack
                 backUrl={`/guest?tableId=${tableId || ""}`}
                 tableId={tableId}
             />
 
-            {orders.length > 0 && (
-                <div className="bg-gradient-to-r from-[#e74c3c] to-[#c0392b] text-white p-5 rounded-2xl shadow-lg">
-                    <div className="flex justify-between items-center mb-4">
-                        <div>
-                            <div className="text-sm opacity-90">Current Session Total</div>
-                            <div className="text-3xl font-bold">
-                                {formatPrice(sessionTotal)}
-                            </div>
-                        </div>
-
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => handleCallWaiter('PAYMENT_CASH')}
-                                className="bg-white/20 text-white px-3 py-2 rounded-full font-bold shadow-sm active:scale-95 transition-transform flex items-center gap-1 backdrop-blur-sm hover:bg-white/30"
-                                title="Gọi tính tiền tại bàn"
-                            >
-                                🔔
-                            </button>
-                            {canPay ? (
-                                <button
-                                    onClick={() => setIsPaymentModalOpen(true)}
-                                    className="bg-white text-[#e74c3c] px-4 py-2 rounded-full font-bold shadow-sm active:scale-95 transition-transform flex items-center gap-2"
-                                >
-                                    💳 Pay
-                                </button>
-                            ) : (
-                                <span className="bg-white/20 px-3 py-1 rounded text-sm flex items-center">Paid ✅</span>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {loading ? (
-                <div className="text-center py-10">Loading orders...</div>
-            ) : orders.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-gray-400">
-                    <span className="text-4xl mb-3">📋</span>
-                    <p>No orders yet.</p>
-                </div>
-            ) : (
-                orders.map((order) => (
-                    <div key={order.id} className="bg-white rounded-xl shadow-sm p-4">
-                        <div className="flex justify-between items-start mb-4 border-b pb-3">
+            <div className="px-4 space-y-6">
+                {orders.length > 0 && (
+                    <div className="bg-gradient-to-r from-orange-600 to-red-600 text-white p-5 rounded-2xl shadow-lg shadow-orange-200">
+                        <div className="flex justify-between items-center mb-1">
                             <div>
-                                <div className="font-bold text-gray-800">
-                                    Order #{order.id.slice(0, 8)}
-                                </div>
-                                <div className="text-xs text-gray-500">
-                                    {new Date(order.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                <div className="text-sm font-medium opacity-90">Tổng cộng</div>
+                                <div className="text-3xl font-bold tracking-tight">
+                                    {formatPrice(sessionTotal)}
                                 </div>
                             </div>
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(order.status)}`}>
-                                {order.status}
-                            </span>
-                        </div>
 
-                        <div className="space-y-3">
-                            {order.items.map((item) => (
-                                <div key={item.id} className="flex justify-between text-sm">
-                                    <div className="flex gap-3">
-                                        <span className="font-bold text-gray-500 w-5">{item.quantity}x</span>
-                                        <div>
-                                            <div className="flex items-center gap-2">
-                                                <div className="text-gray-800 font-medium">
-                                                    {item.product.name}
-                                                </div>
-                                                <button
-                                                    onClick={() => {
-                                                        setSelectedProductForReview({
-                                                            id: item.product.id,
-                                                            name: item.product.name
-                                                        });
-                                                        setIsReviewModalOpen(true);
-                                                    }}
-                                                    className="text-yellow-500 text-xs px-2 py-0.5 rounded border border-yellow-200 hover:bg-yellow-50"
-                                                >
-                                                    ⭐
-                                                </button>
-                                            </div>
-                                            {item.modifiers && item.modifiers.length > 0 && (
-                                                <div className="text-xs text-gray-500">
-                                                    {item.modifiers.map((m) => m.modifierOption.name).join(", ")}
-                                                </div>
-                                            )}
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => handleCallWaiter('PAYMENT_CASH')}
+                                    className="bg-white/20 text-white p-3 rounded-full font-bold shadow-sm active:scale-95 transition-transform flex items-center justify-center backdrop-blur-sm hover:bg-white/30"
+                                    title="Gọi tính tiền tại bàn"
+                                >
+                                    <Bell className="w-5 h-5" />
+                                </button>
+                                {canPay ? (
+                                    <button
+                                        onClick={() => setIsPaymentModalOpen(true)}
+                                        className="bg-white text-orange-600 px-5 py-2 rounded-full font-bold shadow-sm active:scale-95 transition-transform flex items-center gap-2 hover:bg-orange-50"
+                                    >
+                                        <CreditCard className="w-4 h-4" />
+                                        <span>Thanh toán</span>
+                                    </button>
+                                ) : (
+                                    <span className="bg-white/20 px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 border border-white/20">
+                                        <Check className="w-4 h-4" />
+                                        <span>Đã thanh toán</span>
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                        {canPay && <div className="text-xs opacity-75 mt-2 text-right">Còn lại cần thanh toán: {formatPrice(unpaidTotal)}</div>}
+                    </div>
+                )}
+
+                {loading ? (
+                    <div className="text-center py-12 text-slate-500">Đang tải đơn hàng...</div>
+                ) : orders.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+                        <ClipboardList className="w-16 h-16 mb-4 stroke-1" />
+                        <p className="font-medium">Chưa có đơn hàng nào.</p>
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {orders.map((order) => (
+                            <div key={order.id} className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                                <div className="flex justify-between items-center p-4 border-b border-slate-50 bg-slate-50/50">
+                                    <div>
+                                        <div className="font-bold text-slate-800 flex items-center gap-2">
+                                            Order #{order.id.slice(0, 8)}
+                                        </div>
+                                        <div className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+                                            <Clock className="w-3 h-3" />
+                                            {new Date(order.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                                         </div>
                                     </div>
-                                    <span className="text-gray-500">
-                                        {formatPrice(Number(item.totalPrice))}
+                                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(order.status)}`}>
+                                        {order.status}
                                     </span>
                                 </div>
-                            ))}
-                        </div>
+
+                                <div className="p-4 space-y-4">
+                                    {order.items.map((item) => (
+                                        <div key={item.id} className="flex justify-between items-start text-sm">
+                                            <div className="flex gap-3">
+                                                <span className="font-bold text-slate-500 w-6 pt-0.5">{item.quantity}x</span>
+                                                <div>
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        <div className="text-slate-800 font-medium text-base">
+                                                            {item.product.name}
+                                                        </div>
+                                                        <button
+                                                            onClick={() => {
+                                                                setSelectedProductForReview({
+                                                                    id: item.product.id,
+                                                                    name: item.product.name
+                                                                });
+                                                                setIsReviewModalOpen(true);
+                                                            }}
+                                                            className="text-yellow-500 hover:text-yellow-600 transition-colors"
+                                                        >
+                                                            <Star className="w-4 h-4 fill-current" />
+                                                        </button>
+                                                    </div>
+                                                    {item.modifiers && item.modifiers.length > 0 && (
+                                                        <div className="text-xs text-slate-500 mt-1">
+                                                            {item.modifiers.map((m) => m.modifierOption.name).join(", ")}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <span className="text-slate-700 font-medium">
+                                                {formatPrice(Number(item.totalPrice))}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                ))
-            )}
+                )}
+            </div>
 
             <PaymentModal
                 isOpen={isPaymentModalOpen}
