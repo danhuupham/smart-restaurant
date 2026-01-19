@@ -167,6 +167,11 @@ GOOGLE_CALLBACK_URL="http://localhost:5000/auth/google/callback"
 # Stripe (Backend) - Use "placeholder" to enable Mock Mode
 STRIPE_SECRET_KEY="sk_test_placeholder"
 
+# Cloudinary Configuration
+CLOUDINARY_CLOUD_NAME="derqnwozh"
+CLOUDINARY_API_KEY="117994551519933"
+CLOUDINARY_API_SECRET="2_-HR6hBWV5cOJ5kmyu066rzb7Y"
+
 # Start database
 docker compose up -d
 

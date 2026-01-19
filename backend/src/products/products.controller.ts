@@ -21,13 +21,11 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
 import { AdminProductsQueryDto } from './dto/admin-products-query.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-import { v4 as uuidv4 } from 'uuid';
+
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -59,13 +57,6 @@ export class ProductsController {
   @Roles(UserRole.ADMIN)
   @UseInterceptors(
     FilesInterceptor('files', 10, {
-      storage: diskStorage({
-        destination: './uploads/products',
-        filename: (req, file, cb) => {
-          const unique = `${Date.now()}-${uuidv4()}${extname(file.originalname)}`;
-          cb(null, unique);
-        },
-      }),
       fileFilter: (req, file, cb) => {
         if (!file.mimetype.match(/^image\/(jpeg|png|webp)$/)) {
           return cb(
