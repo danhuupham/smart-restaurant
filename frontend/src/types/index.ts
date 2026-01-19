@@ -6,6 +6,8 @@ export type ProductStatus = 'AVAILABLE' | 'UNAVAILABLE' | 'SOLD_OUT';
 
 export type OrderStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'PREPARING' | 'READY' | 'SERVED' | 'COMPLETED' | 'CANCELLED';
 
+export type DiscountType = 'PERCENT' | 'FIXED';
+
 
 export interface Category {
   id: string;
@@ -90,6 +92,8 @@ export interface Order {
   tableId: string;
   totalAmount: number;
   status: OrderStatus;
+  discountType?: DiscountType | null;
+  discountValue?: number;
   items: OrderItem[];
   createdAt: string;
 }

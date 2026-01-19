@@ -4,6 +4,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { UpdateDiscountDto } from './dto/update-discount.dto';
 
 @Controller('orders')
 export class OrdersController {
@@ -69,5 +70,10 @@ export class OrdersController {
   @Patch(':id/status')
   updateStatus(@Param('id') id: string, @Body('status') status: string) {
     return this.ordersService.updateStatus(id, status);
+  }
+
+  @Patch(':id/discount')
+  updateDiscount(@Param('id') id: string, @Body() dto: UpdateDiscountDto) {
+    return this.ordersService.updateDiscount(id, dto);
   }
 }

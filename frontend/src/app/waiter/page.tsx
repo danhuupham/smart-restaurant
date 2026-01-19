@@ -136,6 +136,12 @@ export default function WaiterPage() {
     setIsBillModalOpen(true);
   };
 
+  const handleOrderUpdated = (updated: OrderWithRelations) => {
+    setSelectedOrder(updated);
+    setOrders((prev) => prev.map((o) => (o.id === updated.id ? { ...o, ...updated } : o)));
+    fetchOrders();
+  };
+
   // Tách ra 2 nhóm: Cần bưng (Ready) và Đang ăn (Served)
   const pendingOrders = orders.filter(o => o.status === 'PENDING');
   const readyOrders = orders.filter(o => o.status === 'READY');
@@ -307,6 +313,7 @@ export default function WaiterPage() {
         onClose={() => setIsBillModalOpen(false)}
         order={selectedOrder}
         tableNumber={selectedOrder?.table.tableNumber ?? "?"}
+        onOrderUpdated={handleOrderUpdated}
       />
     </main>
   );
