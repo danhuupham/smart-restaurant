@@ -1,7 +1,7 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useRef } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { Order } from "../../types";
+import { DiscountType, Order } from "../../types";
 import toast from "react-hot-toast";
 import { useReactToPrint } from "react-to-print";
 
@@ -10,10 +10,13 @@ interface BillModalProps {
   onClose: () => void;
   order: Order | null;
   tableNumber: string;
+  onOrderUpdated?: (order: Order) => void;
 }
 
-export default function BillModal({ isOpen, onClose, order, tableNumber }: BillModalProps) {
+export default function BillModal({ isOpen, onClose, order, tableNumber, onOrderUpdated }: BillModalProps) {
   const billRef = useRef<HTMLDivElement>(null);
+  const [discountType, setDiscountType] = useState<DiscountType | 'NONE'>('NONE');
+  const [discountValue, setDiscountValue] = useState<number>(0);
 
   const handlePrint = useReactToPrint({
     contentRef: billRef,
@@ -23,11 +26,82 @@ export default function BillModal({ isOpen, onClose, order, tableNumber }: BillM
 
   if (!order) return null;
 
+  useEffect(() => {
+    if (order) {
+      setDiscountType(order.discountType ?? 'NONE');
+      setDiscountValue(Number(order.discountValue ?? 0));
+    }
+  }, [order]);
+
+  const subtotal = useMemo(() => Number(order.totalAmount ?? 0), [order]);
+
+  const discountAmount = useMemo(() => {
+    if (!order) return 0;
+    if (discountType === 'NONE' || discountValue <= 0) return 0;
+    if (discountType === 'PERCENT') {
+      const percent = Math.min(Math.max(discountValue, 0), 100);
+      return (subtotal * percent) / 100;
+    }
+    // FIXED
+    return Math.min(Math.max(discountValue, 0), subtotal);
+  }, [discountType, discountValue, order, subtotal]);
+
+  const finalTotal = useMemo(() => Math.max(0, subtotal - discountAmount), [subtotal, discountAmount]);
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
     }).format(amount);
+  };
+
+  const applyDiscount = async () => {
+    if (!order) return;
+
+    if (discountValue < 0) {
+      toast.error("Giá trị giảm giá không hợp lệ");
+      return;
+    }
+
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+    let payload: { discountType: DiscountType | null; discountValue: number } = {
+      discountType: null,
+      discountValue: 0,
+    };
+
+    if (discountType !== 'NONE' && discountValue > 0) {
+      if (discountType === 'PERCENT' && discountValue > 100) {
+        toast.error("Phần trăm giảm tối đa 100%");
+        return;
+      }
+
+      const fixedValue = discountType === 'FIXED' ? Math.min(discountValue, subtotal) : discountValue;
+      payload = {
+        discountType,
+        discountValue: fixedValue,
+      };
+    }
+
+    try {
+      const res = await fetch(`${baseUrl}/orders/${order.id}/discount`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        throw new Error(error?.message || "Không thể áp dụng giảm giá");
+      }
+
+      const updated = await res.json();
+      setDiscountType(updated.discountType ?? 'NONE');
+      setDiscountValue(Number(updated.discountValue ?? 0));
+      onOrderUpdated?.(updated);
+      toast.success("Đã áp dụng giảm giá");
+    } catch (error: any) {
+      toast.error(error?.message || "Có lỗi khi áp dụng giảm giá");
+    }
   };
 
   return (
@@ -100,17 +174,68 @@ export default function BillModal({ isOpen, onClose, order, tableNumber }: BillM
                       })}
                     </div>
 
-                    {/* Total */}
-                    <div className="flex justify-between items-center text-lg font-bold text-blue-600 print:text-black">
-                      <span>Tổng cộng:</span>
-                      <span>{formatCurrency(Number(order.totalAmount))}</span>
+                    {/* Discount Controls (hidden when printing) */}
+                    <div className="space-y-2 rounded-lg border border-gray-200 p-3 bg-gray-50 print:hidden">
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm font-medium text-gray-700">Loại giảm giá</label>
+                        <select
+                          value={discountType}
+                          onChange={(e) => setDiscountType(e.target.value as DiscountType | 'NONE')}
+                          className="flex-1 rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+                        >
+                          <option value="NONE">Không áp dụng</option>
+                          <option value="PERCENT">Giảm %</option>
+                          <option value="FIXED">Giảm tiền</option>
+                        </select>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Giá trị</label>
+                        <input
+                          type="number"
+                          min={0}
+                          step={0.01}
+                          value={discountValue}
+                          onChange={(e) => {
+                            const value = Number(e.target.value);
+                            setDiscountValue(Number.isNaN(value) ? 0 : value);
+                          }}
+                          className="flex-1 rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+                          disabled={discountType === 'NONE'}
+                        />
+                        {discountType === 'PERCENT' && <span className="text-sm text-gray-500">%</span>}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={applyDiscount}
+                        className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        Áp dụng
+                      </button>
+                    </div>
+
+                    {/* Totals */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center text-sm font-semibold text-gray-700">
+                        <span>Tổng tạm tính:</span>
+                        <span>{formatCurrency(subtotal)}</span>
+                      </div>
+                      {discountAmount > 0 && (
+                        <div className="flex justify-between items-center text-sm font-semibold text-red-600">
+                          <span>Giảm giá:</span>
+                          <span>- {formatCurrency(discountAmount)}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between items-center text-lg font-bold text-blue-600 print:text-black">
+                        <span>Khách cần thanh toán:</span>
+                        <span>{formatCurrency(finalTotal)}</span>
+                      </div>
                     </div>
 
                     {/* Static Payment QR (hide when printing) */}
                     <div className="flex flex-col items-center justify-center gap-2 mt-4 p-4 bg-gray-50 rounded-lg print:hidden">
                       <span className="text-sm font-medium text-gray-600">Quét mã để thanh toán</span>
                       <QRCodeSVG
-                        value={`https://payment-demo.smart.restaurant/pay?orderId=${order.id}&amount=${order.totalAmount}`}
+                        value={`https://payment-demo.smart.restaurant/pay?orderId=${order.id}&amount=${finalTotal}`}
                         size={150}
                         level="M"
                       />

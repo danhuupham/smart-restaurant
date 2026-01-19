@@ -3,6 +3,8 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { OrdersGateway } from 'src/events/orders.gateway';
+import { UpdateDiscountDto } from './dto/update-discount.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class OrdersService {
@@ -181,6 +183,49 @@ export class OrdersService {
       if (updated.status === 'ACCEPTED') {
         this.ordersGateway.emitOrderToKitchen(updated);
       }
+    } catch (e) { /* ignore */ }
+
+    return updated;
+  }
+
+  async updateDiscount(id: string, dto: UpdateDiscountDto) {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+      include: { items: { include: { product: true, modifiers: { include: { modifierOption: true } } } }, table: true },
+    });
+
+    if (!order) {
+      throw new BadRequestException('Order not found');
+    }
+
+    const subtotal = Number(order.totalAmount ?? 0);
+    let discountType = dto.discountType ?? null;
+    let discountValue = dto.discountValue ?? 0;
+
+    if (!discountType || discountValue <= 0) {
+      discountType = null;
+      discountValue = 0;
+    }
+
+    if (discountType === 'PERCENT' && discountValue > 100) {
+      throw new BadRequestException('Percent discount cannot exceed 100');
+    }
+
+    if (discountType === 'FIXED' && discountValue > subtotal) {
+      discountValue = subtotal;
+    }
+
+    const updated = await this.prisma.order.update({
+      where: { id },
+      data: {
+        discountType,
+        discountValue: new Prisma.Decimal(discountValue ?? 0),
+      },
+      include: { items: { include: { product: true, modifiers: { include: { modifierOption: true } } } }, table: true },
+    });
+
+    try {
+      this.ordersGateway.emitOrderUpdatedToWaiters(updated);
     } catch (e) { /* ignore */ }
 
     return updated;

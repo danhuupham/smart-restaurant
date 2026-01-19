@@ -48,6 +48,11 @@ enum OrderStatus {
   CANCELLED  
 }
 
+enum DiscountType {
+  PERCENT
+  FIXED
+}
+
 // =========================================================
 // 2. USER MANAGEMENT
 // =========================================================
@@ -218,6 +223,8 @@ model Order {
   guestCount    Int         @default(1) @map("guest_count")
   status        OrderStatus @default(PENDING)
   notes         String?     
+  discountType  DiscountType? @map("discount_type")
+  discountValue Decimal       @default(0) @db.Decimal(10, 2) @map("discount_value")
   
   // Relations
   tableId       String      @map("table_id")
