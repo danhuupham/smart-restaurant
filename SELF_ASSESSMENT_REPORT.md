@@ -105,11 +105,11 @@ Students must input minus points to every uncompleted feature in the SE column.
 |  | › View order details | \-0.25 | 0 |  | Full order details with items, modifiers, notes |
 |  | › Update order status | \-0.25 | 0 |  | Progress order through states: Received → Preparing → Ready → Completed |
 |  | › Kitchen Display System (KDS) | -0.5 | 0 |  | Real-time order display for kitchen staff with sound notifications |
-|  | › Order Timer and Alerts | -0.25 | chưa làm |  | Highlight orders exceeding item's configured prep time |
+|  | › Order Timer and Alerts | -0.25 | 0 |  | Highlight orders exceeding item's configured prep time |
 |  | Table Management |  |  |  |  |
-|  | › Create, edit, deactivate tables | -0.5 | chưa hoàn thiện (chưa vô hiệu hóa) |  | Create, edit, deactivate tables with capacity and location |
+|  | › Create, edit, deactivate tables | -0.5 | 0 |  | Create, edit, deactivate tables with capacity and location |
 |  | › QR Code Generation | -0.5 | 0 |  | Generate unique QR codes per table with signed tokens |
-|  | › QR Code Download/Print | -0.25 | 0 |  | Download QR as PNG/PDF for printing |
+|  | › QR Code Download/Print | -0.25 | 0 |  | Download QR as PNG/PDF for printing (Bulk ZIP supported) |
 |  | › QR Code Regeneration | -0.25 | 0 |  | Regenerate QR and invalidate old codes |
 |  | Reports |  |  |  |  |
 |  | › View revenue report in time range | \-0.25 | chưa hoàn thiện |  | Daily, weekly, monthly revenue reports |

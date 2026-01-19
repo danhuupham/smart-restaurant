@@ -1,10 +1,7 @@
-
-'use client';
-
 import { Table } from '@/types/table';
 import Button from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { QrCode, Edit, Trash2 } from 'lucide-react';
+import { QrCode, Edit, Trash2, Power } from 'lucide-react';
 import { tablesApi } from '@/lib/api/tables';
 import toast from 'react-hot-toast';
 import { useState } from 'react';
@@ -35,6 +32,27 @@ export default function TableList({ tables, onEdit, onUpdate }: TableListProps) 
         const errorMessage = error.response?.data?.message || error.message || 'Failed to delete table';
         toast.error(`Error: ${errorMessage}`);
       }
+    }
+  };
+
+  const handleToggleStatus = async (table: Table) => {
+    if (table.status === 'OCCUPIED') {
+      toast.error('Cannot deactivate an occupied table');
+      return;
+    }
+
+    const newStatus = table.status === 'INACTIVE' ? 'AVAILABLE' : 'INACTIVE';
+    const action = newStatus === 'INACTIVE' ? 'deactivate' : 'activate';
+
+    if (!confirm(`Are you sure you want to ${action} this table?`)) return;
+
+    try {
+      await tablesApi.update(table.id, { status: newStatus });
+      toast.success(`Table is now ${newStatus}`);
+      onUpdate();
+    } catch (error: any) {
+      console.error('Update status error:', error);
+      toast.error('Failed to update status');
     }
   };
 
@@ -69,12 +87,27 @@ export default function TableList({ tables, onEdit, onUpdate }: TableListProps) 
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {tables.map((table) => (
-              <div key={table.id} className="p-4 border rounded-lg shadow-sm">
-                <h3 className="font-semibold text-lg text-gray-900">{table.tableNumber}</h3>
-                <p className="text-gray-700">Capacity: {table.capacity}</p>
-                <p className="text-gray-700">Location: {table.location || 'N/A'}</p>
-                <p className="text-gray-700">Status: <span className="font-medium text-gray-900">{table.status}</span></p>
+              <div key={table.id} className={`p-4 border rounded-lg shadow-sm ${table.status === 'INACTIVE' ? 'bg-gray-50 opacity-75' : 'bg-white'}`}>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-semibold text-lg text-gray-900">{table.tableNumber}</h3>
+                    <p className="text-gray-700">Capacity: {table.capacity}</p>
+                    <p className="text-gray-700">Location: {table.location || 'N/A'}</p>
+                    <p className="text-gray-700">
+                      Status: <span className={`font-medium ${table.status === 'INACTIVE' ? 'text-gray-500' : table.status === 'AVAILABLE' ? 'text-green-600' : 'text-blue-600'}`}>{table.status}</span>
+                    </p>
+                  </div>
+                </div>
+
                 <div className="flex justify-end space-x-2 mt-4">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => handleToggleStatus(table)}
+                    title={table.status === 'INACTIVE' ? "Activate" : "Deactivate"}
+                  >
+                    <Power className={`h-4 w-4 ${table.status === 'INACTIVE' ? 'text-gray-400' : 'text-green-600'}`} />
+                  </Button>
                   <Button variant="outline" size="icon" onClick={() => handleGenerateQr(table)}>
                     <QrCode className="h-4 w-4" />
                   </Button>
