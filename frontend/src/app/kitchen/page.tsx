@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useI18n } from "@/contexts/I18nContext";
+import OrderTimer from "@/components/OrderTimer";
 
-// Định nghĩa kiểu dữ liệu đơn giản cho Order
+// Định nghĩa kiểu dữ liệu
 interface Order {
   id: string;
   table: { tableNumber: string };
@@ -14,6 +15,8 @@ interface Order {
     id: string;
     quantity: number;
     product: { name: string };
+    status: string;
+    modifiers?: { name?: string; modifierOption?: { name: string } }[];
   }[];
 }
 
@@ -22,7 +25,7 @@ export default function KitchenPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Hàm tải danh sách đơn
+  // --- API & Socket Logic (Giữ nguyên) ---
   const fetchOrders = async () => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000'}/orders`);
@@ -34,29 +37,23 @@ export default function KitchenPage() {
     }
   };
 
-  // Tải lại khi vào trang
   useEffect(() => {
     fetchOrders();
 
-    // Setup socket to receive orders when waiter sends to kitchen
     let socket: any = null;
     import('socket.io-client')
       .then(({ io }) => {
         socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000');
-
         socket.on('connect', () => {
           console.log('Kitchen socket connected', socket.id);
           socket.emit('join', 'kitchen');
         });
-
         socket.on('order_to_kitchen', (order: Order) => {
-          // new order sent to kitchen
           setOrders((prev) => {
             if (prev.some(o => o.id === order.id)) return prev;
             return [order, ...prev];
           });
         });
-
         socket.on('order_updated', (order: Order) => {
           setOrders((prev) => {
             const idx = prev.findIndex((o) => o.id === order.id);
@@ -65,7 +62,6 @@ export default function KitchenPage() {
               copy[idx] = order;
               return copy;
             }
-            // Optionally handle adding if not found
             return prev;
           });
         });
@@ -77,36 +73,50 @@ export default function KitchenPage() {
     };
   }, []);
 
-  // Hàm lọc đơn theo trạng thái
-  const getOrdersByStatus = (status: string) => {
-    return orders.filter((o) => o.status === status);
-  };
+  const getOrdersByStatus = (status: string) => orders.filter((o) => o.status === status);
 
-  // Hàm đổi trạng thái (VD: Bấm "Nấu" -> Chuyển sang PREPARING)
-  // (Chúng ta sẽ làm API cập nhật sau, giờ cứ để hàm trống)
   const updateStatus = async (orderId: string, newStatus: string) => {
     try {
-      // 1. Gọi API
       await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000'}/orders/${orderId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
-
-      // 2. Refresh lại danh sách ngay lập tức để thấy sự thay đổi
       fetchOrders();
     } catch (error) {
       console.error("Lỗi cập nhật:", error);
-      alert("Có lỗi xảy ra!");
     }
   };
 
-  if (loading) return <div className="p-8 text-center">⏳ Đang tải dữ liệu bếp...</div>;
+  const updateItemStatus = async (itemId: string, newStatus: string) => {
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000'}/orders/items/${itemId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      fetchOrders();
+    } catch (error) {
+      console.error("Lỗi cập nhật món:", error);
+    }
+  }
+
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="text-slate-500 font-medium animate-pulse">{t('common.loading')}</div>
+    </div>
+  );
 
   return (
-    <main className="min-h-screen bg-gray-100 p-6">
-      <header className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">👨‍🍳 {t('kitchen.title')}</h1>
+    <div className="h-screen bg-slate-50 flex flex-col overflow-hidden">
+      {/* --- Sticky Header --- */}
+      <header className="bg-white border-b border-slate-200 px-8 py-5 flex justify-between items-center shadow-sm z-10 shrink-0">
+        <div>
+          <h1 className="text-3xl font-black text-slate-800 tracking-tight uppercase">
+            KDS <span className="text-orange-600">Smart Kitchen</span>
+          </h1>
+          <p className="text-sm text-slate-400 font-semibold tracking-wider uppercase mt-1">{t('kitchen.title')}</p>
+        </div>
         <div className="flex items-center gap-4">
           <LanguageSwitcher />
           <button
@@ -115,111 +125,184 @@ export default function KitchenPage() {
               localStorage.removeItem('accessToken');
               window.location.href = '/login';
             }}
-            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded text-sm transition-colors"
+            className="bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-6 rounded-xl text-sm transition-all uppercase tracking-wide"
           >
-            Đăng xuất
+            {t('common.logout')}
           </button>
         </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* --- Kanban Board --- */}
+      <div className="flex-1 p-6 overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
 
-        {/* CỘT 1: ĐƠN MỚI (ACCEPTED) - hiển thị sau khi Waiter chấp nhận */}
-        <Column
-          title="🔔 Đơn Đã Duyệt"
-          orders={getOrdersByStatus("ACCEPTED")}
-          color="bg-yellow-100 border-yellow-300"
-          icon="🕒"
-          onStatusChange={updateStatus}
-        />
+          {/* Column 1: APPROVED */}
+          <OrderColumn
+            title={t('kitchen.newOrders')}
+            count={getOrdersByStatus("ACCEPTED").length}
+            orders={getOrdersByStatus("ACCEPTED")}
+            bgColor="bg-orange-50/50"
+            borderColor="border-orange-200"
+            titleColor="text-orange-700"
+            updateStatus={updateStatus}
+            updateItemStatus={updateItemStatus}
+            actionType="COOK"
+          />
 
-        {/* CỘT 2: ĐANG NẤU (PREPARING) */}
-        <Column
-          title="🔥 Đang Nấu"
-          orders={getOrdersByStatus("PREPARING")}
-          color="bg-blue-100 border-blue-300"
-          icon="🍳"
-          onStatusChange={updateStatus}
-        />
+          {/* Column 2: COOKING */}
+          <OrderColumn
+            title={t('kitchen.preparing')}
+            count={getOrdersByStatus("PREPARING").length}
+            orders={getOrdersByStatus("PREPARING")}
+            bgColor="bg-blue-50/50"
+            borderColor="border-blue-200"
+            titleColor="text-blue-700"
+            updateStatus={updateStatus}
+            updateItemStatus={updateItemStatus}
+            actionType="READY"
+          />
 
-        {/* CỘT 3: ĐÃ XONG (READY) */}
-        <Column
-          title="✅ Trả Món"
-          orders={getOrdersByStatus("READY")}
-          color="bg-green-100 border-green-300"
-          icon="🛎️"
-          onStatusChange={updateStatus}
-        />
-
-      </div>
-    </main>
-  );
-}
-
-import OrderTimer from "@/components/OrderTimer";
-
-// Component hiển thị cột (Để code gọn hơn)
-function Column({ title, orders, color, icon, onStatusChange }: any) {
-  return (
-    <div className={`p-4 rounded-xl border-t-4 shadow-sm min-h-[500px] bg-white ${color}`}>
-      <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-gray-800">
-        <span>{icon}</span> {title}
-        <span className="ml-auto bg-white px-2 py-1 rounded text-sm shadow-sm text-gray-900">{orders.length}</span>
-      </h2>
-
-      <div className="space-y-4">
-        {orders.map((order: Order) => (
-          <div key={order.id} className="bg-white p-4 rounded-lg shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
-            <div className="flex justify-between items-start mb-2 pb-2 border-b border-dashed">
-              <span className="font-bold text-lg text-blue-600">Bàn {order.table?.tableNumber || "?"}</span>
-              <div className="flex flex-col items-end">
-                <span className="text-xs text-gray-500">
-                  {new Date(order.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-                </span>
-                <OrderTimer startTime={order.createdAt} />
-              </div>
-            </div>
-
-            <ul className="space-y-2 mb-4">
-              {order.items.map((item) => {
-                const modNames = (item as any).modifiers?.map((m: any) => m.modifierOption?.name ?? m.name).filter(Boolean) ?? [];
-                return (
-                  <li key={item.id} className="text-gray-700">
-                    <div className="flex justify-between">
-                      <span>{item.product?.name ?? 'Unknown item'}</span>
-                      <span className="font-bold">x{item.quantity}</span>
-                    </div>
-                    {modNames.length > 0 && (
-                      <div className="text-xs text-gray-600 ml-1 mt-1">{modNames.join(', ')}</div>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-
-            {/* Nút thao tác nhanh (Mockup) */}
-            <div className="flex gap-2">
-              {order.status === 'ACCEPTED' && (
-                <button
-                  onClick={() => onStatusChange(order.id, 'PREPARING')}
-                  className="w-full py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors shadow-sm"
-                >
-                  👨‍🍳 Nhận Nấu
-                </button>
-              )}
-
-              {order.status === 'PREPARING' && (
-                <button
-                  onClick={() => onStatusChange(order.id, 'READY')}
-                  className="w-full py-2 rounded bg-green-600 hover:bg-green-700 text-white font-bold transition-colors shadow-sm"
-                >
-                  ✅ Nấu Xong
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
+          {/* Column 3: READY */}
+          <OrderColumn
+            title={t('kitchen.ready')}
+            count={getOrdersByStatus("READY").length}
+            orders={getOrdersByStatus("READY")}
+            bgColor="bg-green-50/50"
+            borderColor="border-green-200"
+            titleColor="text-green-700"
+            updateStatus={updateStatus}
+            updateItemStatus={updateItemStatus}
+            actionType="DONE"
+          />
+        </div>
       </div>
     </div>
   );
+}
+
+// --- Sub Components ---
+
+function OrderColumn({ title, count, orders, bgColor, borderColor, titleColor, updateStatus, updateItemStatus, actionType }: any) {
+  return (
+    <div className={`flex flex-col h-full rounded-2xl border-2 ${borderColor} ${bgColor} overflow-hidden shadow-sm`}>
+      {/* Column Header */}
+      <div className="p-5 border-b border-gray-100/50 flex justify-between items-center bg-white/50 backdrop-blur-sm shrink-0">
+        <h2 className={`font-black tracking-tight text-2xl uppercase ${titleColor}`}>{title}</h2>
+        <span className={`px-4 py-1.5 rounded-full text-lg font-bold bg-white shadow-sm ring-1 ring-inset ring-gray-200 ${titleColor}`}>
+          {count}
+        </span>
+      </div>
+
+      {/* Scrollable List */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+        {orders.map((order: Order) => (
+          <OrderCard
+            key={order.id}
+            order={order}
+            updateStatus={updateStatus}
+            updateItemStatus={updateItemStatus}
+            parentActionType={actionType}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function OrderCard({ order, updateStatus, updateItemStatus, parentActionType }: any) {
+  const { t } = useI18n();
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 flex flex-col gap-4 group hover:shadow-md transition-shadow">
+      {/* Header */}
+      <div className="flex justify-between items-start pb-4 border-b border-dashed border-slate-200">
+        <div>
+          <div className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">{t('kitchen.table') || 'Table'}</div>
+          <div className="text-5xl font-black text-slate-800 leading-none">{order.table?.tableNumber || "?"}</div>
+        </div>
+        <div className="flex flex-col items-end">
+          <OrderTimer startTime={order.createdAt} className="text-3xl font-bold font-mono text-slate-700" />
+          <span className="text-sm text-slate-400 font-medium mt-1">
+            {new Date(order.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+          </span>
+        </div>
+      </div>
+
+      {/* Items */}
+      <div className="flex flex-col gap-3">
+        {order.items.map((item: any) => {
+          const modNames = item.modifiers?.map((m: any) => m.modifierOption?.name ?? m.name).filter(Boolean) ?? [];
+          // Status styling
+          let statusClass = "bg-slate-100 text-slate-500";
+          if (item.status === 'PREPARING') statusClass = "bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-100";
+          if (item.status === 'READY') statusClass = "bg-green-50 text-green-700 ring-1 ring-inset ring-green-100";
+
+          return (
+            <div key={item.id} className="flex justify-between items-start py-2 border-b border-slate-50 last:border-0">
+              <div className="flex-1 pr-4">
+                <div className="flex items-baseline gap-3">
+                  <span className="font-black text-slate-800 text-2xl">x{item.quantity}</span>
+                  <span className="text-xl font-semibold text-slate-700 leading-snug">{item.product.name}</span>
+                </div>
+                {modNames.length > 0 && (
+                  <div className="text-sm text-slate-500 mt-1 pl-8 italic leading-tight">
+                    {modNames.join(', ')}
+                  </div>
+                )}
+              </div>
+
+              {/* Item Action */}
+              <div className="flex flex-col items-end gap-2 shrink-0">
+                <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded tracking-wide ${statusClass}`}>
+                  {item.status || 'PENDING'}
+                </span>
+
+                {/* Individual Item Buttons */}
+                {(item.status === 'PENDING' || !item.status) && (
+                  <button
+                    onClick={() => updateItemStatus(item.id, 'PREPARING')}
+                    className="text-sm font-bold bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700 uppercase tracking-wide shadow-sm"
+                  >
+                    {t('kitchen.cook') || 'Cook'}
+                  </button>
+                )}
+                {item.status === 'PREPARING' && (
+                  <button
+                    onClick={() => updateItemStatus(item.id, 'READY')}
+                    className="text-sm font-bold bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-500 uppercase tracking-wide shadow-sm"
+                  >
+                    {t('kitchen.done') || 'Done'}
+                  </button>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Footer / Bulk Actions */}
+      <div className="pt-4 mt-auto">
+        {parentActionType === 'COOK' && (
+          <button
+            onClick={() => updateStatus(order.id, 'PREPARING')}
+            className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-lg font-bold uppercase tracking-wider shadow-sm transition-all"
+          >
+            {t('kitchen.cookAll') || 'Cook Order'}
+          </button>
+        )}
+        {parentActionType === 'READY' && (
+          <button
+            onClick={() => updateStatus(order.id, 'READY')}
+            className="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-xl text-lg font-bold uppercase tracking-wider shadow-sm transition-all"
+          >
+            {t('kitchen.readyAll') || 'Complete Order'}
+          </button>
+        )}
+        {parentActionType === 'DONE' && (
+          <div className="w-full py-4 bg-green-50 text-green-700 rounded-xl text-lg font-bold text-center uppercase border-2 border-green-100">
+            {t('kitchen.servedAll') || 'Order Served'}
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }

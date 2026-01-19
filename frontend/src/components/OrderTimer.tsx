@@ -4,17 +4,20 @@ import { useEffect, useState } from "react";
 
 interface OrderTimerProps {
     startTime: string | Date;
-    warningThresholdMinutes?: number; // Time to turn yellow
-    dangerThresholdMinutes?: number; // Time to turn red
+    warningThresholdMinutes?: number;
+    dangerThresholdMinutes?: number;
+    className?: string;
 }
 
 export default function OrderTimer({
     startTime,
     warningThresholdMinutes = 15,
     dangerThresholdMinutes = 30,
+    className = "",
 }: OrderTimerProps) {
     const [elapsed, setElapsed] = useState(0);
 
+    // ... (keep useEffect as is) ...
     useEffect(() => {
         const start = new Date(startTime).getTime();
 
@@ -46,12 +49,20 @@ export default function OrderTimer({
         const minutes = elapsed / 60;
         if (minutes >= dangerThresholdMinutes) return "text-red-600 font-bold animate-pulse";
         if (minutes >= warningThresholdMinutes) return "text-orange-600 font-bold";
-        return "text-gray-600";
+        return className || "text-gray-600"; // Use className as default text color if provided, else gray
     };
 
+    // Combine logic: if Danger/Warning use that color, otherwise use className passed from parent
+    const finalClass = () => {
+        const minutes = elapsed / 60;
+        if (minutes >= dangerThresholdMinutes) return "text-red-600 font-bold animate-pulse";
+        if (minutes >= warningThresholdMinutes) return "text-orange-600 font-bold";
+        return className;
+    }
+
     return (
-        <span className={`font-mono text-sm ${getColorClass()}`} title="Time elapsed">
-            ⏱️ {formatTime(elapsed)}
+        <span className={`font-mono text-sm ${finalClass()}`} title="Time elapsed">
+            {formatTime(elapsed)}
         </span>
     );
 }

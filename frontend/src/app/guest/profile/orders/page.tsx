@@ -11,11 +11,16 @@ import { useI18n } from "@/contexts/I18nContext";
 import { History, ChevronRight } from "lucide-react";
 import { Order, OrderStatus } from "@/types";
 import toast from "react-hot-toast";
+import ReviewModal from "@/components/guest/ReviewModal";
 
 function OrderHistoryContent() {
     const { t } = useI18n();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
+
+    // Review Modal State
+    const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+    const [selectedProductForReview, setSelectedProductForReview] = useState<{ id: string, name: string } | null>(null);
 
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -82,6 +87,8 @@ function OrderHistoryContent() {
         return map[status] || status;
     };
 
+
+
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
@@ -129,19 +136,27 @@ function OrderHistoryContent() {
                                 </div>
 
                                 <div className="space-y-2 mb-3">
-                                    {order.items.slice(0, 3).map((item, idx) => (
-                                        <div key={idx} className="flex justify-between text-sm">
-                                            <span className="text-gray-600">
-                                                {item.quantity}x {item.product.name}
-                                            </span>
-                                            {/* Option: show item price here */}
+                                    {order.items.map((item, idx) => (
+                                        <div key={idx} className="flex justify-between items-center text-sm py-1 border-b border-dashed border-gray-100 last:border-0">
+                                            <div className="flex-1">
+                                                <span className="font-medium text-gray-700">
+                                                    {item.quantity}x {item.product.name}
+                                                </span>
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedProductForReview({
+                                                        id: item.product.id,
+                                                        name: item.product.name
+                                                    });
+                                                    setIsReviewModalOpen(true);
+                                                }}
+                                                className="ml-2 text-xs font-semibold text-orange-600 bg-orange-50 px-2 py-1 rounded hover:bg-orange-100 transition-colors"
+                                            >
+                                                {t('review.reviewButton') || "Review"}
+                                            </button>
                                         </div>
                                     ))}
-                                    {order.items.length > 3 && (
-                                        <div className="text-xs text-gray-400 italic">
-                                            {t('profile.orders.moreItems', { count: order.items.length - 3 })}
-                                        </div>
-                                    )}
                                 </div>
 
                                 <div className="border-t border-dashed pt-3 flex justify-between items-center">
@@ -155,6 +170,16 @@ function OrderHistoryContent() {
                     </div>
                 )}
             </div>
+
+            {/* Review Modal */}
+            {selectedProductForReview && (
+                <ReviewModal
+                    isOpen={isReviewModalOpen}
+                    onClose={() => setIsReviewModalOpen(false)}
+                    productId={selectedProductForReview.id}
+                    productName={selectedProductForReview.name}
+                />
+            )}
         </>
     );
 }

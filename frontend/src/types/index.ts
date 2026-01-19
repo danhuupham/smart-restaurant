@@ -80,6 +80,8 @@ export interface OrderModifier {
   priceAtOrder: number;
 }
 
+export type OrderItemStatus = 'PENDING' | 'PREPARING' | 'READY' | 'SERVED' | 'CANCELLED';
+
 export interface OrderItem {
   id: string;
   productId: string;
@@ -87,6 +89,7 @@ export interface OrderItem {
   quantity: number;
   unitPrice: number;
   totalPrice: number;
+  status: OrderItemStatus;
   modifiers: OrderModifier[];
 }
 

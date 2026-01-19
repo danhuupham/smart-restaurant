@@ -270,4 +270,58 @@ export class OrdersService {
 
     return updated;
   }
+  async updateItemStatus(itemId: string, status: any) {
+    const item = await this.prisma.orderItem.findUnique({ where: { id: itemId } });
+    if (!item) throw new BadRequestException('Item not found');
+
+    // Update item status
+    await this.prisma.orderItem.update({
+      where: { id: itemId },
+      data: { status },
+    });
+
+    // Check sibling items to update parent Order status
+    const order = await this.prisma.order.findUnique({
+      where: { id: item.orderId },
+      include: { items: { include: { product: true, modifiers: { include: { modifierOption: true } } } }, table: true },
+    });
+
+    if (order) {
+      let newOrderStatus = order.status;
+      const allItems = order.items;
+      const allReady = allItems.every(i => i.status === 'READY' || i.status === 'SERVED' || i.status === 'CANCELLED');
+      const allServed = allItems.every(i => i.status === 'SERVED' || i.status === 'CANCELLED');
+      const anyPreparing = allItems.some(i => i.status === 'PREPARING');
+
+      if (allServed) {
+        newOrderStatus = 'SERVED';
+      } else if (allReady) {
+        newOrderStatus = 'READY';
+      } else if (anyPreparing && order.status !== 'PREPARING') {
+        newOrderStatus = 'PREPARING';
+      }
+
+      if (newOrderStatus !== order.status) {
+        const updatedOrder = await this.prisma.order.update({
+          where: { id: order.id },
+          data: { status: newOrderStatus },
+          include: { items: { include: { product: true, modifiers: { include: { modifierOption: true } } } }, table: true },
+        });
+
+        // Emit events
+        try {
+          this.ordersGateway.emitOrderUpdatedToWaiters(updatedOrder);
+          this.ordersGateway.emitOrderUpdatedToKitchen(updatedOrder);
+        } catch (e) { /* ignore */ }
+        return updatedOrder;
+      } else {
+        // Even if order status didn't change, formatting changed, so emit update for the item status change
+        try {
+          this.ordersGateway.emitOrderUpdatedToWaiters(order);
+          this.ordersGateway.emitOrderUpdatedToKitchen(order);
+        } catch (e) { /* ignore */ }
+      }
+    }
+    return order;
+  }
 }

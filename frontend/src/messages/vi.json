@@ -136,12 +136,20 @@
     "table": "Bàn"
   },
   "kitchen": {
-    "title": "Màn hình Bếp",
-    "newOrders": "Đơn mới",
-    "preparing": "Đang nấu",
-    "ready": "Đã xong",
-    "startCooking": "Nhận nấu",
-    "markReady": "Nấu xong"
+    "title": "Hệ Thống Bếp",
+    "newOrders": "Đơn Mới",
+    "preparing": "Đang Nấu",
+    "ready": "Trả Món",
+    "startCooking": "Bắt Đầu Nấu",
+    "markReady": "Báo Xong",
+    "table": "Bàn",
+    "markDone": "Xong",
+    "cook": "Nấu",
+    "done": "Xong",
+    "cookAll": "Nấu Cả Đơn",
+    "readyAll": "Xong Cả Đơn",
+    "served": "Đã Phục Vụ",
+    "servedAll": "Đã Phục Vụ"
   },
   "admin": {
     "dashboard": "Quản Trị Viên",

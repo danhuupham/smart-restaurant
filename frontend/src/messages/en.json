@@ -136,12 +136,20 @@
         "table": "Table"
     },
     "kitchen": {
-        "title": "Kitchen Dashboard",
+        "title": "Kitchen Display System",
         "newOrders": "New Orders",
-        "preparing": "Preparing",
-        "ready": "Ready",
+        "preparing": "Cooking",
+        "ready": "Ready to Serve",
         "startCooking": "Start Cooking",
-        "markReady": "Mark Ready"
+        "markReady": "Mark Ready",
+        "table": "Table",
+        "markDone": "Mark Done",
+        "cook": "Cook",
+        "done": "Done",
+        "cookAll": "Cook Order",
+        "readyAll": "Complete Order",
+        "served": "Served",
+        "servedAll": "Order Served"
     },
     "admin": {
         "dashboard": "Admin Dashboard",

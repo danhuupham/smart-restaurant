@@ -33,6 +33,17 @@ const formatPrice = (price: number) =>
     }).format(price);
 
 
+const getItemStatusColor = (status?: string) => {
+    switch (status) {
+        case 'PENDING': return 'bg-yellow-100 text-yellow-800';
+        case 'PREPARING': return 'bg-purple-100 text-purple-800'; // Match kitchen styling preferences if possible, or keep distinct
+        case 'READY': return 'bg-green-100 text-green-800';
+        case 'SERVED': return 'bg-blue-100 text-blue-800';
+        case 'CANCELLED': return 'bg-red-100 text-red-800';
+        default: return 'bg-gray-100 text-gray-800';
+    }
+};
+
 function OrdersContent() {
     const { t } = useI18n();
     const [orders, setOrders] = useState<Order[]>([]);
@@ -65,11 +76,14 @@ function OrdersContent() {
         return () => clearInterval(interval);
     }, [tableId]);
 
+    // Filter to show only active (non-completed) orders in the list
+    const visibleOrders = orders.filter(o => o.status !== 'COMPLETED' && o.status !== 'CANCELLED' && o.status !== 'REJECTED');
+
     const sessionTotal = Array.isArray(orders)
         ? orders.reduce((sum, order) => sum + Number(order.totalAmount), 0)
         : 0;
 
-    // Filter unpaid orders (not COMPLETED or CANCELLED)
+    // Filter unpaid orders (same logic as visible mainly, but strictly for payment calculation)
     const unpaidOrders = orders.filter(o => o.status !== 'COMPLETED' && o.status !== 'CANCELLED' && o.status !== 'REJECTED');
     const unpaidTotal = unpaidOrders.reduce((sum, order) => sum + Number(order.totalAmount), 0);
     const canPay = unpaidTotal > 0;
@@ -120,7 +134,7 @@ function OrdersContent() {
                             <div>
                                 <div className="text-sm font-medium opacity-90">{t('orders.total')}</div>
                                 <div className="text-3xl font-bold tracking-tight">
-                                    {formatPrice(sessionTotal)}
+                                    {formatPrice(unpaidTotal)}
                                 </div>
                             </div>
 
@@ -154,14 +168,14 @@ function OrdersContent() {
 
                 {loading ? (
                     <div className="text-center py-12 text-slate-500">{t('common.loading')}</div>
-                ) : orders.length === 0 ? (
+                ) : visibleOrders.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-slate-400">
                         <ClipboardList className="w-16 h-16 mb-4 stroke-1" />
                         <p className="font-medium">{t('orders.noOrders')}</p>
                     </div>
                 ) : (
                     <div className="space-y-4">
-                        {orders.map((order) => (
+                        {visibleOrders.map((order) => (
                             <div key={order.id} className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
                                 <div className="flex justify-between items-center p-4 border-b border-slate-50 bg-slate-50/50">
                                     <div>
@@ -206,6 +220,14 @@ function OrdersContent() {
                                                             {item.modifiers.map((m) => m.modifierOption.name).join(", ")}
                                                         </div>
                                                     )}
+
+                                                    {/* Display Item Status */}
+                                                    <div className="mt-1">
+                                                        <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${getItemStatusColor(item.status)}`}>
+                                                            {item.status || 'PENDING'}
+                                                        </span>
+                                                    </div>
+
                                                 </div>
                                             </div>
                                             <span className="text-slate-700 font-medium">

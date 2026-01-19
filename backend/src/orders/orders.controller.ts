@@ -94,4 +94,9 @@ export class OrdersController {
   updateDiscount(@Param('id') id: string, @Body() dto: UpdateDiscountDto) {
     return this.ordersService.updateDiscount(id, dto);
   }
+
+  @Patch('items/:itemId/status')
+  updateItemStatus(@Param('itemId') itemId: string, @Body('status') status: string) {
+    return this.ordersService.updateItemStatus(itemId, status);
+  }
 }
