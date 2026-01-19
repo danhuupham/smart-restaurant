@@ -156,6 +156,8 @@ export default function KitchenPage() {
   );
 }
 
+import OrderTimer from "@/components/OrderTimer";
+
 // Component hiển thị cột (Để code gọn hơn)
 function Column({ title, orders, color, icon, onStatusChange }: any) {
   return (
@@ -170,9 +172,12 @@ function Column({ title, orders, color, icon, onStatusChange }: any) {
           <div key={order.id} className="bg-white p-4 rounded-lg shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
             <div className="flex justify-between items-start mb-2 pb-2 border-b border-dashed">
               <span className="font-bold text-lg text-blue-600">Bàn {order.table?.tableNumber || "?"}</span>
-              <span className="text-xs text-gray-600">
-                {new Date(order.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-              </span>
+              <div className="flex flex-col items-end">
+                <span className="text-xs text-gray-500">
+                  {new Date(order.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                </span>
+                <OrderTimer startTime={order.createdAt} />
+              </div>
             </div>
 
             <ul className="space-y-2 mb-4">

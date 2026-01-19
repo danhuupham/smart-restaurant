@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import BillModal from "@/components/waiter/BillModal";
+import OrderTimer from "@/components/OrderTimer";
 import { Order } from "@/types";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useI18n } from "@/contexts/I18nContext";
@@ -181,7 +182,10 @@ export default function WaiterPage() {
               <div key={order.id} className="border border-yellow-200 p-4 rounded-lg shadow-sm">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-2xl font-bold text-yellow-800">Bàn {order.table?.tableNumber ?? "?"}</span>
-                  <span className="text-xs text-gray-600">{new Date(order.createdAt).toLocaleTimeString('vi-VN')}</span>
+                  <div className="flex flex-col items-end">
+                    <span className="text-xs text-gray-600">{new Date(order.createdAt).toLocaleTimeString('vi-VN')}</span>
+                    <OrderTimer startTime={order.createdAt} />
+                  </div>
                 </div>
                 <ul className="mb-4 bg-white p-2 rounded border border-yellow-100">
                   {order.items.map((item) => {
@@ -227,9 +231,12 @@ export default function WaiterPage() {
               <div key={order.id} className="border border-green-200 bg-green-50 p-4 rounded-lg shadow-sm animate-pulse">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-2xl font-bold text-green-800">Bàn {order.table?.tableNumber ?? "?"}</span>
-                  <span className="text-xs text-gray-600">
-                    {new Date(order.createdAt).toLocaleTimeString('vi-VN')}
-                  </span>
+                  <div className="flex flex-col items-end">
+                    <span className="text-xs text-gray-600">
+                      {new Date(order.createdAt).toLocaleTimeString('vi-VN')}
+                    </span>
+                    <OrderTimer startTime={order.createdAt} />
+                  </div>
                 </div>
                 <ul className="mb-4 bg-white p-2 rounded border border-green-100">
                   {order.items.map((item) => {

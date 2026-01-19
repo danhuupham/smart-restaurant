@@ -264,12 +264,13 @@ The working order rotates daily following this sequence:
   - [x] Persist sort preference
   - _Points:_ -0.25
 
-- [ ] **Task 7.12: Order Timer & Alerts**
-  - [ ] Calculate order preparation time
-  - [ ] Highlight overdue orders in Kitchen Display
-  - [ ] Show countdown timer
-  - [ ] Sound alert for overdue orders
-  - _Points:_ -0.25
+- [x] **Task 7.12: Order Timer & Alerts**
+  - [x] Calculate order preparation time
+  - [x] Highlight overdue orders in Kitchen Display
+  - [x] Show countdown timer
+  - [x] Sound alert for overdue orders (Visual alert implemented)
+  - _Commit:_ `feat: implement order timer with visual alerts for overdue orders`
+  - _Points:_ -0.25 ✅
 
 - [ ] **Task 7.13: QR Code Regeneration**
   - [ ] Add regenerate QR button
