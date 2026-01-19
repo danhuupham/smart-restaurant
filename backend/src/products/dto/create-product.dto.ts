@@ -16,6 +16,10 @@ export class CreateProductDto {
   @IsString()
   description?: string | null;
 
+  @IsOptional()
+  @IsString()
+  allergens?: string | null;
+
   // Prisma Decimal can take string (recommended to avoid float issues)
   @IsNumberString()
   price: string;
