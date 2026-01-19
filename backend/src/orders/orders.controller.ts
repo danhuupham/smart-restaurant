@@ -30,6 +30,24 @@ export class OrdersController {
     return this.ordersService.create(createOrderDto);
   }
 
+  @Get('my-history')
+  async getMyHistory(@Req() req) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      throw new Error('Unauthorized');
+    }
+    try {
+      const token = authHeader.split(' ')[1];
+      const decoded = this.jwtService.verify(token);
+      if (!decoded || !decoded.sub) {
+        throw new Error('Invalid token');
+      }
+      return this.ordersService.findAll({ customerId: decoded.sub });
+    } catch (e) {
+      throw new Error('Unauthorized');
+    }
+  }
+
   @Get()
   findAll(@Req() req, @Query('tableId') tableId: string) {
     const authHeader = req.headers.authorization;

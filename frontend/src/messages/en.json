@@ -26,6 +26,16 @@
         "addToOrder": "Add to Order",
         "noRelatedItems": "No related items found."
     },
+    "orderStatus": {
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "rejected": "Rejected",
+        "preparing": "Preparing",
+        "ready": "Ready",
+        "served": "Served",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+    },
     "menu": {
         "title": "Menu",
         "searchPlaceholder": "Search menu items...",

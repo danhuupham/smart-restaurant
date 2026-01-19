@@ -26,6 +26,16 @@
     "addToOrder": "Thêm vào đơn",
     "noRelatedItems": "Không có món gợi ý nào."
   },
+  "orderStatus": {
+    "pending": "Đang chờ",
+    "accepted": "Đã nhận",
+    "rejected": "Bị từ chối",
+    "preparing": "Đang chuẩn bị",
+    "ready": "Sẵn sàng",
+    "served": "Đã phục vụ",
+    "completed": "Hoàn thành",
+    "cancelled": "Đã hủy"
+  },
   "menu": {
     "title": "Thực Đơn",
     "searchPlaceholder": "Tìm món ăn...",

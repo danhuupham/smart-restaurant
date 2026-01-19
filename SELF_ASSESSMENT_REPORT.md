@@ -75,9 +75,9 @@ Students must input minus points to every uncompleted feature in the SE column.
 |  | Verify user input | \-0.25 | 0 |  | Input validation on profile updates |
 |  | Update the user's avatar | \-0.25 | 0 |  | Profile photo upload |
 |  | Update password | \-0.25 | 0 |  | Change password with old password verification |
-|  | Order history and tracking |  |  |  |  |
-|  | › View order history | \-0.25 | chưa làm |  | List of past orders linked to user account |
-|  | › View item processing status | \-0.25 | chưa làm |  | Track individual item status within an order (Queued, Cooking, Ready) |
+|  | Order history and tracking | \-0.25 | 0 |  | List of past orders linked to user account |
+|  | › View order history | \-0.25 | 0 |  | List of past orders linked to user account |
+|  | › View item processing status | \-0.25 | 0 |  | Track individual item status within an order (Queued, Cooking, Ready) |
 |  | › Real-time Order Updates | 0.5 | 0.5 |  | WebSocket-based live order status updates for customers |
 | **5** | **Administration features (Restaurant Admin)** |  |  |  |  |
 |  | Create Admin accounts | \-0.25 | 0 |  | Admin creates additional Admin accounts |

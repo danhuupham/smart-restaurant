@@ -442,7 +442,7 @@ function ProfileContent() {
           <MenuItem
             icon={<History className="w-5 h-5" />}
             label={t("profile.menu.orderHistory")}
-            href="#"
+            href="/guest/profile/orders"
           />
           <MenuItem
             icon={<Heart className="w-5 h-5" />}
