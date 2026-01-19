@@ -1,6 +1,6 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
-import { QRCodeSVG } from "qrcode.react";
+
 import { DiscountType, Order } from "../../types";
 import toast from "react-hot-toast";
 import { useReactToPrint } from "react-to-print";
@@ -173,44 +173,7 @@ export default function BillModal({ isOpen, onClose, order, tableNumber, onOrder
                       })}
                     </div>
 
-                    {/* Discount Controls (hidden when printing) */}
-                    <div className="space-y-2 rounded-lg border border-gray-200 p-3 bg-gray-50 print:hidden">
-                      <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium text-gray-700">Loại giảm giá</label>
-                        <select
-                          value={discountType}
-                          onChange={(e) => setDiscountType(e.target.value as DiscountType | 'NONE')}
-                          className="flex-1 rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
-                        >
-                          <option value="NONE">Không áp dụng</option>
-                          <option value="PERCENT">Giảm %</option>
-                          <option value="FIXED">Giảm tiền</option>
-                        </select>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Giá trị</label>
-                        <input
-                          type="number"
-                          min={0}
-                          step={0.01}
-                          value={discountValue}
-                          onChange={(e) => {
-                            const value = Number(e.target.value);
-                            setDiscountValue(Number.isNaN(value) ? 0 : value);
-                          }}
-                          className="flex-1 rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
-                          disabled={discountType === 'NONE'}
-                        />
-                        {discountType === 'PERCENT' && <span className="text-sm text-gray-500">%</span>}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={applyDiscount}
-                        className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        Áp dụng
-                      </button>
-                    </div>
+
 
                     {/* Totals */}
                     <div className="space-y-2">
@@ -230,16 +193,7 @@ export default function BillModal({ isOpen, onClose, order, tableNumber, onOrder
                       </div>
                     </div>
 
-                    {/* Static Payment QR (hide when printing) */}
-                    <div className="flex flex-col items-center justify-center gap-2 mt-4 p-4 bg-gray-50 rounded-lg print:hidden">
-                      <span className="text-sm font-medium text-gray-600">Quét mã để thanh toán</span>
-                      <QRCodeSVG
-                        value={`https://payment-demo.smart.restaurant/pay?orderId=${order.id}&amount=${finalTotal}`}
-                        size={150}
-                        level="M"
-                      />
-                      <span className="text-xs text-gray-400">Demo Payment QR</span>
-                    </div>
+
 
                     {/* Footer (only visible when printing) */}
                     <div className="hidden print:block text-center mt-8 pt-4 border-t">
