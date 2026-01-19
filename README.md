@@ -310,6 +310,7 @@ After seeding, use these accounts (Password: `password@123`):
 - ✅ **QR Code Regeneration**: Securely rotate QR codes via Admin to invalidate old links (Task 7.13)
 - ✅ **Chef Recommendations**: Highlight special dishes with "Chef's Choice" badge and toggle in Admin (Task 7.14)
 - ✅ **Related Items**: Suggests similar dishes from the same category in the product detail modal (Task 7.15)
+- ✅ **Sorting & Statistics**: Track product popularity and allow guests to sort menu by price or popularity (Task 7.19)
 
 ---
 

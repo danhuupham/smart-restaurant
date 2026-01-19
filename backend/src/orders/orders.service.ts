@@ -151,11 +151,22 @@ export class OrdersService {
       include: { items: { include: { product: true, modifiers: { include: { modifierOption: true } } } }, table: true },
     });
 
-    // If order is completed, set table back to AVAILABLE
+    // If order is completed, set table back to AVAILABLE and update product popularity
     if (status === 'COMPLETED') {
-      await this.prisma.table.update({
-        where: { id: updated.tableId },
-        data: { status: 'AVAILABLE' },
+      await this.prisma.$transaction(async (tx) => {
+        // 1. Free the table
+        await tx.table.update({
+          where: { id: updated.tableId },
+          data: { status: 'AVAILABLE' },
+        });
+
+        // 2. Increment order count for products
+        for (const item of updated.items) {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: { orderCount: { increment: item.quantity } },
+          });
+        }
       });
     }
 

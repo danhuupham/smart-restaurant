@@ -52,6 +52,7 @@ export interface Product {
   images: ProductImage[];
   modifierGroups: ProductModifierGroup[]; // Important: Topping/Size
   isChefRecommended?: boolean;
+  orderCount?: number;
 }
 
 export interface CartItem {

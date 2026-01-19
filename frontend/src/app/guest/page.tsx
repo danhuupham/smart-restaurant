@@ -27,6 +27,7 @@ function GuestMenuContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isValidating, setIsValidating] = useState(true);
+  const [sortBy, setSortBy] = useState<'default' | 'price_asc' | 'price_desc' | 'popularity'>('default');
   const router = useRouter();
 
   const searchParams = useSearchParams();
@@ -111,9 +112,10 @@ function GuestMenuContent() {
     return [t('menu.allCategories'), ...Array.from(cats).sort()];
   }, [products, t]);
 
-  // Filter products by category AND search client-side
+  // Filter products by category AND search AND sort
   const filteredProducts = useMemo(() => {
-    let filtered = products;
+    // Create a copy to sort
+    let filtered = [...products];
 
     // Filter by Search Query
     if (searchQuery.trim()) {
@@ -131,8 +133,18 @@ function GuestMenuContent() {
       );
     }
 
+    // Sort
+    if (sortBy === 'price_asc') {
+      filtered.sort((a, b) => Number(a.price) - Number(b.price));
+    } else if (sortBy === 'price_desc') {
+      filtered.sort((a, b) => Number(b.price) - Number(a.price));
+    } else if (sortBy === 'popularity') {
+      // Sort by orderCount descending
+      filtered.sort((a, b) => (b.orderCount || 0) - (a.orderCount || 0));
+    }
+
     return filtered;
-  }, [products, activeCategory, searchQuery]);
+  }, [products, activeCategory, searchQuery, sortBy]);
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
@@ -140,10 +152,10 @@ function GuestMenuContent() {
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
 
-  // Reset to page 1 when category changes
+  // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeCategory]);
+  }, [activeCategory, sortBy, searchQuery]);
 
   const handleProductClick = (product: Product) => {
     setSelectedProduct(product);
@@ -174,15 +186,28 @@ function GuestMenuContent() {
 
         {/* Search Bar */}
         <div className="px-4 pb-3">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder={t('menu.searchPlaceholder')}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#f5f6fa] border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-slate-800 placeholder:text-slate-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-colors"
-            />
-            <Search className="absolute left-3 top-3 text-slate-400 w-5 h-5" />
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <input
+                type="text"
+                placeholder={t('menu.searchPlaceholder')}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-[#f5f6fa] border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-slate-800 placeholder:text-slate-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-colors"
+              />
+              <Search className="absolute left-3 top-3 text-slate-400 w-5 h-5" />
+            </div>
+
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="bg-[#f5f6fa] border border-gray-200 rounded-xl px-3 text-sm font-medium text-slate-700 outline-none focus:border-orange-500"
+            >
+              <option value="default">{t('menu.sortDefault') || 'Default'}</option>
+              <option value="popularity">🔥 Popular</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+            </select>
           </div>
         </div>
       </div>

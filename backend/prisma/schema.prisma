@@ -130,6 +130,7 @@ model Product {
   prepTimeMinutes Int?         @map("prep_time_minutes")
   status         ProductStatus @default(AVAILABLE)
   isChefRecommended Boolean    @default(false) @map("is_chef_recommended")
+  orderCount     Int           @default(0) @map("order_count")
   
   // Relations
   categoryId     String        @map("category_id")
