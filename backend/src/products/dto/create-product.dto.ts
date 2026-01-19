@@ -8,16 +8,20 @@ import {
   IsString,
   IsUrl,
   IsBoolean,
+  MaxLength,
+  Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateProductDto {
   @IsString()
   @IsNotEmpty()
+  @MaxLength(100)
   name: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(1000)
   description?: string | null;
 
   @IsOptional()
@@ -47,7 +51,7 @@ export class CreateProductDto {
 
   @IsOptional()
   @IsInt()
-  @IsPositive()
+  @Min(0)
   @Type(() => Number)
   prepTimeMinutes?: number;
 }
