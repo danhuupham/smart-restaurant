@@ -72,7 +72,7 @@ Students must input minus points to every uncompleted feature in the SE column.
 |  | Forgot password by email | \-0.25 | 0 |  | Password reset via email link |
 | **4** | **Features for logged-in users (Customers)** |  |  |  |  |
 |  | Update user profile | \-0.25 | 0 |  | Customer can update name, preferences |
-|  | Verify user input | \-0.25 | chưa hoàn thiện |  | Input validation on profile updates |
+|  | Verify user input | \-0.25 | 0 |  | Input validation on profile updates |
 |  | Update the user's avatar | \-0.25 | 0 |  | Profile photo upload |
 |  | Update password | \-0.25 | 0 |  | Change password with old password verification |
 |  | Order history and tracking |  |  |  |  |

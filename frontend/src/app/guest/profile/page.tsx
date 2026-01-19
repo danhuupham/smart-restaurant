@@ -20,6 +20,7 @@ import {
   KeyRound,
   Award,
 } from "lucide-react";
+import toast from "react-hot-toast";
 
 interface CustomerProfile {
   id: string;
@@ -61,9 +62,6 @@ function ProfileContent() {
   const [savingPassword, setSavingPassword] = useState(false);
   const [uploading, setUploading] = useState(false);
 
-  const [msg, setMsg] = useState<string | null>(null);
-  const [err, setErr] = useState<string | null>(null);
-
   const router = useRouter();
   const searchParams = useSearchParams();
   const tableIdFromUrl = searchParams.get("tableId");
@@ -83,8 +81,6 @@ function ProfileContent() {
   );
 
   const fetchProfile = async () => {
-    setErr(null);
-    setMsg(null);
     try {
       const res = await api.get("/auth/profile");
       setProfile(res.data);
@@ -95,7 +91,7 @@ function ProfileContent() {
       });
     } catch (error: any) {
       if (error.response?.status !== 401) {
-        setErr("Failed to load profile");
+        toast.error("Failed to load profile");
         console.error(error);
       }
     } finally {
@@ -121,9 +117,23 @@ function ProfileContent() {
 
   const handleSaveProfile = async () => {
     if (!profile) return;
+
+    if (!form.name.trim()) {
+      toast.error(t("profile.nameRequired") || "Name is required");
+      return;
+    }
+
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      toast.error(t("profile.emailInvalid") || "Invalid email format");
+      return;
+    }
+
+    if (form.phone && !/^\d{10,11}$/.test(form.phone)) {
+      toast.error(t("profile.phoneInvalid") || "Invalid phone format (10-11 digits)");
+      return;
+    }
+
     setSavingProfile(true);
-    setErr(null);
-    setMsg(null);
     try {
       const payload = {
         name: form.name.trim(),
@@ -132,31 +142,28 @@ function ProfileContent() {
       };
       const res = await api.patch("/auth/profile", payload);
       setProfile(res.data);
-      setMsg(t("profile.updateSuccess") || "Profile updated successfully");
+      toast.success(t("profile.updateSuccess") || "Profile updated successfully");
     } catch (e: any) {
       const message = e?.response?.data?.message || "Update failed";
-      setErr(Array.isArray(message) ? message.join(", ") : message);
+      toast.error(Array.isArray(message) ? message.join(", ") : message);
     } finally {
       setSavingProfile(false);
     }
   };
 
   const handleChangePassword = async () => {
-    setErr(null);
-    setMsg(null);
-
     if (!pw.currentPassword || !pw.newPassword) {
-      setErr(t("profile.pwRequired") || "Please fill in all password fields");
+      toast.error(t("profile.pwRequired") || "Please fill in all password fields");
       return;
     }
     if (pw.newPassword.length < 8) {
-      setErr(
+      toast.error(
         t("profile.pwMin") || "New password must be at least 8 characters",
       );
       return;
     }
     if (pw.newPassword !== pw.confirmNewPassword) {
-      setErr(
+      toast.error(
         t("profile.pwMismatch") || "New password confirmation does not match",
       );
       return;
@@ -168,11 +175,11 @@ function ProfileContent() {
         currentPassword: pw.currentPassword,
         newPassword: pw.newPassword,
       });
-      setMsg(t("profile.pwChanged") || "Password changed successfully");
+      toast.success(t("profile.pwChanged") || "Password changed successfully");
       setPw({ currentPassword: "", newPassword: "", confirmNewPassword: "" });
     } catch (e: any) {
       const message = e?.response?.data?.message || "Change password failed";
-      setErr(Array.isArray(message) ? message.join(", ") : message);
+      toast.error(Array.isArray(message) ? message.join(", ") : message);
     } finally {
       setSavingPassword(false);
     }
@@ -181,8 +188,6 @@ function ProfileContent() {
   const handleAvatarUpload = async (file: File | null) => {
     if (!file) return;
     setUploading(true);
-    setErr(null);
-    setMsg(null);
 
     try {
       const formData = new FormData();
@@ -195,10 +200,10 @@ function ProfileContent() {
       setProfile(res.data);
 
       // bust cache a bit (optional)
-      setMsg(t("profile.avatarUpdated") || "Avatar updated successfully");
+      toast.success(t("profile.avatarUpdated") || "Avatar updated successfully");
     } catch (e: any) {
       const message = e?.response?.data?.message || "Upload avatar failed";
-      setErr(Array.isArray(message) ? message.join(", ") : message);
+      toast.error(Array.isArray(message) ? message.join(", ") : message);
     } finally {
       setUploading(false);
     }
@@ -258,18 +263,7 @@ function ProfileContent() {
       />
 
       <div className="p-4 safe-area-pb space-y-4">
-        {/* Messages */}
-        {(msg || err) && (
-          <div
-            className={`p-3 rounded-xl text-sm font-medium ${
-              err
-                ? "bg-red-50 text-red-700 border border-red-100"
-                : "bg-green-50 text-green-700 border border-green-100"
-            }`}
-          >
-            {err || msg}
-          </div>
-        )}
+
 
         {/* Profile Card */}
         <div className="bg-white p-6 rounded-2xl shadow-sm">
@@ -291,11 +285,10 @@ function ProfileContent() {
               </div>
 
               <label
-                className={`absolute -bottom-1 -right-1 p-2 rounded-full border-2 border-white shadow cursor-pointer ${
-                  uploading
-                    ? "bg-gray-300 text-gray-600"
-                    : "bg-orange-600 text-white"
-                }`}
+                className={`absolute -bottom-1 -right-1 p-2 rounded-full border-2 border-white shadow cursor-pointer ${uploading
+                  ? "bg-gray-300 text-gray-600"
+                  : "bg-orange-600 text-white"
+                  }`}
                 title={t("profile.uploadAvatar") || "Upload avatar"}
               >
                 <Camera className="w-4 h-4" />
@@ -325,7 +318,7 @@ function ProfileContent() {
                 {t("profile.name") || "Name"}
               </label>
               <input
-                className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200"
+                className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 text-slate-900 placeholder-slate-400"
                 value={form.name}
                 onChange={(e) =>
                   setForm((s) => ({ ...s, name: e.target.value }))
@@ -339,7 +332,7 @@ function ProfileContent() {
                 {t("profile.email") || "Email"}
               </label>
               <input
-                className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200"
+                className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 text-slate-900 placeholder-slate-400"
                 value={form.email}
                 onChange={(e) =>
                   setForm((s) => ({ ...s, email: e.target.value }))
@@ -357,7 +350,7 @@ function ProfileContent() {
                 {t("profile.phone") || "Phone"}
               </label>
               <input
-                className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200"
+                className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 text-slate-900 placeholder-slate-400"
                 value={form.phone}
                 onChange={(e) =>
                   setForm((s) => ({ ...s, phone: e.target.value }))
@@ -369,11 +362,10 @@ function ProfileContent() {
             <button
               onClick={handleSaveProfile}
               disabled={savingProfile}
-              className={`w-full font-bold py-3 rounded-xl shadow-sm flex items-center justify-center gap-2 ${
-                savingProfile
-                  ? "bg-gray-300 text-gray-700"
-                  : "bg-orange-600 text-white hover:bg-orange-700"
-              }`}
+              className={`w-full font-bold py-3 rounded-xl shadow-sm flex items-center justify-center gap-2 ${savingProfile
+                ? "bg-gray-300 text-gray-700"
+                : "bg-orange-600 text-white hover:bg-orange-700"
+                }`}
             >
               <Save className="w-5 h-5" />
               {savingProfile
@@ -395,7 +387,7 @@ function ProfileContent() {
           <div className="space-y-3">
             <input
               type="password"
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 text-slate-900 placeholder-slate-400"
               placeholder={t("profile.currentPassword") || "Current password"}
               value={pw.currentPassword}
               onChange={(e) =>
@@ -404,7 +396,7 @@ function ProfileContent() {
             />
             <input
               type="password"
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 text-slate-900 placeholder-slate-400"
               placeholder={
                 t("profile.newPassword") || "New password (min 8 chars)"
               }
@@ -415,7 +407,7 @@ function ProfileContent() {
             />
             <input
               type="password"
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 text-slate-900 placeholder-slate-400"
               placeholder={
                 t("profile.confirmNewPassword") || "Confirm new password"
               }
@@ -428,11 +420,10 @@ function ProfileContent() {
             <button
               onClick={handleChangePassword}
               disabled={savingPassword}
-              className={`w-full font-bold py-3 rounded-xl shadow-sm ${
-                savingPassword
-                  ? "bg-gray-300 text-gray-700"
-                  : "bg-slate-900 text-white hover:bg-slate-800"
-              }`}
+              className={`w-full font-bold py-3 rounded-xl shadow-sm ${savingPassword
+                ? "bg-gray-300 text-gray-700"
+                : "bg-slate-900 text-white hover:bg-slate-800"
+                }`}
             >
               {savingPassword
                 ? t("common.saving") || "Saving..."

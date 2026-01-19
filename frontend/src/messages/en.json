@@ -233,6 +233,9 @@
         "pwRequired": "Please fill in all password fields",
         "pwMin": "New password must be at least 8 characters",
         "pwMismatch": "New password confirmation does not match",
-        "pwChanged": "Password changed successfully"
+        "pwChanged": "Password changed successfully",
+        "nameRequired": "Name is required",
+        "emailInvalid": "Invalid email format",
+        "phoneInvalid": "Invalid phone format (10-11 digits)"
     }
 }
