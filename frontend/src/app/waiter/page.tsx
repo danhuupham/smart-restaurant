@@ -8,7 +8,8 @@ import OrderTimer from "@/components/OrderTimer";
 import { Order } from "@/types";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useI18n } from "@/contexts/I18nContext";
-import { tablesApi, Table } from "@/lib/api/tables";
+import { tablesApi } from "@/lib/api/tables";
+import { Table } from "@/types/table";
 import { api } from "@/lib/api/api";
 
 // Extended Order type to include table info if not fully covered in @/types for this specific view
@@ -89,10 +90,21 @@ export default function WaiterPage() {
       });
 
       // Join 'waiter' room
-      socket.emit('join_role', 'waiter');
+      socket.emit('join', 'waiter');
+
+      // Simple notification sound (ding)
+      const playNotificationSound = () => {
+        try {
+          const audio = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+          audio.play().catch(e => console.error("Error playing sound:", e));
+        } catch (e) {
+          console.error("Audio error:", e);
+        }
+      };
 
       // Listen for new orders or order status changes
       socket.on('new_order', () => {
+        playNotificationSound();
         toast('🔔 Đơn mới vừa tới!', {
           duration: 5000,
           position: 'top-right',
@@ -113,6 +125,7 @@ export default function WaiterPage() {
       });
 
       socket.on('table_notification', (data: any) => {
+        playNotificationSound();
         const msg = data.type === 'PAYMENT_CASH' ? 'gọi thanh toán tiền mặt!'
           : data.type === 'PAYMENT_QR' ? 'gọi thanh toán QR!'
             : 'cần hỗ trợ!';
@@ -168,9 +181,9 @@ export default function WaiterPage() {
     setIsBillModalOpen(true);
   };
 
-  const handleOrderUpdated = (updated: OrderWithRelations) => {
-    setSelectedOrder(updated);
-    setOrders((prev) => prev.map((o) => (o.id === updated.id ? { ...o, ...updated } : o)));
+  const handleOrderUpdated = (updated: Order | OrderWithRelations) => {
+    setSelectedOrder(updated as OrderWithRelations);
+    setOrders((prev) => prev.map((o) => (o.id === updated.id ? { ...o, ...updated } as OrderWithRelations : o)));
     fetchOrders();
   };
 
@@ -197,11 +210,10 @@ export default function WaiterPage() {
           </div>
           <button
             onClick={() => setShowTables(!showTables)}
-            className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
-              showTables
-                ? 'bg-purple-600 text-white'
-                : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
-            }`}
+            className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${showTables
+              ? 'bg-purple-600 text-white'
+              : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+              }`}
           >
             {showTables ? 'Ẩn Bàn' : 'Xem Bàn Của Tôi'}
           </button>
@@ -234,13 +246,12 @@ export default function WaiterPage() {
               {assignedTables.map((table) => (
                 <div
                   key={table.id}
-                  className={`p-4 rounded-lg border-2 ${
-                    table.status === 'OCCUPIED'
-                      ? 'border-red-300 bg-red-50'
-                      : table.status === 'RESERVED'
+                  className={`p-4 rounded-lg border-2 ${table.status === 'OCCUPIED'
+                    ? 'border-red-300 bg-red-50'
+                    : table.status === 'RESERVED'
                       ? 'border-yellow-300 bg-yellow-50'
                       : 'border-green-300 bg-green-50'
-                  }`}
+                    }`}
                 >
                   <div className="text-center">
                     <div className="text-2xl font-bold text-gray-800">Bàn {table.tableNumber}</div>
@@ -250,19 +261,18 @@ export default function WaiterPage() {
                     </div>
                     <div className="text-xs font-semibold mt-2">
                       <span
-                        className={`px-2 py-1 rounded ${
-                          table.status === 'OCCUPIED'
-                            ? 'bg-red-200 text-red-800'
-                            : table.status === 'RESERVED'
+                        className={`px-2 py-1 rounded ${table.status === 'OCCUPIED'
+                          ? 'bg-red-200 text-red-800'
+                          : table.status === 'RESERVED'
                             ? 'bg-yellow-200 text-yellow-800'
                             : 'bg-green-200 text-green-800'
-                        }`}
+                          }`}
                       >
                         {table.status === 'OCCUPIED'
                           ? 'Đang dùng'
                           : table.status === 'RESERVED'
-                          ? 'Đã đặt'
-                          : 'Trống'}
+                            ? 'Đã đặt'
+                            : 'Trống'}
                       </span>
                     </div>
                   </div>

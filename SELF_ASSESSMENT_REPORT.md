@@ -59,7 +59,7 @@ Students must input minus points to every uncompleted feature in the SE column.
 |  | › Add items to current order | \-0.25 | 0 |  | Customers can add more items to their unpaid order (single order per table session) |
 |  | › View order status | \-0.25 | 0 |  | Guest can track order status (Received → Preparing → Ready) |
 |  | › View order details | \-0.25 | 0 |  | Order confirmation with items, total, table number |
-|  | › Request bill | \-0.25 | chưa làm |  | Customer requests bill when ready to pay |
+|  | › Request bill | \-0.25 | 0 |  | Customer requests bill when ready to pay |
 |  | › Process payment after meal | \-0.25 | chưa hoàn hiện |  | Stripe payment processing after dining |
 | **3** | **Authentication and authorization** |  |  |  |  |
 |  | Use a popular authentication library | \-1 | 0 |  | Passport.js with JWT strategy |
