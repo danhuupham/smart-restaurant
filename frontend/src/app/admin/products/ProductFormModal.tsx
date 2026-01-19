@@ -30,6 +30,7 @@ type FormValues = {
   categoryName: string;
   imageUrl: string;
   modifierGroupIds: string[];
+  isChefRecommended: boolean;
 };
 
 export default function ProductFormModal({
@@ -61,6 +62,7 @@ export default function ProductFormModal({
       categoryName: "",
       imageUrl: "",
       modifierGroupIds: [],
+      isChefRecommended: false,
     },
   });
 
@@ -105,6 +107,7 @@ export default function ProductFormModal({
       imageUrl: primaryImage,
       modifierGroupIds:
         product.modifierGroups?.map((pmg) => pmg.modifierGroupId) || [],
+      isChefRecommended: product.isChefRecommended || false,
     });
   }, [open, product, reset]);
 
@@ -117,6 +120,7 @@ export default function ProductFormModal({
       status: values.status,
       categoryName: values.categoryName,
       imageUrl: values.imageUrl || null,
+      isChefRecommended: values.isChefRecommended,
     };
 
     try {
@@ -143,10 +147,9 @@ export default function ProductFormModal({
     } catch (error: any) {
       console.error("Product form error:", error);
       alert(
-        `Error: ${
-          error.response?.data?.message ||
-          error.message ||
-          "Failed to save product"
+        `Error: ${error.response?.data?.message ||
+        error.message ||
+        "Failed to save product"
         }`,
       );
     }
@@ -256,9 +259,8 @@ export default function ProductFormModal({
                     <div className="p-2 flex gap-2">
                       <button
                         type="button"
-                        className={`text-xs px-2 py-1 rounded border ${
-                          img.isPrimary ? "bg-black text-white" : "bg-white"
-                        }`}
+                        className={`text-xs px-2 py-1 rounded border ${img.isPrimary ? "bg-black text-white" : "bg-white"
+                          }`}
                         onClick={async () => {
                           if (!product?.id) return;
                           await productsApi.setPrimaryImage(product.id, img.id);
@@ -318,6 +320,21 @@ export default function ProductFormModal({
           </div>
 
           <div className="space-y-1">
+            <div className="flex items-center gap-2 mt-6">
+              <input
+                type="checkbox"
+                id="isChefRecommended"
+                {...register("isChefRecommended")}
+                className="h-5 w-5 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+              />
+              <label htmlFor="isChefRecommended" className="text-sm font-semibold select-none cursor-pointer">
+                👨‍🍳 Chef Recommended
+              </label>
+            </div>
+          </div>
+
+
+          <div className="space-y-1">
             <label className="text-sm font-semibold">
               Primary Image URL (optional)
             </label>
@@ -358,6 +375,6 @@ export default function ProductFormModal({
           </DialogFooter>
         </form>
       </DialogContent>
-    </Dialog>
+    </Dialog >
   );
 }

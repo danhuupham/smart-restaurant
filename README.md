@@ -308,6 +308,7 @@ After seeding, use these accounts (Password: `password@123`):
 - ✅ **Smart Pagination**: URL parameter support, auto-reset on category change, item count display
 - ✅ **Order Timer**: Visual stopwatch for Kitchen and Waiter to track prep time with overdue alerts (Task 7.12)
 - ✅ **QR Code Regeneration**: Securely rotate QR codes via Admin to invalidate old links (Task 7.13)
+- ✅ **Chef Recommendations**: Highlight special dishes with "Chef's Choice" badge and toggle in Admin (Task 7.14)
 
 ---
 

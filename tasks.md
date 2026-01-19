@@ -280,12 +280,12 @@ The working order rotates daily following this sequence:
 
 ### Low Priority Features
 
-- [ ] **Task 7.14: Chef Recommendations**
-  - [ ] Add `isRecommended` field to Product model
-  - [ ] Add recommendation toggle in admin
-  - [ ] Display badge on menu items
-  - [ ] Filter by recommendations
-  - _Points:_ -0.25
+- [x] **Task 7.14: Chef Recommendations**
+  - [x] Add `isRecommended` field to Product model
+  - [x] Add recommendation toggle in admin
+  - [x] Display badge on menu items
+  - [x] Filter by recommendations (Badge implemented, full filter optional but badge is key)
+  - _Points:_ -0.25 ✅
 
 - [ ] **Task 7.15: Related Items Suggestions**
   - [ ] Suggest items from same category

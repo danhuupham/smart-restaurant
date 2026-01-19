@@ -224,6 +224,11 @@ function GuestMenuContent() {
                   <h3 className="font-bold text-gray-800 line-clamp-1">
                     {product.name}
                   </h3>
+                  {product.isChefRecommended && (
+                    <span className="shrink-0 ml-2 bg-orange-100 text-orange-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-orange-200">
+                      👨‍🍳 Chef's Choice
+                    </span>
+                  )}
                 </div>
                 {product.description && (
                   <p className="text-gray-500 text-xs mt-1 line-clamp-2">

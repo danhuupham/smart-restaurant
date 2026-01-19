@@ -8,6 +8,7 @@ export type AdminProductUpsertPayload = {
   status?: "AVAILABLE" | "UNAVAILABLE" | "SOLD_OUT";
   categoryName: string;
   imageUrl?: string | null;
+  isChefRecommended?: boolean;
 };
 
 export const productsApi = {
