@@ -143,7 +143,14 @@
         "emailVerifyRequired": "Please verify your email address before logging in",
         "accountDeactivated": "Your account has been deactivated. Please contact support.",
         "registrationFailed": "Registration failed. Please try again.",
-        "or": "Or"
+        "or": "Or",
+        "role": "Role"
+    },
+    "role": {
+        "admin": "Admin",
+        "waiter": "Waiter",
+        "kitchen": "Kitchen Staff",
+        "customer": "Customer"
     },
     "staff": {
         "title": "Staff Management",
@@ -159,7 +166,10 @@
         "confirmDelete": "Are you sure you want to delete {name}?",
         "deleteSuccess": "{name} has been deleted",
         "updateSuccess": "{name} updated successfully",
-        "toggleStatusSuccess": "{name} status updated"
+        "createSuccess": "{name} created successfully",
+        "toggleStatusSuccess": "{name} status updated",
+        "adminWarning": "Admin accounts have full system access. Only create for trusted staff.",
+        "create": "Create Staff"
     },
     "waiter": {
         "title": "Waiter Dashboard",

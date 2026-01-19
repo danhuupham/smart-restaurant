@@ -7,6 +7,7 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import toast from "react-hot-toast";
 import { useI18n } from "@/contexts/I18nContext";
+import * as Icons from "lucide-react";
 
 interface EditStaffModalProps {
     user: User | null;
@@ -36,9 +37,24 @@ export default function EditStaffModal({ user, isOpen, onClose, onSuccess }: Edi
         }
     }, [user]);
 
+    const validateForm = () => {
+        if (formData.name.trim().length < 2) {
+            toast.error(t('auth.nameRequired') || "Name must be at least 2 characters long");
+            return false;
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            toast.error(t('auth.invalidEmail') || "Please enter a valid email address");
+            return false;
+        }
+        return true;
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!user) return;
+
+        if (!validateForm()) return;
 
         setLoading(true);
 
@@ -71,12 +87,11 @@ export default function EditStaffModal({ user, isOpen, onClose, onSuccess }: Edi
                     <DialogTitle>{t('staff.edit')}: {user.name}</DialogTitle>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                     {/* Name */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">{t('auth.name')}</label>
                         <Input
-                            required
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             placeholder={t('auth.name')}
@@ -87,7 +102,6 @@ export default function EditStaffModal({ user, isOpen, onClose, onSuccess }: Edi
                     <div>
                         <label className="block text-sm font-medium text-gray-700">{t('auth.email')}</label>
                         <Input
-                            required
                             type="email"
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -101,15 +115,16 @@ export default function EditStaffModal({ user, isOpen, onClose, onSuccess }: Edi
                         <select
                             value={formData.role}
                             onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                         >
-                            <option value="WAITER">🤵 {t('role.waiter')}</option>
-                            <option value="KITCHEN">👨‍🍳 {t('role.kitchen')}</option>
-                            <option value="ADMIN">🛡️ {t('role.admin')}</option>
+                            <option value="WAITER">{t('role.waiter')}</option>
+                            <option value="KITCHEN">{t('role.kitchen')}</option>
+                            <option value="ADMIN">{t('role.admin')}</option>
                         </select>
                         {formData.role === 'ADMIN' && (
-                            <div className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded border border-red-200">
-                                ⚠️ Admin accounts have full system access.
+                            <div className="mt-2 text-[10px] text-red-600 bg-red-50 p-2 rounded-lg border border-red-100 flex gap-2">
+                                <Icons.AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                                <span>{t('staff.adminWarning') || 'Warning: Admin accounts have full system access.'}</span>
                             </div>
                         )}
                     </div>

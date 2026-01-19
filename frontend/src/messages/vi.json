@@ -143,7 +143,14 @@
     "emailVerifyRequired": "Vui lòng xác thực email trước khi đăng nhập",
     "accountDeactivated": "Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ hỗ trợ.",
     "registrationFailed": "Đăng ký thất bại. Vui lòng thử lại.",
-    "or": "Hoặc"
+    "or": "Hoặc",
+    "role": "Quyền hạn"
+  },
+  "role": {
+    "admin": "Quản trị viên",
+    "waiter": "Nhân viên phục vụ",
+    "kitchen": "Nhân viên bếp",
+    "customer": "Khách hàng"
   },
   "staff": {
     "title": "Quản lý nhân viên",
@@ -159,7 +166,10 @@
     "confirmDelete": "Bạn có chắc chắn muốn xóa {name}?",
     "deleteSuccess": "Đã xóa {name}",
     "updateSuccess": "Cập nhật {name} thành công",
-    "toggleStatusSuccess": "Đã cập nhật trạng thái {name}"
+    "createSuccess": "Tạo nhân viên {name} thành công",
+    "toggleStatusSuccess": "Đã cập nhật trạng thái {name}",
+    "adminWarning": "Tài khoản Admin có toàn quyền truy cập hệ thống. Chỉ tạo cho nhân viên tin cậy.",
+    "create": "Tạo nhân viên"
   },
   "waiter": {
     "title": "Màn hình Phục Vụ",
