@@ -8,6 +8,8 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { PrismaModule } from '../prisma/prisma.module';
 import { GoogleStrategy } from './strategies/google.strategy';
 
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
+
 @Module({
   imports: [
     PrismaModule,
@@ -18,6 +20,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
       secret: process.env.JWT_SECRET || 'your-super-secret-jwt-key',
       signOptions: { expiresIn: '60m' },
     }),
+    CloudinaryModule,
   ],
   providers: [AuthService, JwtStrategy, GoogleStrategy],
   controllers: [AuthController],

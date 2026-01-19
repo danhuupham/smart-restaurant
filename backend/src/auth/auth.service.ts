@@ -16,6 +16,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+
 @Injectable()
 export class AuthService {
   private transporter: nodemailer.Transporter;
@@ -24,6 +26,7 @@ export class AuthService {
     private userService: UserService,
     private jwtService: JwtService,
     private prisma: PrismaService,
+    private cloudinary: CloudinaryService,
   ) {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -357,13 +360,19 @@ export class AuthService {
     return { message: 'Password changed successfully' };
   }
 
-  async updateAvatar(userId: string, avatarUrl: string) {
-    const updated = await this.prisma.user.update({
-      where: { id: userId },
-      data: { avatar: avatarUrl },
+  async updateAvatar(userId: string, file: Express.Multer.File) {
+    if (!file) throw new BadRequestException('File is required');
+
+    const result = await this.cloudinary.uploadImage(file).catch(() => {
+      throw new BadRequestException('Invalid file type or upload failed');
     });
 
-    const { password, ...result } = updated as any;
-    return result;
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: { avatar: result.secure_url },
+    });
+
+    const { password, ...resultUser } = updated as any;
+    return resultUser;
   }
 }

@@ -2,9 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, User } from '@prisma/client';
 
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { BadRequestException } from '@nestjs/common';
+
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private prisma: PrismaService,
+    private cloudinary: CloudinaryService,
+  ) { }
 
   async findOne(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
@@ -47,6 +53,23 @@ export class UserService {
   async deleteUser(id: string): Promise<User> {
     return this.prisma.user.delete({
       where: { id },
+    });
+  }
+
+  async uploadAvatar(id: string, file: Express.Multer.File): Promise<User> {
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
+
+    const result = await this.cloudinary.uploadImage(file).catch(() => {
+      throw new BadRequestException('Invalid file type or upload failed');
+    });
+
+    return this.prisma.user.update({
+      where: { id },
+      data: {
+        avatar: result.secure_url,
+      },
     });
   }
 }

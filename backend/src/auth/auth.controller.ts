@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import {
   Body,
   Controller,
@@ -18,14 +17,12 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
@@ -61,7 +58,7 @@ export class AuthController {
   }
   @Get('google')
   @UseGuards(AuthGuard('google'))
-  async googleAuth(@Request() req) {}
+  async googleAuth(@Request() req) { }
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
@@ -88,13 +85,6 @@ export class AuthController {
   @Post('avatar')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads/avatars',
-        filename: (req, file, cb) => {
-          const unique = `${Date.now()}-${uuidv4()}${extname(file.originalname)}`;
-          cb(null, unique);
-        },
-      }),
       fileFilter: (req, file, cb) => {
         if (!file.mimetype.match(/^image\/(jpeg|png|webp)$/)) {
           return cb(
@@ -116,9 +106,6 @@ export class AuthController {
     const userId = req.user?.id;
     if (!userId) throw new BadRequestException('Unauthorized');
 
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    const avatarUrl = `${baseUrl}/uploads/avatars/${file.filename}`;
-
-    return this.authService.updateAvatar(userId, avatarUrl);
+    return this.authService.updateAvatar(userId, file);
   }
 }

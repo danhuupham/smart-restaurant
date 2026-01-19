@@ -73,7 +73,7 @@ Students must input minus points to every uncompleted feature in the SE column.
 | **4** | **Features for logged-in users (Customers)** |  |  |  |  |
 |  | Update user profile | \-0.25 | 0 |  | Customer can update name, preferences |
 |  | Verify user input | \-0.25 | chưa hoàn thiện |  | Input validation on profile updates |
-|  | Update the user's avatar | \-0.25 | chưa làm |  | Profile photo upload |
+|  | Update the user's avatar | \-0.25 | 0 |  | Profile photo upload |
 |  | Update password | \-0.25 | 0 |  | Change password with old password verification |
 |  | Order history and tracking |  |  |  |  |
 |  | › View order history | \-0.25 | chưa làm |  | List of past orders linked to user account |
@@ -96,7 +96,7 @@ Students must input minus points to every uncompleted feature in the SE column.
 |  | Specify menu item status | \-0.25 | chưa làm |  | Available, Unavailable, Sold out |
 |  | Verify user input | \-0.25 | 0 |  | Input validation for menu items |
 |  | Update a menu item | \-0.25 | 0 |  | Edit existing menu items |
-|  | Add, remove menu item photos | \-0.25 | chưa làm |  | Manage item images |
+|  | Add, remove menu item photos | \-0.25 | 0 |  | Manage item images |
 |  | Change menu item category, modifiers | \-0.25 | 0 |  | Update item categorization |
 |  | Update menu item status | \-0.25 | chưa làm |  | Toggle availability |
 |  | Verify user input | \-0.25 | chưa làm |  | Validation on updates |

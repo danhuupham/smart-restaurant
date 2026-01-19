@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, UseGuards, Query, Delete, Param, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Query, Delete, Param, Patch, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -46,6 +47,21 @@ export class UserController {
     @Roles(UserRole.ADMIN)
     async delete(@Param('id') id: string) {
         const { password, ...result } = await this.userService.deleteUser(id);
+        return result;
+    }
+
+    @Post(':id/avatar')
+    @UseInterceptors(FileInterceptor('file', {
+        limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+        fileFilter: (req, file, cb) => {
+            if (!file.mimetype.match(/^image\/(jpeg|png|webp)$/)) {
+                return cb(new BadRequestException('Only JPEG/PNG/WEBP images are allowed'), false);
+            }
+            cb(null, true);
+        },
+    }))
+    async uploadAvatar(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
+        const { password, ...result } = await this.userService.uploadAvatar(id, file);
         return result;
     }
 }
