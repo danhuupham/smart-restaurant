@@ -128,6 +128,17 @@
         "phoneOptional": "Phone Number (Optional)",
         "creatingAccount": "Creating Account...",
         "createAccount": "Create Account",
+        "emailAvailable": "Email is available",
+        "emailTaken": "This email is already registered",
+        "confirmPassword": "Confirm Password",
+        "passwordsDoNotMatch": "Passwords do not match",
+        "fieldRequired": "This field is required",
+        "nameRequired": "Please enter your name",
+        "emailRequired": "Please enter your email",
+        "passwordRequired": "Please enter your password",
+        "emailInvalid": "Email must be a valid email address",
+        "passwordMinLength": "Password must be at least 8 characters long",
+        "registrationFailed": "Registration failed. Please try again.",
         "or": "Or"
     },
     "waiter": {

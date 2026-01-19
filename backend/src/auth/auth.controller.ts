@@ -29,6 +29,11 @@ export class AuthController {
     return this.authService.register(registerDto);
   }
 
+  @Post('check-email')
+  async checkEmail(@Body('email') email: string) {
+    return this.authService.checkEmail(email);
+  }
+
   @Post('verify-email')
   async verifyEmail(@Body('token') token: string) {
     return this.authService.verifyEmail(token);
