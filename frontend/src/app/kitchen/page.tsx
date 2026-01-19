@@ -11,6 +11,7 @@ interface Order {
   table: { tableNumber: string };
   status: string;
   createdAt: string;
+  notes?: string;
   items: {
     id: string;
     quantity: number;
@@ -226,6 +227,18 @@ function OrderCard({ order, updateStatus, updateItemStatus, parentActionType }: 
           </span>
         </div>
       </div>
+
+      {/* Special Instructions / Notes */}
+      {order.notes && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+          <div className="text-[10px] font-bold text-amber-800 uppercase tracking-widest mb-1">
+            {t('cart.specialInstructions') || 'Ghi chú đặc biệt'}
+          </div>
+          <p className="text-sm font-bold text-amber-900 leading-relaxed italic">
+            "{order.notes}"
+          </p>
+        </div>
+      )}
 
       {/* Items */}
       <div className="flex flex-col gap-3">

@@ -55,7 +55,7 @@ Students must input minus points to every uncompleted feature in the SE column.
 |  | › View and update items in the Cart | \-0.5 | 0 |  | Cart summary with items, quantities, modifiers, prices. Update quantity with auto-update totals |
 |  | Ordering and payment (Dine-in) |  |  |  |  |
 |  | › Bind the shopping cart to the table session | \-0.25 | 0 |  | Cart persists for table session |
-|  | › Input order details (notes, special requests) | \-0.25 | chưa làm |  | Guest name, special instructions field |
+|  | › Input order details (notes, special requests) | \-0.25 | 0 |  | Guest name, special instructions field |
 |  | › Add items to current order | \-0.25 | 0 |  | Customers can add more items to their unpaid order (single order per table session) |
 |  | › View order status | \-0.25 | 0 |  | Guest can track order status (Received → Preparing → Ready) |
 |  | › View order details | \-0.25 | 0 |  | Order confirmation with items, total, table number |

@@ -302,6 +302,18 @@ export default function WaiterPage() {
                     <OrderTimer startTime={order.createdAt} />
                   </div>
                 </div>
+
+                {order.notes && (
+                  <div className="mb-3 bg-amber-50 border border-amber-200 p-3 rounded-lg">
+                    <div className="text-[10px] font-black text-amber-800 uppercase tracking-tighter mb-1 select-none">
+                      {t('cart.specialInstructions') || 'Ghi chú'}
+                    </div>
+                    <div className="text-sm font-bold text-amber-900 leading-tight italic">
+                      "{order.notes}"
+                    </div>
+                  </div>
+                )}
+
                 <ul className="mb-4 bg-white p-2 rounded border border-yellow-100">
                   {order.items.map((item) => {
                     const modNames = item.modifiers?.map((m: any) => m.modifierOption?.name ?? m.name).filter(Boolean) ?? [];
@@ -353,6 +365,18 @@ export default function WaiterPage() {
                     <OrderTimer startTime={order.createdAt} />
                   </div>
                 </div>
+
+                {order.notes && (
+                  <div className="mb-3 bg-amber-50 border border-amber-200 p-3 rounded-lg shadow-sm">
+                    <div className="text-[10px] font-black text-amber-800 uppercase tracking-tighter mb-1">
+                      {t('cart.specialInstructions') || 'Ghi chú'}
+                    </div>
+                    <div className="text-sm font-bold text-amber-900 leading-tight italic">
+                      "{order.notes}"
+                    </div>
+                  </div>
+                )}
+
                 <ul className="mb-4 bg-white p-2 rounded border border-green-100">
                   {order.items.map((item) => {
                     const modNames = item.modifiers?.map((m: any) => m.modifierOption?.name ?? m.name).filter(Boolean) ?? [];

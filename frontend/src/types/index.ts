@@ -98,6 +98,7 @@ export interface Order {
   tableId: string;
   totalAmount: number;
   status: OrderStatus;
+  notes?: string;
   discountType?: DiscountType | null;
   discountValue?: number;
   items: OrderItem[];
