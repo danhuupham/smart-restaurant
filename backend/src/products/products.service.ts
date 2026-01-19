@@ -137,7 +137,7 @@ export class ProductsService {
   }
 
   async create(createProductDto: CreateProductDto) {
-    const { name, description, price, status, categoryName, imageUrl } =
+    const { name, description, price, status, categoryName, imageUrl, allergens } =
       createProductDto;
 
     const category = await this.prisma.category.upsert({
@@ -150,6 +150,7 @@ export class ProductsService {
       data: {
         name,
         description: description ?? null,
+        allergens: allergens ?? null,
         price: new Prisma.Decimal(price),
         status: (status ?? 'AVAILABLE') as any,
         categoryId: category.id,
@@ -307,7 +308,7 @@ export class ProductsService {
     });
     if (!existing) throw new NotFoundException('Product not found');
 
-    const { name, description, price, status, categoryName, imageUrl } =
+    const { name, description, price, status, categoryName, imageUrl, allergens } =
       updateProductDto;
 
     let categoryId: string | undefined;
@@ -331,6 +332,7 @@ export class ProductsService {
       data: {
         name: name ?? undefined,
         description: description === undefined ? undefined : description,
+        allergens: allergens === undefined ? undefined : allergens,
         price:
           price === undefined ? undefined : new Prisma.Decimal(String(price)),
         status: status ?? undefined,

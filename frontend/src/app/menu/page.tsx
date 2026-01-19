@@ -125,7 +125,11 @@ function MenuContent() {
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
                         {filteredProducts.map((product) => (
-                            <div key={product.id} className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow flex gap-4">
+                            <Link
+                                key={product.id}
+                                href={`/menu/items/${product.id}`}
+                                className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow flex gap-4"
+                            >
                                 <div className="relative w-28 h-28 shrink-0 rounded-lg overflow-hidden bg-gray-100">
                                     <Image
                                         src={product.images.find((img) => img.isPrimary)?.url || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c"}
@@ -145,7 +149,7 @@ function MenuContent() {
                                         </span>
                                     </div>
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 )}

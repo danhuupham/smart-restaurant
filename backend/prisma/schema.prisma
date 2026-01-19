@@ -131,6 +131,7 @@ model Product {
   id             String        @id @default(uuid())
   name           String
   description    String?
+  allergens      String?       @map("allergens")
   price          Decimal       @db.Decimal(10, 2) 
   prepTimeMinutes Int?         @map("prep_time_minutes")
   status         ProductStatus @default(AVAILABLE)

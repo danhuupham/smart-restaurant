@@ -25,6 +25,7 @@ import Input from "@/components/ui/Input";
 type FormValues = {
   name: string;
   description: string;
+  allergens: string;
   price: string;
   status: "AVAILABLE" | "UNAVAILABLE" | "SOLD_OUT";
   categoryName: string;
@@ -57,6 +58,7 @@ export default function ProductFormModal({
     defaultValues: {
       name: "",
       description: "",
+      allergens: "",
       price: "",
       status: "AVAILABLE",
       categoryName: "",
@@ -87,6 +89,7 @@ export default function ProductFormModal({
       reset({
         name: "",
         description: "",
+        allergens: "",
         price: "",
         status: "AVAILABLE",
         categoryName: "",
@@ -101,6 +104,7 @@ export default function ProductFormModal({
     reset({
       name: product.name,
       description: product.description ?? "",
+      allergens: product.allergens ?? "",
       price: String(product.price ?? ""),
       status: product.status,
       categoryName: product.category?.name ?? "",
@@ -116,6 +120,7 @@ export default function ProductFormModal({
     const payload: AdminProductUpsertPayload = {
       name: values.name,
       description: values.description || null,
+      allergens: values.allergens || null,
       price: values.price,
       status: values.status,
       categoryName: values.categoryName,
@@ -189,6 +194,14 @@ export default function ProductFormModal({
                 </div>
               )}
             </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-sm font-semibold">Allergens (comma separated)</label>
+            <Input
+              {...register("allergens")}
+              placeholder="e.g., Milk, Eggs, Nuts"
+            />
           </div>
 
           {/* ================= Images ================= */}

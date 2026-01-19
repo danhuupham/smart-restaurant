@@ -4,6 +4,7 @@ import type { Product } from "@/types";
 export type AdminProductUpsertPayload = {
   name: string;
   description?: string | null;
+  allergens?: string | null;
   price: number | string;
   status?: "AVAILABLE" | "UNAVAILABLE" | "SOLD_OUT";
   categoryName: string;
@@ -21,6 +22,9 @@ export const productsApi = {
 
   getAllAdmin: (params?: { sortBy?: string; sortDir?: string }) =>
     api.get("/products/admin", { params }).then((r) => r.data),
+
+  getById: async (id: string): Promise<Product> =>
+    api.get(`/products/${id}`).then((r) => r.data),
 
   create: async (payload: AdminProductUpsertPayload): Promise<Product> => {
     const response = await api.post("/products", payload);

@@ -47,6 +47,7 @@ export interface Product {
   id: string;
   name: string;
   description: string | null;
+  allergens?: string | null;
   price: string;
   status: ProductStatus;
   categoryId: string;
