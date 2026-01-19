@@ -282,6 +282,8 @@
         "occupied": "Occupied",
         "capacity": "Capacity: {capacity} people",
         "selectTable": "Select This Table",
+        "inactive": "Inactive",
+        "unavailable": "Unavailable",
         "loading": "Loading tables...",
         "error": "Error loading tables",
         "empty": "No tables found"

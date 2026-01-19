@@ -282,6 +282,8 @@
     "occupied": "Có khách",
     "capacity": "Sức chứa: {capacity} người",
     "selectTable": "Chọn Bàn Này",
+    "inactive": "Không hoạt động",
+    "unavailable": "Không khả dụng",
     "loading": "Đang tải dữ liệu bàn...",
     "error": "Lỗi tải dữ liệu bàn",
     "empty": "Chưa có bàn nào được tạo"

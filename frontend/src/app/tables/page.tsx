@@ -66,10 +66,10 @@ function TablesContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f6fa] pb-safe">
+    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white pb-safe">
       {/* Mobile Header */}
-      <div className="bg-white px-4 py-3 sticky top-0 z-50 flex items-center justify-between shadow-sm border-b border-gray-100">
-        <Link href="/" className="p-2 -ml-2 rounded-full hover:bg-gray-100 text-gray-600">
+      <div className="bg-white/80 backdrop-blur-md px-4 py-3 sticky top-0 z-50 flex items-center justify-between shadow-sm border-b border-orange-100">
+        <Link href="/" className="p-2 -ml-2 rounded-full hover:bg-orange-50 text-gray-600">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <h1 className="font-bold text-lg text-gray-800">{t('tables.title')}</h1>
@@ -77,43 +77,76 @@ function TablesContent() {
       </div>
 
       <div className="p-4">
-        <div className="bg-blue-50 p-4 rounded-xl flex items-start gap-3 border border-blue-100 mb-6">
-          <QrCode className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
-          <p className="text-sm text-blue-700">
-            {t('tables.subtitle')}
-          </p>
+        {/* Info Banner */}
+        <div className="bg-gradient-to-r from-orange-500 to-red-500 p-4 rounded-2xl flex items-start gap-3 mb-6 shadow-lg shadow-orange-200">
+          <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
+            <QrCode className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <p className="text-white font-medium text-sm">
+              {t('tables.subtitle')}
+            </p>
+          </div>
         </div>
 
         {tables.length === 0 ? (
           <div className="text-center py-12 text-slate-500">{t('tables.empty')}</div>
         ) : (
-          <div className="grid grid-cols-2 gap-4">
-            {tables.map((table) => (
-              <Link
-                key={table.id}
-                href={`/guest?tableId=${table.id}`}
-                className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 active:scale-[0.98] transition-all hover:shadow-md flex flex-col items-center text-center group relative overflow-hidden"
-              >
-                <div className={`absolute top-0 right-0 px-3 py-1 rounded-bl-xl text-xs font-bold border ${table.status === 'AVAILABLE' ? 'bg-green-100 text-green-900 border-green-300' :
-                  table.status === 'OCCUPIED' ? 'bg-red-100 text-red-900 border-red-300' : 'bg-gray-200 text-gray-900 border-gray-400'
-                  }`}>
-                  {table.status === 'AVAILABLE' ? t('tables.available') : table.status === 'OCCUPIED' ? t('tables.occupied') : table.status}
-                </div>
+          <div className="grid grid-cols-2 gap-3">
+            {tables.map((table) => {
+              const isAvailable = table.status === 'AVAILABLE';
+              const isOccupied = table.status === 'OCCUPIED';
+              const isInactive = !isAvailable && !isOccupied;
 
-                <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center text-orange-600 mb-3 group-hover:bg-orange-600 group-hover:text-white transition-colors">
-                  <span className="text-2xl font-bold">{table.tableNumber}</span>
-                </div>
+              return (
+                <Link
+                  key={table.id}
+                  href={isInactive ? '#' : `/guest?tableId=${table.id}`}
+                  className={`relative p-4 rounded-2xl border-2 transition-all ${isInactive
+                    ? 'bg-gray-100 border-gray-200 opacity-60 cursor-not-allowed'
+                    : isOccupied
+                      ? 'bg-red-50 border-red-200 hover:border-red-300 hover:shadow-md active:scale-[0.98]'
+                      : 'bg-white border-green-200 hover:border-green-400 hover:shadow-lg active:scale-[0.98] shadow-sm'
+                    }`}
+                  onClick={(e) => isInactive && e.preventDefault()}
+                >
+                  {/* Status Badge */}
+                  <div className={`absolute -top-2 -right-2 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide shadow-sm ${isAvailable
+                    ? 'bg-green-500 text-white'
+                    : isOccupied
+                      ? 'bg-red-500 text-white'
+                      : 'bg-gray-400 text-white'
+                    }`}>
+                    {isAvailable ? t('tables.available') : isOccupied ? t('tables.occupied') : t('tables.inactive')}
+                  </div>
 
-                <div className="text-gray-400 text-xs flex items-center gap-1 mb-3">
-                  <Users className="w-3 h-3" />
-                  <span>{t('tables.capacity', { capacity: table.capacity })}</span>
-                </div>
+                  {/* Table Name & Info */}
+                  <div className="mb-3 pt-2">
+                    <div className={`text-xl font-black truncate ${isInactive ? 'text-gray-400' : isOccupied ? 'text-red-600' : 'text-gray-800'
+                      }`}>
+                      Bàn {table.tableNumber}
+                    </div>
+                    <div className={`text-sm flex items-center gap-1 mt-1 ${isInactive ? 'text-gray-400' : 'text-gray-500'}`}>
+                      <Users className="w-4 h-4" />
+                      <span>{table.capacity} người</span>
+                    </div>
+                  </div>
 
-                <button className="w-full py-2 px-3 bg-gray-100 text-gray-800 rounded-lg text-sm font-bold group-hover:bg-orange-600 group-hover:text-white transition-colors">
-                  {t('tables.selectTable')}
-                </button>
-              </Link>
-            ))}
+                  {/* Select Button */}
+                  <button
+                    className={`w-full py-2.5 rounded-xl text-sm font-bold transition-all ${isInactive
+                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      : isOccupied
+                        ? 'bg-red-100 text-red-600 hover:bg-red-200'
+                        : 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-md shadow-orange-200 hover:shadow-lg'
+                      }`}
+                    disabled={isInactive}
+                  >
+                    {isInactive ? t('tables.unavailable') : isOccupied ? t('tables.occupied') : t('tables.selectTable')}
+                  </button>
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>
