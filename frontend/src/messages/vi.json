@@ -112,7 +112,15 @@
     "placeOrder": "Đặt Món",
     "continueBrowsing": "Tiếp tục xem menu",
     "orderPlacedSuccess": "Đặt món thành công!",
-    "tableIdError": "Lỗi: Không tìm thấy số bàn. Vui lòng quét lại mã QR."
+    "tableIdError": "Lỗi: Không tìm thấy số bàn. Vui lòng quét lại mã QR.",
+    "voucherTitle": "Mã giảm giá",
+    "voucherPlaceholder": "Nhập mã voucher",
+    "applyVoucher": "Áp dụng",
+    "removeVoucher": "Xóa",
+    "voucherApplied": "Đã áp dụng mã: {code} - Giảm {discount}",
+    "discount": "Giảm giá",
+    "voucherSuccess": "Áp dụng mã giảm giá thành công!",
+    "voucherError": "Mã giảm giá không hợp lệ"
   },
   "orders": {
     "title": "Đơn Hàng Của Bạn",

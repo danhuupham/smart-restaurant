@@ -62,9 +62,9 @@ function CartContent() {
             const voucher = await res.json();
             setAppliedVoucher(voucher);
             setIsVoucherApplied(true);
-            toast.success("Áp dụng mã giảm giá thành công!");
+            toast.success(t('cart.voucherSuccess') || "Áp dụng mã giảm giá thành công!");
         } catch (error: any) {
-            toast.error(error.message || "Mã giảm giá không hợp lệ");
+            toast.error(error.message || t('cart.voucherError') || "Mã giảm giá không hợp lệ");
             setAppliedVoucher(null);
             setIsVoucherApplied(false);
         } finally {
@@ -225,14 +225,14 @@ function CartContent() {
                 {items.length > 0 && (
                     <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
                         <h4 className="font-bold text-gray-800 mb-2">
-                            Mã giảm giá
+                            {t('cart.voucherTitle') || 'Mã giảm giá'}
                         </h4>
                         <div className="flex gap-2">
                             <input
                                 value={voucherCode}
                                 onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
-                                placeholder="Nhập mã voucher"
-                                className="flex-1 bg-slate-50 rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#e74c3c] border border-slate-200"
+                                placeholder={t('cart.voucherPlaceholder') || 'Nhập mã voucher'}
+                                className="flex-1 bg-white rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 border border-slate-300 text-slate-900 placeholder:text-slate-400"
                                 disabled={isVoucherApplied}
                             />
                             {isVoucherApplied ? (
@@ -244,21 +244,25 @@ function CartContent() {
                                     }}
                                     className="px-4 py-2 bg-slate-200 text-slate-600 rounded-lg font-bold text-sm"
                                 >
-                                    Xóa
+                                    {t('cart.removeVoucher') || 'Xóa'}
                                 </button>
                             ) : (
                                 <button
                                     onClick={handleApplyVoucher}
                                     disabled={!voucherCode.trim() || isValidatingVoucher}
-                                    className="px-4 py-2 bg-orange-100 text-orange-600 rounded-lg font-bold text-sm disabled:opacity-50"
+                                    className="px-4 py-2 bg-orange-600 text-white rounded-lg font-bold text-sm disabled:opacity-50 shadow-sm shadow-orange-100"
                                 >
-                                    {isValidatingVoucher ? '...' : 'Áp dụng'}
+                                    {isValidatingVoucher ? '...' : (t('cart.applyVoucher') || 'Áp dụng')}
                                 </button>
                             )}
                         </div>
                         {appliedVoucher && (
-                            <div className="mt-2 text-sm text-green-600 font-medium">
-                                Đã áp dụng mã: {appliedVoucher.code} - Giảm {appliedVoucher.discountType === 'PERCENT' ? `${appliedVoucher.discountValue}%` : formatPrice(appliedVoucher.discountValue)}
+                            <div className="mt-2 text-sm text-green-600 font-bold flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                                {t('cart.voucherApplied', {
+                                    code: appliedVoucher.code,
+                                    discount: appliedVoucher.discountType === 'PERCENT' ? `${appliedVoucher.discountValue}%` : formatPrice(appliedVoucher.discountValue)
+                                }) || `Đã áp dụng mã: ${appliedVoucher.code}`}
                             </div>
                         )}
                     </div>
@@ -273,8 +277,8 @@ function CartContent() {
                             <span>{formatPrice(totalAmount)}</span>
                         </div>
                         {discountAmount > 0 && (
-                            <div className="flex justify-between text-green-600 font-medium">
-                                <span>Giảm giá</span>
+                            <div className="flex justify-between text-green-600 font-bold">
+                                <span>{t('cart.discount') || 'Giảm giá'}</span>
                                 <span>- {formatPrice(discountAmount)}</span>
                             </div>
                         )}

@@ -112,7 +112,15 @@
         "placeOrder": "Place Order",
         "continueBrowsing": "Continue Browsing",
         "orderPlacedSuccess": "Order placed successfully!",
-        "tableIdError": "Error: Table ID not found. Please rescan QR code."
+        "tableIdError": "Error: Table ID not found. Please rescan QR code.",
+        "voucherTitle": "Discount Code",
+        "voucherPlaceholder": "Enter voucher code",
+        "applyVoucher": "Apply",
+        "removeVoucher": "Remove",
+        "voucherApplied": "Code applied: {code} - Discount {discount}",
+        "discount": "Discount",
+        "voucherSuccess": "Discount code applied successfully!",
+        "voucherError": "Invalid discount code"
     },
     "orders": {
         "title": "Your Orders",
