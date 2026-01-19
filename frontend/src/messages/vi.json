@@ -50,7 +50,10 @@
     "sortPopular": "Phổ biến",
     "sortPriceAsc": "Giá: Thấp đến Cao",
     "sortPriceDesc": "Giá: Cao đến Thấp",
-    "chefsChoice": "Bếp Trưởng Khuyên Dùng"
+    "chefsChoice": "Bếp Trưởng Khuyên Dùng",
+    "statusAvailable": "Còn món",
+    "statusSoldOut": "Hết món",
+    "statusUnavailable": "Tạm ngưng"
   },
   "cart": {
     "title": "Giỏ Hàng",
@@ -166,7 +169,7 @@
     "comment": "Nhận xét (Tùy chọn)",
     "placeholder": "Món ăn ngon tuyệt...",
     "submit": "Gửi Đánh Giá",
-    "success": "Cảm ơn bạn đã đánh giá! ⭐",
+    "success": "Cảm ơn bạn đã đánh giá!",
     "loginRequired": "Vui lòng đăng nhập để đánh giá!",
     "sessionExpired": "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!",
     "reviewButton": "Đánh giá",

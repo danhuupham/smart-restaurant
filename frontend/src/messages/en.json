@@ -50,7 +50,10 @@
         "sortPopular": "Popular",
         "sortPriceAsc": "Price: Low to High",
         "sortPriceDesc": "Price: High to Low",
-        "chefsChoice": "Chef's Choice"
+        "chefsChoice": "Chef's Choice",
+        "statusAvailable": "Available",
+        "statusSoldOut": "Sold Out",
+        "statusUnavailable": "Unavailable"
     },
     "cart": {
         "title": "Your Cart",
@@ -166,7 +169,7 @@
         "comment": "Comment (Optional)",
         "placeholder": "The food was amazing...",
         "submit": "Submit Review",
-        "success": "Thank you for your review! ⭐",
+        "success": "Thank you for your review!",
         "loginRequired": "Please login to submit a review!",
         "sessionExpired": "Session expired. Please login again!",
         "reviewButton": "Review",
