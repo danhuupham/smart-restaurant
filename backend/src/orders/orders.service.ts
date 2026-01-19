@@ -76,6 +76,43 @@ export class OrdersService {
         orderItemsData.push(orderItemPayload);
       }
 
+      // VOUCHER LOGIC
+      let discountType: any = null;
+      let discountValue: any = 0;
+      let voucherId: string | null = null;
+      let discountAmount = 0;
+
+      if (createOrderDto.voucherCode) {
+        const voucher = await tx.voucher.findUnique({
+          where: { code: createOrderDto.voucherCode }
+        });
+
+        if (!voucher) {
+          throw new BadRequestException('Mã giảm giá không tồn tại');
+        }
+
+        if (!voucher.isActive) throw new BadRequestException('Mã giảm giá đã hết hạn hoặc bị khóa');
+        if (voucher.expiryDate && new Date() > voucher.expiryDate) throw new BadRequestException('Mã giảm giá đã hết hạn');
+        if (voucher.maxUses && voucher.usedCount >= voucher.maxUses) throw new BadRequestException('Mã giảm giá đã hết lượt sử dụng');
+        if (voucher.minOrderAmount && totalAmount < Number(voucher.minOrderAmount)) throw new BadRequestException(`Đơn hàng phải tối thiểu ${voucher.minOrderAmount} để sử dụng mã này`);
+
+        discountType = voucher.discountType;
+        discountValue = Number(voucher.discountValue);
+        voucherId = voucher.id;
+
+        if (discountType === 'PERCENT') {
+          discountAmount = (totalAmount * discountValue) / 100;
+        } else {
+          discountAmount = Math.min(discountValue, totalAmount);
+        }
+
+        // Increment usage
+        await tx.voucher.update({
+          where: { id: voucherId },
+          data: { usedCount: { increment: 1 } }
+        });
+      }
+
       // Check for an existing pending order for this table
       const existingOrder = await tx.order.findFirst({
         where: { tableId, status: 'PENDING' },
@@ -85,14 +122,48 @@ export class OrdersService {
       if (existingOrder) {
         // Append new items to the existing order and update totalAmount
         const existingTotal = Number(existingOrder.totalAmount ?? 0);
-        const updatedTotal = existingTotal + totalAmount;
+        let finalTotal = existingTotal + totalAmount; // Total amount BEFORE discount
+
+        // Note: If appending to existing order, complex logic arises for voucher re-calculation.
+        // For simplicity: If an order already exists, we might reject a NEW voucher or apply it to the whole sum?
+        // Let's assume for Guest view, they usually create one order session.
+        // If they add more items, we just add items.
+        // If they provided a voucher NOW, should we apply it?
+        // Let's apply valid voucher to the TOTAL (existing + new).
+
+        // If existing order already had a discount?
+        // We overwrite with new voucher if provided, or keep old?
+        // Simplified: If voucher provided, overwrite.
+
+        let newDiscountType = existingOrder.discountType;
+        let newDiscountValue = Number(existingOrder.discountValue);
+
+        if (voucherId && createOrderDto.customerId) {
+          newDiscountType = discountType;
+          newDiscountValue = discountValue;
+          // Record redemption for this order if not already?
+          // Actually, if we merge, we should probably record redemption linked to the ORDER ID.
+          await tx.voucherRedemption.create({
+            data: {
+              voucherId: voucherId,
+              userId: createOrderDto.customerId,
+              orderId: existingOrder.id,
+              discountAmount: discountAmount
+            }
+          });
+        } else if (voucherId) {
+          // If guest, just apply discount but don't record user redemption
+          newDiscountType = discountType;
+          newDiscountValue = discountValue;
+        }
 
         const updatedOrder = await tx.order.update({
           where: { id: existingOrder.id },
           data: {
-            totalAmount: updatedTotal,
+            totalAmount: finalTotal,
             ...(createOrderDto.customerId ? { customerId: createOrderDto.customerId } : {}),
             ...(notes !== undefined ? { notes: notes || null } : {}),
+            ...(voucherId ? { discountType: newDiscountType, discountValue: newDiscountValue } : {}),
             items: {
               create: orderItemsData,
             },
@@ -114,12 +185,36 @@ export class OrdersService {
           status: 'PENDING',
           customerId: createOrderDto.customerId,
           notes: notes || null,
+          discountType: discountType,
+          discountValue: discountValue,
           items: {
             create: orderItemsData,
           },
         },
         include: { items: { include: { product: true, modifiers: { include: { modifierOption: true } } } }, table: true },
       });
+
+      if (voucherId) {
+        // We need a userId for redemption. If guest, maybe we need to relax constraints or use a dummy.
+        // Schema says userId is required. This is a problem for anonymous guests.
+        // However, createOrderDto.customerId is optional.
+        // If customerId is present, use it. If not, we might fail or need a fallback.
+        // For now, only logged in users might use vouchers? Or we check schema.
+        // Schema: userId String @map("user_id") in VoucherRedemption.
+        // So yes, anonymous users cannot "Redeem" a voucher in the strict sense of tracking.
+        // BUT they can still get the discount on the order.
+
+        if (createOrderDto.customerId) {
+          await tx.voucherRedemption.create({
+            data: {
+              voucherId: voucherId,
+              userId: createOrderDto.customerId,
+              orderId: newOrder.id,
+              discountAmount: discountAmount
+            }
+          });
+        }
+      }
 
       // Set table status to OCCUPIED
       await tx.table.update({

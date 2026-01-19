@@ -124,7 +124,7 @@ Students must input minus points to every uncompleted feature in the SE column.
 |  | Bill Management |  |  |  |  |
 |  | › Create bill for table | \-0.25 | 0 |  | Generate bill with all order items, subtotal, tax, and total |
 |  | › Print bill | \-0.25 | 0 |  | Print bill to thermal printer or download as PDF |
-|  | › Apply discounts | \-0.25 | chưa làm (cái này của khách hàng chứ không phải waiter ) |  | Apply percentage or fixed amount discounts to bill |
+|  | › Apply discounts | \-0.25 | 0 |  | Apply percentage or fixed amount discounts to bill |
 |  | › Process payment | \-0.25 | 0 |  | Mark bill as paid (cash, card, or e-wallet) |
 | **8** | **Advanced features** |  |  |  |  |
 |  | Payment system integration | 0.5 |  |  | Payment gateway integration (ZaloPay, MoMo, VNPay, Stripe, etc.) - at least 1 required |

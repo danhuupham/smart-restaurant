@@ -9,6 +9,7 @@ export interface CreateOrderPayload {
     quantity: number;
     modifiers?: { modifierOptionId: string }[];
   }[];
+  voucherCode?: string;
 }
 
 export const ordersApi = {

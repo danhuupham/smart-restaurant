@@ -18,6 +18,7 @@ import { ReservationsModule } from './reservations/reservations.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 import { CategoriesModule } from './categories/categories.module';
+import { VouchersModule } from './vouchers.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { CategoriesModule } from './categories/categories.module';
     ReservationsModule,
     CloudinaryModule,
     CategoriesModule,
+    VouchersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

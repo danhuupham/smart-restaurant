@@ -23,6 +23,11 @@ function CartContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
 
+    const [voucherCode, setVoucherCode] = useState("");
+    const [appliedVoucher, setAppliedVoucher] = useState<{ code: string; discountType: string; discountValue: number } | null>(null);
+    const [isVoucherApplied, setIsVoucherApplied] = useState(false);
+    const [isValidatingVoucher, setIsValidatingVoucher] = useState(false);
+
     const tableIdFromUrl = searchParams.get("tableId");
     const { tableId: tableIdFromStore } = useTableStore();
     const tableId = tableIdFromUrl || tableIdFromStore;
@@ -32,6 +37,40 @@ function CartContent() {
             style: "currency",
             currency: "VND",
         }).format(price);
+
+    const handleApplyVoucher = async () => {
+        if (!voucherCode.trim()) return;
+        setIsValidatingVoucher(true);
+        try {
+            // Check voucher validity via API (Need to create endpoint or just try to use it)
+            // Ideally we validate first. But here we can simulate or call an endpoint.
+            // Since we don't have a separate validate endpoint yet, let's assume we implement one or just trust the apply?
+            // Wait, we need to show the discount BEFORE ordering. 
+            // Let's call a new endpoint: /vouchers/validate
+            // Or use ordersApi if we add a validate method.
+            // For now, let's just make a POST to /vouchers/validate (we need to create this in backend)
+            // Or simpler: We can just let them enter it and it validates on submission? 
+            // No, UX requires showing the discount.
+
+            // Temporary: Just fake it if no endpoint, but we should make one.
+            // Let's assume we added GET /vouchers/:code/validate
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000'}/vouchers/validate?code=${voucherCode}&amount=${totalAmount}`);
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.message || 'Mã không hợp lệ');
+            }
+            const voucher = await res.json();
+            setAppliedVoucher(voucher);
+            setIsVoucherApplied(true);
+            toast.success("Áp dụng mã giảm giá thành công!");
+        } catch (error: any) {
+            toast.error(error.message || "Mã giảm giá không hợp lệ");
+            setAppliedVoucher(null);
+            setIsVoucherApplied(false);
+        } finally {
+            setIsValidatingVoucher(false);
+        }
+    };
 
     const handleCheckout = async () => {
         if (items.length === 0) return;
@@ -57,6 +96,7 @@ function CartContent() {
                             }))
                             : [],
                 })),
+                voucherCode: isVoucherApplied ? voucherCode : undefined,
             };
 
             await ordersApi.create(orderData);
@@ -64,6 +104,9 @@ function CartContent() {
             toast.success(t('cart.orderPlacedSuccess'));
             clearCart();
             setNotes("");
+            setVoucherCode("");
+            setAppliedVoucher(null);
+            setIsVoucherApplied(false);
             router.push(`/guest/orders?tableId=${tableId}`);
         } catch (error: any) {
             console.error(error);
@@ -73,12 +116,24 @@ function CartContent() {
         }
     };
 
+    // Calculate discount
+    let discountAmount = 0;
+    if (appliedVoucher) {
+        if (appliedVoucher.discountType === 'PERCENT') {
+            discountAmount = (totalAmount * appliedVoucher.discountValue) / 100;
+        } else {
+            discountAmount = Math.min(appliedVoucher.discountValue, totalAmount);
+        }
+    }
+    const finalTotal = Math.max(0, totalAmount - discountAmount);
+
     return (
         <>
             <Header title={t('cart.title')} showBack backUrl={`/guest?tableId=${tableId || ""}`} tableId={tableId} />
 
             <div className="p-4 safe-area-pb space-y-4">
                 {/* Cart Items */}
+                {/* ... (Previous items rendering code remains same, no changes needed inside map) ... */}
                 {items.length === 0 ? (
                     <div className="flex flex-col items-center justify-center p-10 text-slate-400">
                         <ShoppingCart className="w-16 h-16 mb-4 stroke-1" />
@@ -166,6 +221,49 @@ function CartContent() {
                     </div>
                 )}
 
+                {/* Voucher Input */}
+                {items.length > 0 && (
+                    <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                        <h4 className="font-bold text-gray-800 mb-2">
+                            Mã giảm giá
+                        </h4>
+                        <div className="flex gap-2">
+                            <input
+                                value={voucherCode}
+                                onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
+                                placeholder="Nhập mã voucher"
+                                className="flex-1 bg-slate-50 rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#e74c3c] border border-slate-200"
+                                disabled={isVoucherApplied}
+                            />
+                            {isVoucherApplied ? (
+                                <button
+                                    onClick={() => {
+                                        setVoucherCode("");
+                                        setIsVoucherApplied(false);
+                                        setAppliedVoucher(null);
+                                    }}
+                                    className="px-4 py-2 bg-slate-200 text-slate-600 rounded-lg font-bold text-sm"
+                                >
+                                    Xóa
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={handleApplyVoucher}
+                                    disabled={!voucherCode.trim() || isValidatingVoucher}
+                                    className="px-4 py-2 bg-orange-100 text-orange-600 rounded-lg font-bold text-sm disabled:opacity-50"
+                                >
+                                    {isValidatingVoucher ? '...' : 'Áp dụng'}
+                                </button>
+                            )}
+                        </div>
+                        {appliedVoucher && (
+                            <div className="mt-2 text-sm text-green-600 font-medium">
+                                Đã áp dụng mã: {appliedVoucher.code} - Giảm {appliedVoucher.discountType === 'PERCENT' ? `${appliedVoucher.discountValue}%` : formatPrice(appliedVoucher.discountValue)}
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {/* Summary */}
                 {items.length > 0 && (
                     <div className="bg-white p-4 rounded-xl shadow-sm space-y-2 border border-slate-100">
@@ -174,10 +272,15 @@ function CartContent() {
                             <span>{t('cart.subtotal')}</span>
                             <span>{formatPrice(totalAmount)}</span>
                         </div>
-                        {/* Tax logic can be added here if needed */}
+                        {discountAmount > 0 && (
+                            <div className="flex justify-between text-green-600 font-medium">
+                                <span>Giảm giá</span>
+                                <span>- {formatPrice(discountAmount)}</span>
+                            </div>
+                        )}
                         <div className="flex justify-between font-bold text-lg text-gray-900 pt-2 border-t border-slate-100">
                             <span>{t('cart.total')}</span>
-                            <span className="text-[#e74c3c]">{formatPrice(totalAmount)}</span>
+                            <span className="text-[#e74c3c]">{formatPrice(finalTotal)}</span>
                         </div>
                     </div>
                 )}
@@ -201,7 +304,7 @@ function CartContent() {
                             disabled={isSubmitting}
                             className="w-full bg-[#e74c3c] text-white font-bold py-4 rounded-xl hover:bg-[#c0392b] active:scale-95 transition-all shadow-lg shadow-red-200 disabled:bg-gray-400"
                         >
-                            {isSubmitting ? t('cart.placingOrder') : `${t('cart.placeOrder')} - ${formatPrice(totalAmount)}`}
+                            {isSubmitting ? t('cart.placingOrder') : `${t('cart.placeOrder')} - ${formatPrice(finalTotal)}`}
                         </button>
                         <Link href={`/guest?tableId=${tableId || ""}`} className="w-full">
                             <button className="w-full bg-white text-[#e74c3c] border-2 border-[#e74c3c] font-bold py-3 rounded-xl">

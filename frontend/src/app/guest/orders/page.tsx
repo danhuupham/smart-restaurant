@@ -79,13 +79,20 @@ function OrdersContent() {
     // Filter to show only active (non-completed) orders in the list
     const visibleOrders = orders.filter(o => o.status !== 'COMPLETED' && o.status !== 'CANCELLED' && o.status !== 'REJECTED');
 
-    const sessionTotal = Array.isArray(orders)
-        ? orders.reduce((sum, order) => sum + Number(order.totalAmount), 0)
-        : 0;
+    const calculateOrderTotal = (order: Order) => {
+        let total = Number(order.totalAmount);
+        if (order.discountType === 'PERCENT') {
+            const discount = (total * Number(order.discountValue)) / 100;
+            total -= discount;
+        } else if (order.discountType === 'FIXED') {
+            total -= Number(order.discountValue);
+        }
+        return Math.max(0, total);
+    };
 
     // Filter unpaid orders (same logic as visible mainly, but strictly for payment calculation)
     const unpaidOrders = orders.filter(o => o.status !== 'COMPLETED' && o.status !== 'CANCELLED' && o.status !== 'REJECTED');
-    const unpaidTotal = unpaidOrders.reduce((sum, order) => sum + Number(order.totalAmount), 0);
+    const unpaidTotal = unpaidOrders.reduce((sum, order) => sum + calculateOrderTotal(order), 0);
     const canPay = unpaidTotal > 0;
 
     const handlePaymentSuccess = async () => {
