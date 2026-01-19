@@ -2,10 +2,11 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 // Define role-based route permissions
+// ADMIN can access all pages
 const rolePermissions: Record<string, string[]> = {
   '/admin': ['ADMIN'],
-  '/kitchen': ['KITCHEN'],
-  '/waiter': ['WAITER'],
+  '/kitchen': ['KITCHEN', 'ADMIN'],
+  '/waiter': ['WAITER', 'ADMIN'],
 };
 
 // Helper function to decode JWT payload without verification (for role checking)
