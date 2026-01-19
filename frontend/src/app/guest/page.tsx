@@ -274,11 +274,6 @@ function GuestMenuContent() {
                   <h3 className="font-bold text-gray-800 line-clamp-1">
                     {product.name}
                   </h3>
-                  {product.isChefRecommended && (
-                    <span className="shrink-0 ml-2 bg-orange-100 text-orange-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-orange-200">
-                      {t('menu.chefsChoice')}
-                    </span>
-                  )}
                 </div>
                 {/* Rating Display */}
                 <div className="flex items-center gap-1 mt-1">
@@ -292,6 +287,29 @@ function GuestMenuContent() {
                     ({product.reviews?.length || 0})
                   </span>
                 </div>
+                {/* Tags */}
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {product.isChefRecommended && (
+                    <span className="bg-orange-100 text-orange-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-orange-200">
+                      {t('menu.chefsChoice')}
+                    </span>
+                  )}
+                  {(product.status === 'AVAILABLE' || !product.status) && (
+                    <span className="bg-green-100 text-green-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-green-200 uppercase">
+                      {t('menu.statusAvailable')}
+                    </span>
+                  )}
+                  {product.status === 'SOLD_OUT' && (
+                    <span className="bg-red-100 text-red-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-red-200 uppercase">
+                      {t('menu.statusSoldOut')}
+                    </span>
+                  )}
+                  {product.status === 'UNAVAILABLE' && (
+                    <span className="bg-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-gray-200 uppercase">
+                      {t('menu.statusUnavailable')}
+                    </span>
+                  )}
+                </div>
                 {product.description && (
                   <p className="text-gray-500 text-xs mt-1 line-clamp-2">
                     {product.description}
@@ -303,9 +321,15 @@ function GuestMenuContent() {
                 <span className="font-bold text-lg text-gray-900">
                   {formatPrice(product.price)}
                 </span>
-                <button className="bg-[#e74c3c]/10 text-[#e74c3c] px-3 py-1 rounded-lg text-sm font-bold">
-                  + {t('menu.add')}
-                </button>
+                {product.status === 'AVAILABLE' || !product.status ? (
+                  <button className="bg-[#e74c3c]/10 text-[#e74c3c] px-3 py-1 rounded-lg text-sm font-bold active:scale-90 transition-transform">
+                    + {t('menu.add')}
+                  </button>
+                ) : (
+                  <span className="text-gray-400 text-xs font-bold italic py-1">
+                    {product.status === 'SOLD_OUT' ? t('menu.statusSoldOut') : t('menu.statusUnavailable')}
+                  </span>
+                )}
               </div>
             </div>
           </div>

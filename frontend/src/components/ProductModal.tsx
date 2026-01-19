@@ -126,8 +126,45 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
 
                 {/* Body: Cuộn được */}
                 <div className="p-6 overflow-y-auto flex-1 bg-white">
-                    <h2 className="text-2xl font-bold text-gray-900">{product.name}</h2>
-                    <p className="text-gray-500 mt-2 text-sm leading-relaxed">{product.description}</p>
+                    <div className="flex justify-between items-start gap-4">
+                        <h2 className="text-2xl font-bold text-gray-900">{product.name}</h2>
+                    </div>
+
+                    {/* Rating Summary at Top */}
+                    <div className="flex items-center gap-1 mt-1">
+                        <span className="text-yellow-400 font-bold">★</span>
+                        <span className="text-sm font-bold text-gray-700">
+                            {product.reviews && product.reviews.length > 0
+                                ? (product.reviews.reduce((a, b) => a + b.rating, 0) / product.reviews.length).toFixed(1)
+                                : "New"}
+                        </span>
+                        <span className="text-xs text-gray-400">({reviews.length})</span>
+                    </div>
+
+                    {/* Status Tags */}
+                    <div className="flex flex-wrap gap-2 mt-2">
+                        {product.isChefRecommended && (
+                            <span className="bg-orange-100 text-orange-600 text-[10px] font-bold px-2.5 py-1 rounded-full border border-orange-200 uppercase tracking-wide">
+                                {t('menu.chefsChoice')}
+                            </span>
+                        )}
+                        {(product.status === 'AVAILABLE' || !product.status) && (
+                            <span className="bg-green-100 text-green-600 text-[10px] font-bold px-2.5 py-1 rounded-full border border-green-200 uppercase tracking-wide">
+                                {t('menu.statusAvailable')}
+                            </span>
+                        )}
+                        {product.status === 'SOLD_OUT' && (
+                            <span className="bg-red-100 text-red-600 text-[10px] font-bold px-2.5 py-1 rounded-full border border-red-200 uppercase tracking-wide">
+                                {t('menu.statusSoldOut')}
+                            </span>
+                        )}
+                        {product.status === 'UNAVAILABLE' && (
+                            <span className="bg-gray-100 text-gray-600 text-[10px] font-bold px-2.5 py-1 rounded-full border border-gray-200 uppercase tracking-wide">
+                                {t('menu.statusUnavailable')}
+                            </span>
+                        )}
+                    </div>
+                    <p className="text-gray-500 mt-4 text-sm leading-relaxed">{product.description}</p>
 
                     {/* Loop qua các nhóm Modifier (Size, Topping...) */}
                     <div className="mt-8 space-y-8">
@@ -245,23 +282,36 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
                             <button
                                 className="w-10 h-full flex items-center justify-center hover:bg-white rounded-lg transition-all text-gray-600 font-bold text-lg disabled:opacity-50"
                                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                disabled={quantity <= 1}
+                                disabled={quantity <= 1 || product.status !== 'AVAILABLE' && product.status !== undefined}
                             >−</button>
                             <span className="w-10 text-center font-bold text-gray-900">{quantity}</span>
                             <button
-                                className="w-10 h-full flex items-center justify-center hover:bg-white rounded-lg transition-all text-gray-600 font-bold text-lg"
+                                className="w-10 h-full flex items-center justify-center hover:bg-white rounded-lg transition-all text-gray-600 font-bold text-lg disabled:opacity-50"
                                 onClick={() => setQuantity(quantity + 1)}
+                                disabled={product.status !== 'AVAILABLE' && product.status !== undefined}
                             >+</button>
                         </div>
 
                         <button
                             onClick={handleAddToCart}
-                            className="flex-1 bg-orange-600 text-white h-12 rounded-xl hover:bg-orange-700 active:scale-95 transition-all shadow-lg shadow-orange-200 flex items-center justify-between px-6"
+                            disabled={product.status !== 'AVAILABLE' && product.status !== undefined}
+                            className={`flex-1 h-12 rounded-xl transition-all flex items-center justify-between px-6 shadow-lg ${product.status === 'AVAILABLE' || !product.status
+                                ? 'bg-orange-600 text-white hover:bg-orange-700 active:scale-95 shadow-orange-200'
+                                : 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'
+                                }`}
                         >
-                            <span className="font-bold">{t('productModal.addToOrder')}</span>
-                            <span className="font-medium bg-orange-700/50 px-2 py-0.5 rounded text-sm">
-                                {formatPrice(calculateTotal())}
+                            <span className="font-bold">
+                                {product.status === 'SOLD_OUT'
+                                    ? t('menu.statusSoldOut')
+                                    : product.status === 'UNAVAILABLE'
+                                        ? t('menu.statusUnavailable')
+                                        : t('productModal.addToOrder')}
                             </span>
+                            {(product.status === 'AVAILABLE' || !product.status) && (
+                                <span className="font-medium bg-orange-700/50 px-2 py-0.5 rounded text-sm">
+                                    {formatPrice(calculateTotal())}
+                                </span>
+                            )}
                         </button>
                     </div>
                 </div>
