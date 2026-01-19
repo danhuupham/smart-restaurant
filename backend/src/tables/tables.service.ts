@@ -51,6 +51,14 @@ export class TablesService {
     return this.prisma.table.delete({ where: { id } });
   }
 
+  async findByQrToken(token: string) {
+    const table = await this.prisma.table.findUnique({
+      where: { qrToken: token },
+    });
+    if (!table) throw new NotFoundException('Invalid QR Token');
+    return table;
+  }
+
   async generateQrCode(id: string): Promise<string> {
     const table = await this.prisma.table.findUnique({ where: { id } });
 
@@ -70,9 +78,27 @@ export class TablesService {
       });
     }
 
-    // Use configurable frontend URL
-    const frontendUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/guest?tableId=${id}`;
+    // Use token instead of ID for secure/regeneratable QR codes
+    const frontendUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/guest?token=${qrToken}`;
 
+    return qrcode.toDataURL(frontendUrl);
+  }
+
+  async regenerateQrToken(id: string): Promise<string> {
+    const table = await this.prisma.table.findUnique({ where: { id } });
+    if (!table) throw new NotFoundException(`Table with ID ${id} not found`);
+
+    const newQrToken = randomBytes(16).toString('hex');
+    await this.prisma.table.update({
+      where: { id },
+      data: {
+        qrToken: newQrToken,
+        qrTokenCreatedAt: new Date(),
+      },
+    });
+
+    // Return the new QR Code image
+    const frontendUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/guest?token=${newQrToken}`;
     return qrcode.toDataURL(frontendUrl);
   }
 

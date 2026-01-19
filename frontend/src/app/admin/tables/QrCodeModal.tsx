@@ -15,10 +15,12 @@ import { Download, Printer } from 'lucide-react';
 interface QrCodeModalProps {
   qrCodeUrl: string;
   tableName: string;
+  tableId: string;
   onClose: () => void;
+  onRegenerate: (id: string) => void;
 }
 
-export default function QrCodeModal({ qrCodeUrl, tableName, onClose }: QrCodeModalProps) {
+export default function QrCodeModal({ qrCodeUrl, tableName, tableId, onClose, onRegenerate }: QrCodeModalProps) {
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
     if (printWindow) {
@@ -62,6 +64,11 @@ export default function QrCodeModal({ qrCodeUrl, tableName, onClose }: QrCodeMod
         </div>
         <DialogFooter className="flex gap-2">
           <Button variant="outline" onClick={onClose}>Close</Button>
+          <Button variant="destructive" onClick={() => onRegenerate(tableId)}>
+            <div className="flex items-center">
+              <span className="mr-2">↻</span> Regenerate
+            </div>
+          </Button>
           <Button variant="outline" onClick={handleDownload}>
             <Download className="mr-2 h-4 w-4" />
             Download PNG

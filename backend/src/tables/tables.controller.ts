@@ -56,6 +56,19 @@ export class TablesController {
     }
   }
 
+  @Post(':id/regenerate-qr')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async regenerateQrCode(@Param('id') id: string) {
+    const qrCodeDataUrl = await this.tablesService.regenerateQrToken(id);
+    return { qrCodeDataUrl };
+  }
+
+  @Get('by-token/:token')
+  findByToken(@Param('token') token: string) {
+    return this.tablesService.findByQrToken(token);
+  }
+
   @Post(':id/request-assistance')
   requestAssistance(
     @Param('id') id: string,

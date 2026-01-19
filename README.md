@@ -307,6 +307,7 @@ After seeding, use these accounts (Password: `password@123`):
 - ✅ **Menu Pagination**: Guest menu shows 12 items per page with navigation controls (Task 7.6)
 - ✅ **Smart Pagination**: URL parameter support, auto-reset on category change, item count display
 - ✅ **Order Timer**: Visual stopwatch for Kitchen and Waiter to track prep time with overdue alerts (Task 7.12)
+- ✅ **QR Code Regeneration**: Securely rotate QR codes via Admin to invalidate old links (Task 7.13)
 
 ---
 

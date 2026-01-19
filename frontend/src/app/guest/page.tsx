@@ -30,49 +30,62 @@ function GuestMenuContent() {
   const router = useRouter();
 
   const searchParams = useSearchParams();
-  const tableId = searchParams.get("tableId");
+  const tableIdParam = searchParams.get("tableId"); // Legacy
+  const tokenParam = searchParams.get("token"); // New secure way
+
+  // We need to resolve the table ID either from the param or by fetching via token
+  const [tableId, setTableId] = useState<string | null>(tableIdParam ?? null);
+
   const ITEMS_PER_PAGE = 12;
 
   // Initialize page from URL on mount
   useEffect(() => {
-    // If no tableId, redirect to table selection
-    if (!tableId) {
-      router.replace('/tables');
-      return;
-    }
-
-    // Validate table existence
-    const validateTable = async () => {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000'}/tables/${tableId}`);
-        if (!res.ok) {
-          throw new Error('Table not found');
+    const resolveTable = async () => {
+      // 1. If we have a token, resolve it to a table ID
+      if (tokenParam) {
+        try {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000'}/tables/by-token/${tokenParam}`);
+          if (res.ok) {
+            const table = await res.json();
+            if (table && table.id) {
+              setTableId(table.id);
+              setIsValidating(false);
+              return; // Success, skip legacy validation
+            }
+          }
+        } catch (e) {
+          console.error("Invalid token", e);
         }
+      }
 
-        const text = await res.text();
-        if (!text) {
-          throw new Error('Empty response');
+      // 2. Fallback: If we have tableIdParam (Legacy or resolved), validate it
+      if (tableIdParam) {
+        setTableId(tableIdParam);
+        try {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000'}/tables/${tableIdParam}`);
+          if (!res.ok) throw new Error('Table not found');
+          const data = await res.json();
+          if (!data || !data.id) throw new Error('Invalid table data');
+          setIsValidating(false);
+        } catch (error) {
+          // Only redirect if NO token was present (if token failed, we might want to stay to show error?) 
+          // but for now, redirect if validation fails
+          router.replace('/tables');
         }
-
-        const data = JSON.parse(text);
-        if (!data || !data.id) {
-          throw new Error('Invalid table data');
-        }
-
-        setIsValidating(false);
-      } catch (error) {
+      } else if (!tokenParam) {
+        // No ID, No Token -> Redirect
         router.replace('/tables');
       }
     };
 
-    validateTable();
+    resolveTable();
 
     const pageParam = searchParams.get("page");
     if (pageParam) {
       const page = parseInt(pageParam, 10);
       if (page > 0) setCurrentPage(page);
     }
-  }, [tableId, router, searchParams]);
+  }, [tableIdParam, tokenParam, router, searchParams]);
 
   // Fetch products (cached in store)
   useEffect(() => {

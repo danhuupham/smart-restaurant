@@ -49,6 +49,17 @@ export default function TableList({ tables, onEdit, onUpdate }: TableListProps) 
     }
   };
 
+  const handleRegenerateQr = async (tableId: string) => {
+    try {
+      if (!confirm('Are you sure? This will invalidate the previous QR code.')) return;
+      const { qrCodeDataUrl } = await tablesApi.regenerateQrCode(tableId);
+      setQrCodeData(prev => prev ? { ...prev, url: qrCodeDataUrl } : null);
+      toast.success('QR Code Regenerated!');
+    } catch (error: any) {
+      toast.error('Failed to regenerate QR');
+    }
+  };
+
   return (
     <>
       <Card>
@@ -83,7 +94,9 @@ export default function TableList({ tables, onEdit, onUpdate }: TableListProps) 
         <QrCodeModal
           qrCodeUrl={qrCodeData.url}
           tableName={qrCodeData.tableName}
+          tableId={tables.find(t => t.tableNumber === qrCodeData.tableName)?.id || ''}
           onClose={() => setQrCodeData(null)}
+          onRegenerate={handleRegenerateQr}
         />
       )}
     </>

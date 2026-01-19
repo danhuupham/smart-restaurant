@@ -272,11 +272,11 @@ The working order rotates daily following this sequence:
   - _Commit:_ `feat: implement order timer with visual alerts for overdue orders`
   - _Points:_ -0.25 ✅
 
-- [ ] **Task 7.13: QR Code Regeneration**
-  - [ ] Add regenerate QR button
-  - [ ] Invalidate old QR codes
-  - [ ] Update table QR in database
-  - _Points:_ -0.25
+- [x] **Task 7.13: QR Code Regeneration**
+  - [x] Add regenerate QR button
+  - [x] Invalidate old QR codes (by rotating token)
+  - [x] Update table QR in database
+  - _Points:_ -0.25 ✅
 
 ### Low Priority Features
 

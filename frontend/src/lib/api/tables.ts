@@ -44,4 +44,9 @@ export const tablesApi = {
     const response = await api.post(`/tables/${id}/generate-qr`);
     return response.data;
   },
+
+  regenerateQrCode: async (id: string): Promise<{ qrCodeDataUrl: string }> => {
+    const response = await api.post(`/tables/${id}/regenerate-qr`);
+    return response.data;
+  },
 };
