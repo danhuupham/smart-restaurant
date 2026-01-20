@@ -261,11 +261,27 @@
     },
     "waiter": {
         "title": "Waiter Dashboard",
+        "pending": "New Orders",
         "readyToServe": "Ready to Serve",
         "currentlyServing": "Currently Serving",
         "serveFood": "Serve Food",
         "markComplete": "Mark Complete",
-        "table": "Table"
+        "table": "Table",
+        "myTables": "My Tables",
+        "assignedTables": "Assigned Tables",
+        "noAssignedTables": "You have not been assigned any tables yet.",
+        "noPending": "No pending orders",
+        "noReady": "No orders ready to serve",
+        "noServed": "No tables currently serving",
+        "accept": "Accept",
+        "reject": "Reject",
+        "serveNow": "Serve Now",
+        "viewBill": "View Bill",
+        "completePayment": "Complete Payment",
+        "hideTables": "Hide Tables",
+        "tableOccupied": "Occupied",
+        "tableReserved": "Reserved",
+        "tableAvailable": "Available"
     },
     "kitchen": {
         "title": "Kitchen Display System",

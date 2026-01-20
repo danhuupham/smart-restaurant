@@ -261,11 +261,27 @@
   },
   "waiter": {
     "title": "Màn hình Phục Vụ",
+    "pending": "Đơn Mới",
     "readyToServe": "Cần bưng",
     "currentlyServing": "Đang ăn",
     "serveFood": "Bưng món",
     "markComplete": "Hoàn thành",
-    "table": "Bàn"
+    "table": "Bàn",
+    "myTables": "Bàn của tôi",
+    "assignedTables": "Bàn Được Phân Công",
+    "noAssignedTables": "Bạn chưa được phân công bàn nào.",
+    "noPending": "Không có đơn chờ duyệt",
+    "noReady": "Không có món chờ bưng",
+    "noServed": "Không có bàn đang ăn",
+    "accept": "Chấp Nhận",
+    "reject": "Từ Chối",
+    "serveNow": "Bưng Ra Bàn Ngay",
+    "viewBill": "Xem Hóa Đơn",
+    "completePayment": "Thanh Toán & Dọn Bàn",
+    "hideTables": "Ẩn Bàn",
+    "tableOccupied": "Đang dùng",
+    "tableReserved": "Đã đặt",
+    "tableAvailable": "Trống"
   },
   "kitchen": {
     "title": "Hệ Thống Bếp",
