@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { loyaltyApi, Voucher, CreateVoucherPayload } from "@/lib/api/loyalty";
+import { loyaltyApi, CreateVoucherPayload } from "@/lib/api/loyalty";
+import { Voucher } from "@/types/loyalty";
 import toast from "react-hot-toast";
 
 interface VoucherFormModalProps {

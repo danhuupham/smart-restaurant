@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import useSWR from "swr";
-import { loyaltyApi, Voucher, VoucherStats } from "@/lib/api/loyalty";
+import { loyaltyApi } from "@/lib/api/loyalty";
+import { Voucher, VoucherStats } from "@/types/loyalty";
 import Button from "@/components/ui/Button";
 import * as Icons from "lucide-react";
 import VoucherFormModal from "./VoucherFormModal";
@@ -179,19 +180,17 @@ function VoucherCard({
 
   return (
     <div
-      className={`bg-white p-4 rounded-lg shadow border-2 ${
-        voucher.isActive
+      className={`bg-white p-4 rounded-lg shadow border-2 ${voucher.isActive
           ? "border-green-200 hover:shadow-md"
           : "border-gray-200 opacity-75"
-      }`}
+        }`}
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
             <Icons.Ticket
-              className={`w-5 h-5 ${
-                voucher.isActive ? "text-green-600" : "text-gray-400"
-              }`}
+              className={`w-5 h-5 ${voucher.isActive ? "text-green-600" : "text-gray-400"
+                }`}
             />
             <h3 className="font-bold text-lg text-gray-900">{voucher.name}</h3>
           </div>
@@ -200,11 +199,10 @@ function VoucherCard({
           )}
         </div>
         <div
-          className={`px-2 py-1 rounded text-xs font-bold ${
-            voucher.isActive
+          className={`px-2 py-1 rounded text-xs font-bold ${voucher.isActive
               ? "bg-green-100 text-green-900 border border-green-300"
               : "bg-gray-100 text-gray-700 border border-gray-300"
-          }`}
+            }`}
         >
           {voucher.isActive ? "Hoạt động" : "Tắt"}
         </div>
@@ -241,9 +239,8 @@ function VoucherCard({
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">HSD:</span>
             <span
-              className={`font-medium ${
-                isExpired ? "text-red-600" : "text-gray-900"
-              }`}
+              className={`font-medium ${isExpired ? "text-red-600" : "text-gray-900"
+                }`}
             >
               {new Date(voucher.expiryDate).toLocaleDateString("vi-VN")}
             </span>

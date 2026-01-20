@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { inventoryApi, LowStockAlert } from "@/lib/api/inventory";
+import { inventoryApi } from "@/lib/api/inventory";
+import { LowStockAlert } from "@/types/inventory";
 import { AlertTriangle, Package, X } from "lucide-react";
 import toast from "react-hot-toast";
 

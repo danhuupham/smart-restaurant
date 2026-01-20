@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { loyaltyApi, Voucher } from "@/lib/api/loyalty";
+import { loyaltyApi } from "@/lib/api/loyalty";
+import { Voucher } from "@/types/loyalty";
 import { Ticket, Percent, DollarSign, Calendar, CheckCircle, Copy } from "lucide-react";
 import toast from "react-hot-toast";
 import { useI18n } from "@/contexts/I18nContext";
@@ -101,13 +102,12 @@ export default function VoucherList({
           <div
             key={voucher.id}
             onClick={() => isAvailable && onSelect?.(voucher)}
-            className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
-              isSelected
-                ? "border-orange-500 bg-orange-50"
-                : isAvailable
+            className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${isSelected
+              ? "border-orange-500 bg-orange-50"
+              : isAvailable
                 ? "border-green-200 bg-green-50 hover:border-green-400 hover:shadow-md"
                 : "border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed"
-            }`}
+              }`}
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1">
@@ -171,8 +171,8 @@ export default function VoucherList({
                     {expired
                       ? t("voucher.expired") || "Đã hết hạn"
                       : maxUsesReached
-                      ? t("voucher.maxUsesReached") || "Đã hết lượt"
-                      : t("voucher.unavailable") || "Không khả dụng"}
+                        ? t("voucher.maxUsesReached") || "Đã hết lượt"
+                        : t("voucher.unavailable") || "Không khả dụng"}
                   </div>
                 )}
               </div>

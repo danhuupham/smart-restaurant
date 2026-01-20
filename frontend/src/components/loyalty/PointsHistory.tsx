@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { loyaltyApi, PointsHistoryResponse, PointsTransaction } from "@/lib/api/loyalty";
+import { loyaltyApi } from "@/lib/api/loyalty";
+import { PointsHistoryResponse, PointsTransaction } from "@/types/loyalty";
 import { ArrowUp, ArrowDown, Clock, Receipt } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -122,9 +123,8 @@ export default function PointsHistory({ userId, limit = 20 }: PointsHistoryProps
               </div>
               <div className="text-right">
                 <div
-                  className={`text-lg font-bold ${
-                    isEarn ? "text-green-700" : "text-red-700"
-                  }`}
+                  className={`text-lg font-bold ${isEarn ? "text-green-700" : "text-red-700"
+                    }`}
                 >
                   {isEarn ? "+" : ""}
                   {transaction.points.toLocaleString()} điểm

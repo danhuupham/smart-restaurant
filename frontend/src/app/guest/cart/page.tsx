@@ -44,7 +44,7 @@ function CartContent() {
     useEffect(() => {
         const fetchUserAndPoints = async () => {
             const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
-            
+
             // No token = not logged in, skip all API calls
             if (!token) {
                 setIsLoggedIn(false);
@@ -60,7 +60,7 @@ function CartContent() {
                 const profileRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000'}/auth/profile`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                
+
                 if (!profileRes.ok) {
                     // Token invalid or expired
                     console.log("Profile fetch failed, user not authenticated");
@@ -74,20 +74,20 @@ function CartContent() {
                 if (user?.id) {
                     setUserId(user.id);
                 }
-                
+
                 // Only fetch loyalty points after successful profile fetch
                 try {
                     const data = await loyaltyApi.getMyPoints();
                     console.log("Loyalty points fetched:", data);
                     // Handle both possible field names
-                    const points = data.points ?? data.balance ?? 0;
+                    const points = data.points ?? 0;
                     setAvailablePoints(points);
                 } catch (loyaltyError: any) {
                     console.error("Loyalty points fetch error:", loyaltyError?.message);
                     // User is still logged in, just no points data
                     setAvailablePoints(0);
                 }
-                
+
                 setIsLoggedIn(true);
             } catch (error: any) {
                 console.error("Auth error:", error?.message);
@@ -427,7 +427,7 @@ function CartContent() {
                                 <p className="text-sm text-gray-600 mb-2">
                                     {t('cart.loginForPointsDesc') || 'Tích điểm mỗi đơn hàng và đổi lấy giảm giá!'}
                                 </p>
-                                <Link 
+                                <Link
                                     href={`/login?redirect=/guest/cart?tableId=${tableId}`}
                                     className="text-sm font-bold text-orange-600 hover:underline"
                                 >

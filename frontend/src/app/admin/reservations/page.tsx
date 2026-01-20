@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import useSWR from "swr";
-import { reservationsApi, Reservation, ReservationStats, ReservationStatus } from "@/lib/api/reservations";
+import { reservationsApi } from "@/lib/api/reservations";
+import { Reservation, ReservationStats, ReservationStatus } from "@/types/reservation";
 import Button from "@/components/ui/Button";
 import * as Icons from "lucide-react";
 import ReservationFormModal from "./ReservationFormModal";

@@ -60,9 +60,9 @@ export default function ProductModal({ product, isOpen, onClose, onSelectProduct
     if (!isOpen || !product) return null;
 
     // Check if product is out of stock based on inventory
-    const isOutOfStock = product.inventory && product.inventory.quantity <= 0;
-    const isLowStock = product.inventory && product.inventory.quantity > 0 && product.inventory.quantity <= product.inventory.minStock;
-    const maxQuantity = product.inventory ? product.inventory.quantity : 999;
+    const isOutOfStock = product.inventory ? product.inventory.quantity <= 0 : false;
+    const isLowStock = product.inventory ? (product.inventory.quantity > 0 && product.inventory.quantity <= product.inventory.minStock) : false;
+    const maxQuantity = product.inventory ? (product.inventory.quantity ?? 999) : 999;
     const isUnavailable = product.status === 'SOLD_OUT' || product.status === 'UNAVAILABLE' || isOutOfStock;
 
     const handleModifierToggle = (group: ProductModifierGroup["modifierGroup"], option: ModifierOption) => {
@@ -371,7 +371,7 @@ export default function ProductModal({ product, isOpen, onClose, onSelectProduct
                     {/* Stock warning */}
                     {isLowStock && !isOutOfStock && (
                         <div className="mb-3 p-2 bg-yellow-50 border border-yellow-200 rounded-lg text-xs text-yellow-700 text-center">
-                            ⚠️ {t('menu.onlyXLeft', { count: product.inventory?.quantity }) || `Only ${product.inventory?.quantity} left in stock`}
+                            ⚠️ {t('menu.onlyXLeft', { count: product.inventory?.quantity ?? 0 }) || `Only ${product.inventory?.quantity} left in stock`}
                         </div>
                     )}
                     <div className="flex items-center gap-4">
