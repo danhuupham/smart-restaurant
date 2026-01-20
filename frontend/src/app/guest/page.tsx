@@ -8,7 +8,7 @@ import ProductModal from "@/components/ProductModal";
 import Header from "@/components/mobile/Header";
 import CategoryTabs from "@/components/mobile/CategoryTabs";
 import { useI18n } from "@/contexts/I18nContext";
-import { Search, Star } from "lucide-react";
+import { Search, Star, ChefHat } from "lucide-react";
 import { useMenuStore } from "@/store/useMenuStore";
 import Fuse from "fuse.js";
 
@@ -316,7 +316,8 @@ function GuestMenuContent() {
                 {/* Tags */}
                 <div className="flex flex-wrap gap-1 mt-1">
                   {product.isChefRecommended && (
-                    <span className="bg-orange-100 text-orange-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-orange-200">
+                    <span className="bg-orange-100 text-orange-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-orange-200 flex items-center gap-1">
+                      <ChefHat className="w-3 h-3" />
                       {t('menu.chefsChoice')}
                     </span>
                   )}

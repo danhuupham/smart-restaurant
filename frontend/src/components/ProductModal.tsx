@@ -6,7 +6,7 @@ import { Product, ModifierOption, ProductModifierGroup, Review } from "@/types"
 import { useCartStore } from "@/store/useCartStore";
 import { useMenuStore } from "@/store/useMenuStore";
 import { useI18n } from "@/contexts/I18nContext";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChefHat } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface ProductModalProps {
@@ -173,8 +173,8 @@ export default function ProductModal({ product, isOpen, onClose, onSelectProduct
                                         key={idx}
                                         onClick={() => setSelectedImageIndex(idx)}
                                         className={`w-2 h-2 rounded-full transition-all ${idx === selectedImageIndex
-                                                ? 'bg-white w-4 shadow-md'
-                                                : 'bg-white/50 hover:bg-white/70'
+                                            ? 'bg-white w-4 shadow-md'
+                                            : 'bg-white/50 hover:bg-white/70'
                                             }`}
                                         aria-label={`Go to image ${idx + 1}`}
                                     />
@@ -209,7 +209,8 @@ export default function ProductModal({ product, isOpen, onClose, onSelectProduct
                     {/* Status Tags */}
                     <div className="flex flex-wrap gap-2 mt-2">
                         {product.isChefRecommended && (
-                            <span className="bg-orange-100 text-orange-600 text-[10px] font-bold px-2.5 py-1 rounded-full border border-orange-200 uppercase tracking-wide">
+                            <span className="bg-orange-100 text-orange-600 text-[10px] font-bold px-2.5 py-1 rounded-full border border-orange-200 uppercase tracking-wide flex items-center gap-1">
+                                <ChefHat className="w-3 h-3" />
                                 {t('menu.chefsChoice')}
                             </span>
                         )}
