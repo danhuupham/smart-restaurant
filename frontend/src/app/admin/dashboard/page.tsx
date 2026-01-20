@@ -10,27 +10,35 @@ import {
     ArrowRight
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import useSWR from "swr";
+import { getSummary } from "@/lib/api/reports";
+import { tablesApi } from "@/lib/api/tables";
 
 export default function AdminDashboardPage() {
     const { t } = useI18n();
-    const [stats, setStats] = useState({
-        totalOrders: 0,
-        totalRevenue: 0,
-        activeTables: 0,
-        onlineStaff: 0
-    });
 
-    // Mock data fetching
-    useEffect(() => {
-        // In a real app, this would be an API call
-        setStats({
-            totalOrders: 156,
-            totalRevenue: 12500000,
-            activeTables: 8,
-            onlineStaff: 12
-        });
-    }, []);
+    // Fetch real data from API
+    const { data: summary, isLoading: summaryLoading } = useSWR(
+        '/reports/summary',
+        () => getSummary()
+    );
+
+    const { data: tables, isLoading: tablesLoading } = useSWR(
+        '/tables',
+        () => tablesApi.getAll()
+    );
+
+    // Calculate active tables (OCCUPIED status)
+    const activeTables = tables?.filter((t: any) => t.status === 'OCCUPIED').length || 0;
+
+    const stats = {
+        totalOrders: summary?.totalOrders || 0,
+        totalRevenue: summary?.totalRevenue || 0,
+        activeTables: activeTables,
+        totalTables: tables?.length || 0
+    };
+
+    const isLoading = summaryLoading || tablesLoading;
 
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('vi-VN', {
@@ -46,7 +54,7 @@ export default function AdminDashboardPage() {
             icon: ShoppingBag,
             color: "text-blue-600",
             bg: "bg-blue-100",
-            trend: "+12%"
+            subtitle: "Completed orders"
         },
         {
             title: "Revenue",
@@ -54,25 +62,33 @@ export default function AdminDashboardPage() {
             icon: DollarSign,
             color: "text-green-600",
             bg: "bg-green-100",
-            trend: "+8%"
+            subtitle: "Total revenue"
         },
         {
             title: "Active Tables",
-            value: stats.activeTables,
+            value: `${stats.activeTables}/${stats.totalTables}`,
             icon: Users,
             color: "text-orange-600",
             bg: "bg-orange-100",
-            trend: "Now"
+            subtitle: "Currently occupied"
         },
         {
-            title: "Online Staff",
-            value: stats.onlineStaff,
+            title: "Total Tables",
+            value: stats.totalTables,
             icon: Clock,
             color: "text-purple-600",
             bg: "bg-purple-100",
-            trend: "Now"
+            subtitle: "In restaurant"
         }
     ];
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="p-6 space-y-6">
@@ -97,11 +113,7 @@ export default function AdminDashboardPage() {
                             </div>
                         </div>
                         <div className="mt-4 flex items-center text-sm">
-                            <span className="text-green-600 font-medium flex items-center">
-                                <TrendingUp className="w-4 h-4 mr-1" />
-                                {stat.trend}
-                            </span>
-                            <span className="text-gray-400 ml-2">vs last period</span>
+                            <span className="text-gray-500">{stat.subtitle}</span>
                         </div>
                     </div>
                 ))}
