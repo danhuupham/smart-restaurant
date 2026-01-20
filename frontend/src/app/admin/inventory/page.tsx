@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import useSWR from "swr";
-import { inventoryApi, Inventory, InventoryStats } from "@/lib/api/inventory";
+import { inventoryApi } from "@/lib/api/inventory";
+import { Inventory, InventoryStats } from "@/types/inventory";
 import Button from "@/components/ui/Button";
 import * as Icons from "lucide-react";
 import InventoryFormModal from "./InventoryFormModal";
@@ -141,11 +142,10 @@ export default function InventoryManagementPage() {
       <div className="mb-4 flex items-center gap-4">
         <button
           onClick={() => setShowLowStockOnly(!showLowStockOnly)}
-          className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
-            showLowStockOnly
+          className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${showLowStockOnly
               ? "bg-yellow-600 text-white"
               : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
-          }`}
+            }`}
         >
           <Icons.AlertTriangle className="w-4 h-4 inline-block mr-2" />
           Chỉ hiển thị tồn kho thấp ({lowStockCount})
