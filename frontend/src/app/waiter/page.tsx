@@ -86,14 +86,18 @@ export default function WaiterPage() {
   useEffect(() => {
     // Socket.IO: Listen for order updates from Kitchen
     const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000';
+    let socket: any = null;
 
-    const socketModule = import('socket.io-client').then((mod) => {
-      const socket = mod.io(socketUrl, {
+    import('socket.io-client').then((mod) => {
+      socket = mod.io(socketUrl, {
         transports: ['websocket', 'polling'],
       });
 
-      // Join 'waiter' room
-      socket.emit('join', 'waiter');
+      // Đợi kết nối thành công trước khi join room
+      socket.on('connect', () => {
+        console.log('Waiter socket connected:', socket.id);
+        socket.emit('join', 'waiter');
+      });
 
       // Simple notification sound (ding)
       const playNotificationSound = () => {
@@ -107,15 +111,9 @@ export default function WaiterPage() {
 
       // Listen for new orders or order status changes
       socket.on('new_order', (order: any) => {
+        console.log('Waiter received new_order event');
         // Check if order belongs to one of the assigned tables
         const myTableIds = assignedTablesRef.current.map((t: Table) => t.id);
-        // If waiter has no assigned tables (or data not loaded), maybe show all? 
-        // Logic: restriction applies. If restricted, only show if match.
-        // Assuming backend filter logic: Waiter only gets their tables. Notification should match.
-        // If assignedTablesRef.current is empty, user might be new or not assigned. 
-        // For safety, if myTableIds has length > 0, we check. If 0, we might suppress everything or show everything?
-        // Given the requirement "waiter only receives orders from their tables", we should suppress if not matched.
-
         if (myTableIds.length > 0 && !myTableIds.includes(order.tableId)) {
           return;
         }
@@ -136,7 +134,9 @@ export default function WaiterPage() {
         fetchOrders();
       });
 
-      socket.on('order_updated_to_kitchen', () => {
+      socket.on('order_updated', (order: any) => {
+        // Khi bếp cập nhật trạng thái món, refresh danh sách đơn
+        console.log('Waiter received order_updated event:', order?.id);
         fetchOrders();
       });
 
@@ -163,15 +163,13 @@ export default function WaiterPage() {
           icon: '🏃',
         });
       });
-
-      return () => {
-        socket.disconnect();
-      };
     });
 
     // Cleanup
     return () => {
-      socketModule.then((cleanup) => cleanup && cleanup());
+      if (socket) {
+        socket.disconnect();
+      }
     };
   }, []);
 
