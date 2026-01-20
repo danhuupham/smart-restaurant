@@ -4,7 +4,8 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { inventoryApi, Inventory } from "@/lib/api/inventory";
+import { inventoryApi } from "@/lib/api/inventory";
+import { Inventory } from "@/types/inventory";
 import toast from "react-hot-toast";
 
 interface RestockModalProps {
